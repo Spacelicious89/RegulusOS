@@ -1,0 +1,127 @@
+import datetime
+from skyfield.api import load, Star, wgs84
+
+def is_prime(n):
+    if n <= 1: return False
+    if n <= 3: return True
+    if n % 2 == 0 or n % 3 == 0: return False
+    i = 5
+    while i * i <= n:
+        if n % i == 0 or n % (i + 2) == 0:
+            return False
+        i += 6
+    return True
+
+# 1. Load sterile NASA JPL ephemerides and timescale
+ts = load.timescale()
+eph = load('de421.bsp')
+earth, sun = eph['earth'], eph['sun']
+
+# 2. Hardware: Great Sphinx of Giza (WGS84 Standard)
+giza = earth + wgs84.latlon(29.9792, 31.1342, elevation_m=20.0)
+lon_hours = 31.1342 / 15.0  # Giza longitude converted to hours (for LST)
+
+# 3. Celestial body definitions (ICRS Coordinates)
+regulus = Star(ra_hours=(10, 8, 22.311), dec_degrees=(11, 58, 1.95))
+alnilam = Star(ra_hours=(5, 36, 12.81), dec_degrees=(-1, 12, 6.9))
+sgra = Star(ra_hours=(17, 45, 40.04), dec_degrees=(-29, 0, 28.1))
+
+# Mayan Calendar Long Count restart baseline
+start_date = datetime.date(2012, 12, 21)
+
+print("=====================================================================")
+print("        [PROJECT REGULUS] - MASTER COMPUTATION ENGINE v1.1           ")
+print("=====================================================================")
+
+# Analyzing 5-morning window: September 20, 21, 22, 23, 24, 2026
+days = [20, 21, 22, 23, 24]
+
+for day in days:
+    current_date = datetime.date(2026, 9, day)
+    days_delta = (current_date - start_date).days
+    prime_status = "PRIME NUMBER" if is_prime(days_delta) else "COMPOSITE NUMBER"
+    
+    print(f"\n📅 MORNING SCAN: September {day}, 2026")
+    print(f"  ↳ Time vector from 2012-12-21: {days_delta} days -> Status: {prime_status}")
+    print("---------------------------------------------------------------------")
+    
+    # Scanning morning window from 03:00 to 04:00 UTC (06:00 to 07:00 Local Egypt Time UTC+3)
+    # Second-by-second high-resolution scan to eliminate rounding errors
+    t_start = datetime.datetime(2026, 9, day, 3, 0, 0)
+    
+    time_nelm = None
+    time_lock = None
+    
+    reg_az_at_nelm = None
+    reg_alt_at_nelm = None
+    sun_alt_at_lock = None
+    reg_alt_at_lock = None
+    
+    # 3600 seconds simulation loop
+    for s in range(3600):
+        dt = t_start + datetime.timedelta(seconds=s)
+        t_sec = ts.utc(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second + dt.microsecond/1e6)
+        
+        # Calculate apparent alt/az WITH FORCED DESERT REFRACTION (21°C, 1011 mbar)
+        sun_pos = giza.at(t_sec).observe(sun).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)
+        reg_pos = giza.at(t_sec).observe(regulus).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)
+        
+        sun_alt = sun_pos[0].degrees
+        reg_az = reg_pos[1].degrees
+        reg_alt = reg_pos[0].degrees
+        
+        # Detect exact second of Solar photometrical disappearance threshold (-2.72°)
+        if time_nelm is None and sun_alt >= -2.720000:
+            time_nelm = dt + datetime.timedelta(hours=3) # Convert to Local Egypt Time (UTC+3)
+            reg_az_at_nelm = reg_az
+            reg_alt_at_nelm = reg_alt
+            
+        # Detect exact second of Regulus cutting the surgical gaze of the Sphinx (Azimuth 90.000000°)
+        if time_lock is None and reg_az >= 90.000000:
+            time_lock = dt + datetime.timedelta(hours=3) # Convert to Local Egypt Time (UTC+3)
+            sun_alt_at_lock = sun_alt
+            reg_alt_at_lock = reg_alt
+            
+            # Compute background cosmic matrix at the exact second of alignment (Pillar 3)
+            gmst = t_sec.gmst
+            lst_hours = (gmst + lon_hours) % 24.0
+            
+            lst_h = int(lst_hours)
+            lst_m = int((lst_hours - lst_h) * 60)
+            lst_s = ((lst_hours - lst_h) * 60 - lst_m) * 60
+            
+            # Orion Belt (Alnilam) position WITH REFRACTION
+            aln_pos = giza.at(t_sec).observe(alnilam).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)
+            aln_alt, aln_az = aln_pos[0].degrees, aln_pos[1].degrees
+            ha_aln_deg = (lst_hours - 5.6035583) * 15.0
+            if ha_aln_deg > 180: ha_aln_deg -= 360
+            if ha_aln_deg < -180: ha_aln_deg += 360
+            
+            # Galactic Center (Sgr A*) position WITH REFRACTION
+            sgra_pos = giza.at(t_sec).observe(sgra).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)
+            sgra_alt, sgra_az = sgra_pos[0].degrees, sgra_pos[1].degrees
+
+    # Output clean, unrounded data from the simulation matrix
+    if time_nelm:
+        print(f" 👁️ PHOTOMETRIC DISAPPEARANCE THRESHOLD (Sun Altitude = -2.72°):")
+        print(f"    Local Time (UTC+3)       : {time_nelm.strftime('%H:%M:%S')}")
+        print(f"    Regulus Azimuth          : {reg_az_at_nelm:.6f}°")
+        print(f"    Regulus Altitude (Alt)   : {reg_alt_at_nelm:.6f}°")
+    else:
+        print(" 👁️ PHOTOMETRIC THRESHOLD: No intersection detected in the scan window.")
+        
+    if time_lock:
+        print(f" 🏹 GEOMETRY ALIGNMENT LOCK-ON (Regulus Azimuth = 90.00°):")
+        print(f"    Local Time (UTC+3)       : {time_lock.strftime('%H:%M:%S')}")
+        print(f"    Sun Altitude (Alt)       : {sun_alt_at_lock:.6f}°")
+        print(f"    Regulus Altitude (Alt)   : {reg_alt_at_lock:.6f}°")
+        print(f" 🌌 BACKGROUND ARCHITECTURE AT THE EXACT SECOND OF LOCK-ON:")
+        print(f"    Local Sidereal Time (LST): {lst_h:02d}:{lst_m:02d}:{lst_s:05.2f}")
+        print(f"    Orion's Belt Azimuth     : {aln_az:.6f}°")
+        print(f"    Orion's Belt Altitude    : {aln_alt:.6f}°")
+        print(f"    Orion's Belt Hour Ang(HA): {ha_aln_deg:.6f}°")
+        print(f"    Galactic Center Azimuth  : {sgra_az:.6f}°")
+        print(f"    Galactic Center Altitude : {sgra_alt:.6f}°")
+    else:
+        print(" 🏹 GEOMETRY ALIGNMENT LOCK-ON: No Azimuth 90° intersection detected.")
+    print("=====================================================================")
