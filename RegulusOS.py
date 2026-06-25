@@ -34,16 +34,34 @@ sgra = Star(ra_hours=(17, 45, 40.04), dec_degrees=(-29, 0, 28.1))
 start_date = datetime.date(2012, 12, 21)
 
 # Constants
-# --- NAKED EYE LIMITING MAGNITUDE (NELM) CALCULUS ---
-# Regulus has a visual magnitude of +1.35 to +1.40.
-# Empirical astronomical models for atmospheric extinction and dawn glare
-# indicate that a +1.4 mag star becomes washed out to the naked eye 
-# when the Sun reaches approx -2.72° altitude.
 NELM_SUN_ALT = -2.72
 REGULUS_EAST_AZ = 90.0
 
+
+# ====================== PROJECT INTRODUCTION ======================
 print("=====================================================================")
-print("         [PROJECT REGULUS] - MASTER COMPUTATION ENGINE v1.5          ")
+print("         [PROJECT REGULUS] - MASTER COMPUTATION ENGINE v1.6")
+print("=====================================================================")
+print("Purpose: Calculate precise moments when Regulus aligns exactly with")
+print("         the Great Sphinx of Giza facing True East (azimuth 90°)")
+print("         in the pre-dawn sky, and evaluate naked-eye visibility.")
+print("")
+print("Key Parameters:")
+print("• Location       : Great Sphinx of Giza (29.97526°N, 31.13758°E)")
+print("• Target Star    : Regulus (α Leonis), visual magnitude +1.35~1.40")
+print("• Visibility     : Sun altitude < -2.72° (empirical NELM threshold)")
+print("• Alignment      : Regulus azimuth = exactly 90.0000° (True East)")
+print("• Reference      : Mayan Long Count restart - Dec 21, 2012")
+print("=====================================================================")
+
+
+# ====================== GLOSSARY ======================
+print("\n📖 GLOSSARY")
+print("• NELM Threshold   : Sun at -2.72° — limit where Regulus becomes")
+print("                     invisible to the naked eye due to dawn glare")
+print("• True East        : Azimuth exactly 90.0000° (geographic, not magnetic)")
+print("• Visible Window   : Time between Regulus reaching 90° and being washed out")
+print("• LST              : Local Sidereal Time")
 print("=====================================================================")
 
 
@@ -72,7 +90,6 @@ for day in days:
         dt = t_start + datetime.timedelta(seconds=s)
         t_sec = ts.utc(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
         
-        # Positions
         sun_alt = giza.at(t_sec).observe(sun).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
         reg_pos = giza.at(t_sec).observe(regulus).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)
         reg_az = reg_pos[1].degrees
@@ -90,7 +107,7 @@ for day in days:
             sun_alt_at_lock = sun_alt
             reg_alt_at_lock = reg_alt
 
-            # Capture skymap data at lock moment
+            # Capture skymap data
             gmst = t_sec.gmst
             lst_hours = (gmst + lon_hours) % 24.0
             lst_h = int(lst_hours)
@@ -177,16 +194,10 @@ for day in oct_days:
         
         if reg_az >= REGULUS_EAST_AZ:
             sun_alt = giza.at(t_sec).observe(sun).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
-            
-            if sun_alt < -18.0:
-                status = "🌙 NIGHTTIME (Pitch black - Not 'just before dawn')"
-            else:
-                status = "✅ VISIBLE"
-                
+            status = "🌙 NIGHTTIME (Pitch black)" if sun_alt < -18.0 else "✅ VISIBLE"
             print(f" 🎯 October {day}: Regulus 90° at {(dt + datetime.timedelta(hours=3)).strftime('%H:%M:%S')} Local | Sun alt: {sun_alt:.4f}° -> {status}")
             found = True
             break
-            
     if not found:
         print(f" ❌ October {day}: No 90° alignment found in scanned window.")
 print("=====================================================================")
@@ -196,9 +207,9 @@ print("=====================================================================")
 print("\n🚨 RUNNING DEBUNKING MODULE FOR AUGUST 20-24, 2026")
 aug_days = [20, 21, 22, 23, 24]
 for day in aug_days:
-    t_start = datetime.datetime(2026, 8, day, 1, 0, 0)      # Started earlier for safety
+    t_start = datetime.datetime(2026, 8, day, 1, 0, 0)      # Started earlier
     found = False
-    for s in range(21600):                                  # 6 hours window
+    for s in range(21600):
         dt = t_start + datetime.timedelta(seconds=s)
         t_sec = ts.utc(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
         reg_az = giza.at(t_sec).observe(regulus).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[1].degrees
@@ -209,19 +220,26 @@ for day in aug_days:
             print(f" 🎯 August {day}: Regulus 90° at {(dt + datetime.timedelta(hours=3)).strftime('%H:%M:%S')} Local | Sun alt: {sun_alt:.4f}° -> {visibility}")
             found = True
             break
-            
     if not found:
         print(f" ❌ August {day}: No 90° alignment found in scanned window.")
 print("=====================================================================")
 
 
 # ====================== FINAL SUMMARY ======================
-print("\n" + "="*80)
-print("                  PROJECT REGULUS - SCAN COMPLETE v1.5")
-print("="*80)
-print("• Best visibility window     : September 24, 2026 (~17+ minutes)")
-print("• November alignment         : Deep night (Sun ~ -64°)")
-print("• October 20-24              : Full astronomical night")
-print("• August 20-24               : Mostly washed out by daylight")
-print("\nConclusion: The most promising naked-eye alignment occurs in late September.")
-print("="*80)
+print("\n" + "="*85)
+print("                  PROJECT REGULUS - SCAN COMPLETE v1.6")
+print("="*85)
+print("SUMMARY OF FINDINGS:")
+print("• September 20, 2026 : -23 seconds (already invisible)")
+print("• September 21, 2026 : +4m 6s visible")
+print("• September 24, 2026 : +17m 32s visible   ← BEST WINDOW")
+print("")
+print("Other periods:")
+print("• August   : Mostly daylight → Regulus washed out")
+print("• October  : Excellent night sky, no special Mayan connection")
+print("• November : Alignment at midnight (Sun ~ -64°)")
+print("")
+print("Conclusion: The narrowest and most interesting naked-eye visibility")
+print("            window for the Regulus-Sphinx alignment occurs in")
+print("            late September 2026.")
+print("="*85)
