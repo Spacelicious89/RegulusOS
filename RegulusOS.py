@@ -168,7 +168,7 @@ print("=====================================================================")
 print("\n🚨 RUNNING DEBUNKING MODULE FOR OCTOBER 20-24, 2026")
 oct_days = [20, 21, 22, 23, 24]
 for day in oct_days:
-    # Starting at midnight (00:00:00) and scanning an 8-hour window
+    # Initialize scan at midnight (00:00:00) with an 8-hour duration
     t_start = datetime.datetime(2026, 10, day, 0, 0, 0)
     found = False
     for s in range(28800):
@@ -193,6 +193,7 @@ for day in oct_days:
         print(f" ❌ October {day}: No 90° alignment found in scanned window.")
 print("=====================================================================")
 
+
 # ====================== AUGUST DEBUNK MODULE ======================
 print("\n🚨 RUNNING DEBUNKING MODULE FOR AUGUST 20-24, 2026")
 aug_days = [20, 21, 22, 23, 24]
@@ -206,11 +207,13 @@ for day in aug_days:
         
         if reg_az >= REGULUS_EAST_AZ:
             sun_alt = giza.at(t_sec).observe(sun).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
-            # Check if the Sun is too high (above -2.72°)
+            
+            # Check if the Sun's altitude exceeds the -2.72° threshold
             visibility = "❌ INVISIBLE (Washed out by daylight)" if sun_alt >= NELM_SUN_ALT else "✅ VISIBLE"
             print(f" 🎯 August {day}: Regulus 90° at {(dt + datetime.timedelta(hours=3)).strftime('%H:%M:%S')} Local | Sun alt: {sun_alt:.4f}° -> {visibility}")
             found = True
             break
+            
     if not found:
         print(f" ❌ August {day}: No 90° alignment found in scanned window.")
 print("=====================================================================")
