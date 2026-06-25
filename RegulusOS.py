@@ -198,17 +198,15 @@ print("=====================================================================")
 print("\n🚨 RUNNING DEBUNKING MODULE FOR AUGUST 20-24, 2026")
 aug_days = [20, 21, 22, 23, 24]
 for day in aug_days:
-    t_start = datetime.datetime(2026, 8, day, 3, 0, 0)
+    t_start = datetime.datetime(2026, 8, day, 1, 0, 0)   # zaczynamy wcześniej
     found = False
-    for s in range(14400):
+    for s in range(21600):                               # 6 godzin
         dt = t_start + datetime.timedelta(seconds=s)
         t_sec = ts.utc(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
         reg_az = giza.at(t_sec).observe(regulus).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[1].degrees
         
         if reg_az >= REGULUS_EAST_AZ:
             sun_alt = giza.at(t_sec).observe(sun).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
-            
-            # Check if the Sun's altitude exceeds the -2.72° threshold
             visibility = "❌ INVISIBLE (Washed out by daylight)" if sun_alt >= NELM_SUN_ALT else "✅ VISIBLE"
             print(f" 🎯 August {day}: Regulus 90° at {(dt + datetime.timedelta(hours=3)).strftime('%H:%M:%S')} Local | Sun alt: {sun_alt:.4f}° -> {visibility}")
             found = True
