@@ -153,32 +153,46 @@ for day in days:
 
 
 # ====================== NOVEMBER DEBUNK MODULE ======================
-print("\n🔍 RUNNING DEBUNKING MODULE FOR NOVEMBER 22, 2026")
-t_nov_start = datetime.datetime(2026, 11, 21, 23, 0, 0)
+print("\n🔍 RUNNING DEBUNKING MODULE FOR NOVEMBER 20-24, 2026")
+print("   (Checking potential Regulus-Mars overlap near eastern horizon)")
 
-time_reg_90 = None
-time_mars_90 = None
-sun_alt_at_reg = None
-sun_alt_at_mars = None
+nov_days = [20, 21, 22, 23, 24]
 
-for s in range(14400):
-    dt = t_nov_start + datetime.timedelta(seconds=s)
-    t_sec = ts.utc(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
-    
-    reg_az = giza.at(t_sec).observe(regulus).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[1].degrees
-    mars_az = giza.at(t_sec).observe(mars).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[1].degrees
-    
-    if time_reg_90 is None and reg_az >= REGULUS_EAST_AZ:
-        time_reg_90 = dt + datetime.timedelta(hours=2)
-        sun_alt_at_reg = giza.at(t_sec).observe(sun).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
-    
-    if time_mars_90 is None and mars_az >= REGULUS_EAST_AZ:
-        time_mars_90 = dt + datetime.timedelta(hours=2)
-        sun_alt_at_mars = giza.at(t_sec).observe(sun).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
+for day in nov_days:
+    t_start = datetime.datetime(2026, 11, day, 22, 0, 0)   
+    time_reg_90 = None
+    time_mars_90 = None
+    sun_alt_reg = None
+    sun_alt_mars = None
+    reg_alt = None
+    mars_alt = None
 
-print(f" 🎯 Regulus reaches 90° at: {time_reg_90.strftime('%H:%M:%S')} Local  |  Sun altitude: {sun_alt_at_reg:.4f}°")
-print(f" 🎯 Mars reaches 90° at    : {time_mars_90.strftime('%H:%M:%S')} Local  |  Sun altitude: {sun_alt_at_mars:.4f}°")
-print("=====================================================================")
+    for s in range(18000):   
+        dt = t_start + datetime.timedelta(seconds=s)
+        t_sec = ts.utc(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
+        
+        reg_az = giza.at(t_sec).observe(regulus).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[1].degrees
+        mars_az = giza.at(t_sec).observe(mars).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[1].degrees
+        
+        if time_reg_90 is None and reg_az >= REGULUS_EAST_AZ:
+            time_reg_90 = dt + datetime.timedelta(hours=2)
+            sun_alt_reg = giza.at(t_sec).observe(sun).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
+            reg_alt = giza.at(t_sec).observe(regulus).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
+        
+        if time_mars_90 is None and mars_az >= REGULUS_EAST_AZ:
+            time_mars_90 = dt + datetime.timedelta(hours=2)
+            sun_alt_mars = giza.at(t_sec).observe(sun).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
+            mars_alt = giza.at(t_sec).observe(mars).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
+
+    print(f"\n📅 November {day}, 2026")
+    print(f"   Regulus → 90° at: {time_reg_90.strftime('%H:%M:%S')} Local | Alt: {reg_alt:+.2f}° | Sun: {sun_alt_reg:+.2f}°")
+    print(f"   Mars    → 90° at: {time_mars_90.strftime('%H:%M:%S')} Local | Alt: {mars_alt:+.2f}° | Sun: {sun_alt_mars:+.2f}°")
+    
+    if time_reg_90 and time_mars_90:
+        delta_min = (time_mars_90 - time_reg_90).total_seconds() / 60
+        print(f"   Difference: {delta_min:.1f} minutes apart")
+
+print("\n" + "="*70)
 
 
 # ====================== OCTOBER DEBUNK MODULE ======================
