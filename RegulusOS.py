@@ -164,10 +164,11 @@ print(f" 🎯 Mars reaches 90° at    : {time_mars_90.strftime('%H:%M:%S')} Loca
 print("=====================================================================")
 
 
-# ====================== OCTOBER EMERGENCY SCAN ======================
-print("\n🚨 RUNNING EMERGENCY SCAN FOR OCTOBER 2026")
-oct_days = [6, 7, 8]
+# ====================== OCTOBER DEBUNK MODULE ======================
+print("\n🚨 RUNNING DEBUNKING MODULE FOR OCTOBER 20-24, 2026")
+oct_days = [20, 21, 22, 23, 24]
 for day in oct_days:
+    # Starting at midnight (00:00:00) and scanning an 8-hour window
     t_start = datetime.datetime(2026, 10, day, 0, 0, 0)
     found = False
     for s in range(28800):
@@ -177,9 +178,39 @@ for day in oct_days:
         
         if reg_az >= REGULUS_EAST_AZ:
             sun_alt = giza.at(t_sec).observe(sun).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
-            print(f" 🎯 October {day}: Regulus 90° at {(dt + datetime.timedelta(hours=3)).strftime('%H:%M:%S')} | Sun alt: {sun_alt:.4f}°")
+            
+            # In October, the Sun is deep below the horizon. Altitude below -18° defines absolute astronomical night.
+            if sun_alt < -18.0:
+                status = "🌙 NIGHTTIME (Pitch black - Not 'just before dawn')"
+            else:
+                status = "✅ VISIBLE"
+                
+            print(f" 🎯 October {day}: Regulus 90° at {(dt + datetime.timedelta(hours=3)).strftime('%H:%M:%S')} Local | Sun alt: {sun_alt:.4f}° -> {status}")
+            found = True
+            break
+            
+    if not found:
+        print(f" ❌ October {day}: No 90° alignment found in scanned window.")
+print("=====================================================================")
+
+# ====================== AUGUST DEBUNK MODULE ======================
+print("\n🚨 RUNNING DEBUNKING MODULE FOR AUGUST 20-24, 2026")
+aug_days = [20, 21, 22, 23, 24]
+for day in aug_days:
+    t_start = datetime.datetime(2026, 8, day, 3, 0, 0)
+    found = False
+    for s in range(14400):
+        dt = t_start + datetime.timedelta(seconds=s)
+        t_sec = ts.utc(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
+        reg_az = giza.at(t_sec).observe(regulus).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[1].degrees
+        
+        if reg_az >= REGULUS_EAST_AZ:
+            sun_alt = giza.at(t_sec).observe(sun).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
+            # Check if the Sun is too high (above -2.72°)
+            visibility = "❌ INVISIBLE (Washed out by daylight)" if sun_alt >= NELM_SUN_ALT else "✅ VISIBLE"
+            print(f" 🎯 August {day}: Regulus 90° at {(dt + datetime.timedelta(hours=3)).strftime('%H:%M:%S')} Local | Sun alt: {sun_alt:.4f}° -> {visibility}")
             found = True
             break
     if not found:
-        print(f" ❌ October {day}: No 90° alignment found in scanned window.")
+        print(f" ❌ August {day}: No 90° alignment found in scanned window.")
 print("=====================================================================")
