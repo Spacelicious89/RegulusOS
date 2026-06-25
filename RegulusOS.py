@@ -62,9 +62,14 @@ for day in days:
             time_nelm = dt + datetime.timedelta(hours=3) # UTC+3
             reg_az_at_nelm, reg_alt_at_nelm = reg_az, reg_alt
             
-        if time_lock is None and reg_az >= 90.000000:
-            time_lock = dt + datetime.timedelta(hours=3) # UTC+3
-            sun_alt_at_lock, reg_alt_at_lock = sun_alt, reg_alt
+        # --- NAKED EYE LIMITING MAGNITUDE (NELM) CALCULUS ---
+        # Regulus has a visual magnitude of +1.35 to +1.40.
+        # Empirical astronomical models for atmospheric extinction and dawn glare
+        # indicate that a +1.4 mag star becomes washed out to the naked eye 
+        # when the Sun reaches approx -2.72° altitude (late civil twilight).
+        if time_nelm is None and sun_alt >= -2.720000:
+            time_nelm = dt + datetime.timedelta(hours=3) # UTC+3
+            reg_az_at_nelm, reg_alt_at_nelm = reg_az, reg_alt
             
             gmst = t_sec.gmst
             lst_hours = (gmst + lon_hours) % 24.0
