@@ -80,15 +80,26 @@ for day in days:
             venus_pos = giza.at(t_sec).observe(venus).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)
 
     if time_nelm:
-        print(f" 👁️ PHOTOMETRIC THRESHOLD (Sun = -2.72°): Disappearance at {time_nelm.strftime('%H:%M:%S')} Local | Regulus Az: {reg_az_at_nelm:.4f}°")
+        print(f" 🌅 DAWN VISIBILITY LIMIT (Star washed out by sunrise): Fades at {time_nelm.strftime('%H:%M:%S')} Local | Regulus Az: {reg_az_at_nelm:.4f}°")
     if time_lock:
-        print(f" 🏹 GEOMETRY LOCK-ON (Regulus Azimuth = 90.00°):")
+        print(f" 🏹 SPHINX 90° ALIGNMENT (Regulus hits exact True East):")
         print(f"    Local Time (UTC+3)       : {time_lock.strftime('%H:%M:%S')}")
-        print(f"    Sun / Regulus Altitudes  : Sun: {sun_alt_at_lock:.4f}° | Regulus: {reg_alt_at_lock:.4f}°")
-        print(f" 🌌 BACKGROUND MATRIX AT THE EXACT SECOND OF LOCK-ON IN THIS WINDOW:")
+        print(f"    Sun / Regulus Altitudes  : Sun: {sun_alt_at_lock:.4f}° | Regulus: +{reg_alt_at_lock:.4f}°")
+        
+        # Calculates exactly how long the star is visible before fading
+        if time_nelm:
+            delta_seconds = (time_nelm - time_lock).total_seconds()
+            minutes = int(abs(delta_seconds) // 60)
+            seconds = int(abs(delta_seconds) % 60)
+            if delta_seconds > 0:
+                print(f"    Naked-Eye Status         : ✅ VISIBLE: Star locks onto 90° and remains visible for {minutes}m {seconds}s before fading.")
+            else:
+                print(f"    Naked-Eye Status         : ❌ INVISIBLE: Star faded {minutes}m {seconds}s BEFORE hitting 90° (Daylight).")
+
+        print(f" 🌌 GLOBAL SKYMAP AT THIS EXACT SECOND (What else is happening):")
         print(f"    Local Sidereal Time (LST): {lst_h:02d}:{lst_m:02d}:{lst_s:05.2f}")
-        print(f"    Orion's Belt (Alnilam)   : Az: {aln_pos[1].degrees:.4f}° | Alt: {aln_pos[0].degrees:.4f}° | HA: {ha_aln_deg:.4f}°")
-        print(f"    Galactic Center (Sgr A*) : Az: {sgra_pos[1].degrees:.4f}° | Alt: {sgra_pos[0].degrees:.4f}°")
+        print(f"    Orion's Belt (Alnilam)   : Az: {aln_pos[1].degrees:.4f}° (Culminating South) | Alt: +{aln_pos[0].degrees:.4f}°")
+        print(f"    Galactic Center (Sgr A*) : Alt: {sgra_pos[0].degrees:.4f}° (Directly beneath feet)")
         print(f"    Planets Positions        : Mars Az: {mars_pos[1].degrees:.4f}° | Venus Az: {venus_pos[1].degrees:.4f}°")
     print("=====================================================================")
 
