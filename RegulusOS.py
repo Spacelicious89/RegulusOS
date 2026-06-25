@@ -38,7 +38,7 @@ start_date = datetime.date(2012, 12, 21)
 # Regulus has a visual magnitude of +1.35 to +1.40.
 # Empirical astronomical models for atmospheric extinction and dawn glare
 # indicate that a +1.4 mag star becomes washed out to the naked eye 
-# when the Sun reaches approx -2.72° altitude (late civil twilight).
+# when the Sun reaches approx -2.72° altitude.
 NELM_SUN_ALT = -2.72
 REGULUS_EAST_AZ = 90.0
 
