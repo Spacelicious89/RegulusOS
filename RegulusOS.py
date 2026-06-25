@@ -138,22 +138,32 @@ for day in days:
 # ====================== NOVEMBER DEBUNK MODULE ======================
 print("\n🔍 RUNNING DEBUNKING MODULE FOR NOVEMBER 22, 2026")
 t_nov_start = datetime.datetime(2026, 11, 21, 23, 0, 0)
-time_reg_90 = time_mars_90 = None
 
-for s in range(14400):
+time_reg_90 = None
+time_mars_90 = None
+sun_alt_at_reg = None
+sun_alt_at_mars = None
+
+for s in range(14400):  # 4 godziny
     dt = t_nov_start + datetime.timedelta(seconds=s)
     t_sec = ts.utc(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
     
+    # Obliczamy azymuty
     reg_az = giza.at(t_sec).observe(regulus).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[1].degrees
     mars_az = giza.at(t_sec).observe(mars).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[1].degrees
     
+    # Regulus 90°
     if time_reg_90 is None and reg_az >= REGULUS_EAST_AZ:
         time_reg_90 = dt + datetime.timedelta(hours=2)
+        sun_alt_at_reg = giza.at(t_sec).observe(sun).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
+    
+    # Mars 90°
     if time_mars_90 is None and mars_az >= REGULUS_EAST_AZ:
         time_mars_90 = dt + datetime.timedelta(hours=2)
+        sun_alt_at_mars = giza.at(t_sec).observe(sun).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
 
-print(f" 🎯 Regulus reaches 90° at: {time_reg_90.strftime('%H:%M:%S')} Local")
-print(f" 🎯 Mars reaches 90° at    : {time_mars_90.strftime('%H:%M:%S')} Local")
+print(f" 🎯 Regulus reaches 90° at: {time_reg_90.strftime('%H:%M:%S')} Local  |  Sun altitude: {sun_alt_at_reg:.4f}°")
+print(f" 🎯 Mars reaches 90° at    : {time_mars_90.strftime('%H:%M:%S')} Local  |  Sun altitude: {sun_alt_at_mars:.4f}°")
 print("=====================================================================")
 
 
