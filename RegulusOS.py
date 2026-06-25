@@ -43,7 +43,7 @@ NELM_SUN_ALT = -2.72
 REGULUS_EAST_AZ = 90.0
 
 print("=====================================================================")
-print("         [PROJECT REGULUS] - MASTER COMPUTATION ENGINE v1.4          ")
+print("         [PROJECT REGULUS] - MASTER COMPUTATION ENGINE v1.5          ")
 print("=====================================================================")
 
 
@@ -168,7 +168,6 @@ print("=====================================================================")
 print("\n🚨 RUNNING DEBUNKING MODULE FOR OCTOBER 20-24, 2026")
 oct_days = [20, 21, 22, 23, 24]
 for day in oct_days:
-    # Initialize scan at midnight (00:00:00) with an 8-hour duration
     t_start = datetime.datetime(2026, 10, day, 0, 0, 0)
     found = False
     for s in range(28800):
@@ -179,7 +178,6 @@ for day in oct_days:
         if reg_az >= REGULUS_EAST_AZ:
             sun_alt = giza.at(t_sec).observe(sun).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
             
-            # In October, the Sun is deep below the horizon. Altitude below -18° defines absolute astronomical night.
             if sun_alt < -18.0:
                 status = "🌙 NIGHTTIME (Pitch black - Not 'just before dawn')"
             else:
@@ -198,9 +196,9 @@ print("=====================================================================")
 print("\n🚨 RUNNING DEBUNKING MODULE FOR AUGUST 20-24, 2026")
 aug_days = [20, 21, 22, 23, 24]
 for day in aug_days:
-    t_start = datetime.datetime(2026, 8, day, 1, 0, 0)   # zaczynamy wcześniej
+    t_start = datetime.datetime(2026, 8, day, 1, 0, 0)      # Started earlier for safety
     found = False
-    for s in range(21600):                               # 6 godzin
+    for s in range(21600):                                  # 6 hours window
         dt = t_start + datetime.timedelta(seconds=s)
         t_sec = ts.utc(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
         reg_az = giza.at(t_sec).observe(regulus).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[1].degrees
@@ -215,3 +213,15 @@ for day in aug_days:
     if not found:
         print(f" ❌ August {day}: No 90° alignment found in scanned window.")
 print("=====================================================================")
+
+
+# ====================== FINAL SUMMARY ======================
+print("\n" + "="*80)
+print("                  PROJECT REGULUS - SCAN COMPLETE v1.5")
+print("="*80)
+print("• Best visibility window     : September 24, 2026 (~17+ minutes)")
+print("• November alignment         : Deep night (Sun ~ -64°)")
+print("• October 20-24              : Full astronomical night")
+print("• August 20-24               : Mostly washed out by daylight")
+print("\nConclusion: The most promising naked-eye alignment occurs in late September.")
+print("="*80)
