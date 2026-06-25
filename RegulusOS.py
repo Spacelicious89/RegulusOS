@@ -30,7 +30,7 @@ sgra = Star(ra_hours=(17, 45, 40.04), dec_degrees=(-29, 0, 28.1))
 start_date = datetime.date(2012, 12, 21)
 
 print("=====================================================================")
-print("        [PROJECT REGULUS] - MASTER COMPUTATION ENGINE v1.2           ")
+print("         [PROJECT REGULUS] - MASTER COMPUTATION ENGINE v1.3          ")
 print("=====================================================================")
 
 # --- CORE MODULE: SEPTEMBER PRE-DAWN WINDOW ---
@@ -83,7 +83,7 @@ for day in days:
         print(f" 🌅 DAWN VISIBILITY LIMIT (Star washed out by sunrise): Fades at {time_nelm.strftime('%H:%M:%S')} Local | Regulus Az: {reg_az_at_nelm:.4f}°")
     if time_lock:
         print(f" 🏹 SPHINX 90° ALIGNMENT (Regulus hits exact True East):")
-        print(f"    Local Time (UTC+3)       : {time_lock.strftime('%H:%M:%S')}")
+        print(f"    Local Time (UTC+3)      : {time_lock.strftime('%H:%M:%S')}")
         print(f"    Sun / Regulus Altitudes  : Sun: {sun_alt_at_lock:.4f}° | Regulus: +{reg_alt_at_lock:.4f}°")
         
         # Calculates exactly how long the star is visible before fading
@@ -104,7 +104,7 @@ for day in days:
     print("=====================================================================")
 
 # --- AUDIT MODULE: DEBUNKING THE NOVEMBER MYTH ---
-print("\n🔍 RUNNING DEBUNKING MODULE FOR NOVEMBER 22, 2026 (UTC+2 Winter Time)")
+print("\n🔍 RUNNING DEBUNKING MODULE FOR NOVEMBER 22, 2026")
 t_nov_start = datetime.datetime(2026, 11, 21, 23, 0, 0)
 time_reg_90, time_mars_90 = None, None
 
@@ -120,5 +120,30 @@ for s in range(14400):
         time_mars_90 = dt + datetime.timedelta(hours=2)
 
 print(f" 🎯 Regulus hits Az 90.0000° at: {time_reg_90.strftime('%H:%M:%S')} Local (Midnight)")
-print(f" 🎯 Mars hits Az 90.0000° at   : {time_mars_90.strftime('%H:%M:%S')} Local (+12 min later)")
+print(f" 🎯 Mars hits Az 90.0000° at    : {time_mars_90.strftime('%H:%M:%S')} Local (+12 min later)")
+print("=====================================================================")
+
+# --- EMERGENCY MODULE: SCANNING OCTOBER 2026 (WITH SUN POSITION) ---
+print("\n🚨 RUNNING EMERGENCY SCAN FOR OCTOBER 2026 (SUN POSITION CHECK)")
+oct_days = [6, 7, 8]
+for day in oct_days:
+    t_start = datetime.datetime(2026, 10, day, 0, 0, 0)
+    found_90 = False
+    
+    for s in range(28800): 
+        dt = t_start + datetime.timedelta(seconds=s)
+        t_sec = ts.utc(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
+        
+        reg_pos = giza.at(t_sec).observe(regulus).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)
+        reg_az = reg_pos[1].degrees
+        
+        if reg_az >= 90.000000:
+            sun_pos = giza.at(t_sec).observe(sun).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)
+            sun_alt = sun_pos[0].degrees
+            print(f" 🎯 October {day}, 2026: Regulus hits Az 90.00° at {(dt + datetime.timedelta(hours=3)).strftime('%H:%M:%S')} Local | SUN ALT: {sun_alt:.4f}°")
+            found_90 = True
+            break
+            
+    if not found_90:
+        print(f" ❌ October {day}, 2026: Regulus does NOT hit Az 90.00° during the scanned window.")
 print("=====================================================================")
