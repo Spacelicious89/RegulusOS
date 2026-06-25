@@ -18,7 +18,7 @@ eph = load('de421.bsp')
 earth, sun, mars, venus = eph['earth'], eph['sun'], eph['mars'], eph['venus']
 
 # 2. Hardware: Great Sphinx of Giza (WGS84 Standard)
-giza = earth + wgs84.latlon(29.9792, 31.1342, elevation_m=20.0)
+giza = earth + wgs84.latlon(29.9753, 31.1376, elevation_m=20.0)
 lon_hours = 31.1342 / 15.0  # Giza longitude converted to hours (for LST)
 
 # 3. Celestial body definitions (ICRS Coordinates)
