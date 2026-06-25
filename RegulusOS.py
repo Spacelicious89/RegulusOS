@@ -144,20 +144,17 @@ time_mars_90 = None
 sun_alt_at_reg = None
 sun_alt_at_mars = None
 
-for s in range(14400):  # 4 godziny
+for s in range(14400):
     dt = t_nov_start + datetime.timedelta(seconds=s)
     t_sec = ts.utc(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
     
-    # Obliczamy azymuty
     reg_az = giza.at(t_sec).observe(regulus).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[1].degrees
     mars_az = giza.at(t_sec).observe(mars).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[1].degrees
     
-    # Regulus 90°
     if time_reg_90 is None and reg_az >= REGULUS_EAST_AZ:
         time_reg_90 = dt + datetime.timedelta(hours=2)
         sun_alt_at_reg = giza.at(t_sec).observe(sun).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
     
-    # Mars 90°
     if time_mars_90 is None and mars_az >= REGULUS_EAST_AZ:
         time_mars_90 = dt + datetime.timedelta(hours=2)
         sun_alt_at_mars = giza.at(t_sec).observe(sun).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
