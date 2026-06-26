@@ -66,6 +66,10 @@ print("=====================================================================")
 
 
 # ====================== CORE MODULE: SEPTEMBER 2026 ======================
+print("\n" + "="*70)
+print("                  CORE ANALYSIS - SEPTEMBER 2026")
+print("="*70)
+
 days = [20, 21, 22, 23, 24]
 
 for day in days:
@@ -185,23 +189,23 @@ for day in nov_days:
             mars_alt = giza.at(t_sec).observe(mars).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
 
     print(f"\n📅 November {day}, 2026")
-    print(f"   Regulus → 90° at: {time_reg_90.strftime('%H:%M:%S')} | Alt: {reg_alt:+.2f}° | Sun: {sun_alt_reg:+.2f}°")
-    print(f"   Mars    → 90° at: {time_mars_90.strftime('%H:%M:%S')} | Alt: {mars_alt:+.2f}° | Sun: {sun_alt_mars:+.2f}°")
+    print(f"   Regulus → 90° at: {time_reg_90.strftime('%H:%M:%S')} Local | Alt: {reg_alt:+.2f}° | Sun: {sun_alt_reg:+.2f}°")
+    print(f"   Mars    → 90° at: {time_mars_90.strftime('%H:%M:%S')} Local | Alt: {mars_alt:+.2f}° | Sun: {sun_alt_mars:+.2f}°")
     
     if time_reg_90 and time_mars_90:
         delta_min = (time_mars_90 - time_reg_90).total_seconds() / 60
+        note = ""
         if delta_min < 15:
-            overlap_note = "   ← CLOSE OVERLAP"
+            note = "   ← CLOSE OVERLAP"
         elif delta_min < 30:
-            overlap_note = "   ← Moderate separation"
-        else:
-            overlap_note = ""
-        print(f"   Difference: {delta_min:.1f} minutes apart{overlap_note}")
+            note = "   ← Moderate separation"
+        print(f"   Difference: {delta_min:.1f} minutes apart{note}")
+
 print("\n" + "="*70)
 
 
 # ====================== OCTOBER MODULE ======================
-print("\n🚨 RUNNING MODULE FOR OCTOBER 20-24, 2026")
+print("\n🚨 RUNNING OCTOBER ANALYSIS 20-24, 2026")
 oct_days = [20, 21, 22, 23, 24]
 for day in oct_days:
     t_start = datetime.datetime(2026, 10, day, 0, 0, 0)
@@ -223,10 +227,10 @@ print("=====================================================================")
 
 
 # ====================== AUGUST MODULE ======================
-print("\n🚨 RUNNING MODULE FOR AUGUST 20-24, 2026")
+print("\n🚨 RUNNING AUGUST ANALYSIS 20-24, 2026")
 aug_days = [20, 21, 22, 23, 24]
 for day in aug_days:
-    t_start = datetime.datetime(2026, 8, day, 1, 0, 0)      # Started earlier
+    t_start = datetime.datetime(2026, 8, day, 1, 0, 0)
     found = False
     for s in range(21600):
         dt = t_start + datetime.timedelta(seconds=s)
