@@ -152,8 +152,8 @@ for day in days:
     print("=====================================================================")
 
 
-# ====================== NOVEMBER DEBUNK MODULE ======================
-print("\n🔍 RUNNING DEBUNKING MODULE FOR NOVEMBER 20-24, 2026")
+# ====================== NOVEMBER MODULE ======================
+print("\n🔍 RUNNING MODULE FOR NOVEMBER 20-24, 2026")
 print("   (Checking potential Regulus-Mars overlap near eastern horizon)")
 
 nov_days = [20, 21, 22, 23, 24]
@@ -195,8 +195,8 @@ for day in nov_days:
 print("\n" + "="*70)
 
 
-# ====================== OCTOBER DEBUNK MODULE ======================
-print("\n🚨 RUNNING DEBUNKING MODULE FOR OCTOBER 20-24, 2026")
+# ====================== OCTOBER MODULE ======================
+print("\n🚨 RUNNING MODULE FOR OCTOBER 20-24, 2026")
 oct_days = [20, 21, 22, 23, 24]
 for day in oct_days:
     t_start = datetime.datetime(2026, 10, day, 0, 0, 0)
@@ -217,8 +217,8 @@ for day in oct_days:
 print("=====================================================================")
 
 
-# ====================== AUGUST DEBUNK MODULE ======================
-print("\n🚨 RUNNING DEBUNKING MODULE FOR AUGUST 20-24, 2026")
+# ====================== AUGUST MODULE ======================
+print("\n🚨 RUNNING MODULE FOR AUGUST 20-24, 2026")
 aug_days = [20, 21, 22, 23, 24]
 for day in aug_days:
     t_start = datetime.datetime(2026, 8, day, 1, 0, 0)      # Started earlier
