@@ -153,8 +153,8 @@ for day in days:
 
 
 # ====================== NOVEMBER MODULE ======================
-print("\n🔍 RUNNING MODULE FOR NOVEMBER 20-24, 2026")
-print("   (Checking potential Regulus-Mars overlap near eastern horizon)")
+print("\n🔍 RUNNING NOVEMBER ANALYSIS 20-24, 2026")
+print("   (Checking Regulus-Mars proximity on eastern horizon)")
 
 nov_days = [20, 21, 22, 23, 24]
 
@@ -185,13 +185,18 @@ for day in nov_days:
             mars_alt = giza.at(t_sec).observe(mars).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
 
     print(f"\n📅 November {day}, 2026")
-    print(f"   Regulus → 90° at: {time_reg_90.strftime('%H:%M:%S')} Local | Alt: {reg_alt:+.2f}° | Sun: {sun_alt_reg:+.2f}°")
-    print(f"   Mars    → 90° at: {time_mars_90.strftime('%H:%M:%S')} Local | Alt: {mars_alt:+.2f}° | Sun: {sun_alt_mars:+.2f}°")
+    print(f"   Regulus → 90° at: {time_reg_90.strftime('%H:%M:%S')} | Alt: {reg_alt:+.2f}° | Sun: {sun_alt_reg:+.2f}°")
+    print(f"   Mars    → 90° at: {time_mars_90.strftime('%H:%M:%S')} | Alt: {mars_alt:+.2f}° | Sun: {sun_alt_mars:+.2f}°")
     
     if time_reg_90 and time_mars_90:
         delta_min = (time_mars_90 - time_reg_90).total_seconds() / 60
-        print(f"   Difference: {delta_min:.1f} minutes apart")
-
+        if delta_min < 15:
+            overlap_note = "   ← CLOSE OVERLAP"
+        elif delta_min < 30:
+            overlap_note = "   ← Moderate separation"
+        else:
+            overlap_note = ""
+        print(f"   Difference: {delta_min:.1f} minutes apart{overlap_note}")
 print("\n" + "="*70)
 
 
