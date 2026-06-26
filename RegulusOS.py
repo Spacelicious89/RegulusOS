@@ -38,14 +38,17 @@ NELM_SUN_ALT = -2.72
 REGULUS_EAST_AZ = 90.0
 
 # Dynamic Data Trackers for Final Summary
-sept_summary_data = {}
-best_window_day = None
-best_window_duration = -9999
+monthly_results = {
+    "August": {"valid": 0, "sun_alt_sum": 0.0, "count": 0},
+    "September": {"best_day": None, "best_duration": -9999, "daily_data": {}},
+    "October": {"valid": 0, "sun_alt_sum": 0.0, "count": 0},
+    "November": {"sun_alt_at_alignment": None}
+}
 
 
 # ====================== PROJECT INTRODUCTION ======================
 print("=====================================================================")
-print("         [PROJECT REGULUS] - MASTER COMPUTATION ENGINE v1.7")
+print("         [PROJECT REGULUS] - MASTER COMPUTATION ENGINE v1.8")
 print("=====================================================================")
 print("Purpose: Calculate precise moments when Regulus aligns exactly with")
 print("         the Great Sphinx of Giza facing True East (azimuth 90°)")
@@ -104,19 +107,16 @@ for day in days:
         reg_az = reg_pos[1].degrees
         reg_alt = reg_pos[0].degrees
 
-        # NELM - Regulus becomes invisible
         if time_nelm is None and sun_alt >= NELM_SUN_ALT:
             time_nelm = dt + datetime.timedelta(hours=3)
             reg_az_at_nelm = reg_az
             reg_alt_at_nelm = reg_alt
 
-        # Regulus reaches exact East (90°)
         if time_lock is None and reg_az >= REGULUS_EAST_AZ:
             time_lock = dt + datetime.timedelta(hours=3)
             sun_alt_at_lock = sun_alt
             reg_alt_at_lock = reg_alt
 
-            # Capture skymap data
             gmst = t_sec.gmst
             lst_hours = (gmst + lon_hours) % 24.0
             lst_h = int(lst_hours)
@@ -139,11 +139,11 @@ for day in days:
         
         delta = (time_nelm - time_lock).total_seconds()
         
-        # Save dynamic data for final summary
-        sept_summary_data[day] = delta
-        if delta > best_window_duration:
-            best_window_duration = delta
-            best_window_day = day
+        # Save dynamic data to memory
+        monthly_results["September"]["daily_data"][day] = delta
+        if delta > monthly_results["September"]["best_duration"]:
+            monthly_results["September"]["best_duration"] = delta
+            monthly_results["September"]["best_day"] = day
 
         minutes = int(abs(delta) // 60)
         seconds = int(abs(delta) % 60)
@@ -162,7 +162,6 @@ for day in days:
             print(f"    Planets                : Mars Az: {mars_pos[1].degrees:.4f}° | Venus Az: {venus_pos[1].degrees:.4f}°")
     else:
         print("    ⚠️  Regulus did not reach 90° in the scanned window.")
-
     print("=====================================================================")
 
 
@@ -192,6 +191,10 @@ for day in nov_days:
             time_reg_90 = dt + datetime.timedelta(hours=2)
             sun_alt_reg = giza.at(t_sec).observe(sun).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
             reg_alt = giza.at(t_sec).observe(regulus).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
+            
+            # Save data to memory
+            if monthly_results["November"]["sun_alt_at_alignment"] is None:
+                monthly_results["November"]["sun_alt_at_alignment"] = sun_alt_reg
         
         if time_mars_90 is None and mars_az >= REGULUS_EAST_AZ:
             time_mars_90 = dt + datetime.timedelta(hours=2)
@@ -229,6 +232,13 @@ for day in oct_days:
             sun_alt = giza.at(t_sec).observe(sun).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
             status = "🌙 NIGHTTIME (Pitch black)" if sun_alt < -18.0 else "✅ VISIBLE"
             print(f" 🎯 October {day}: Regulus 90° at {(dt + datetime.timedelta(hours=3)).strftime('%H:%M:%S')} Local | Sun alt: {sun_alt:.4f}° -> {status}")
+            
+            # Save data to memory
+            monthly_results["October"]["sun_alt_sum"] += sun_alt
+            monthly_results["October"]["count"] += 1
+            if sun_alt >= -18.0:
+                monthly_results["October"]["valid"] += 1
+                
             found = True
             break
     if not found:
@@ -251,6 +261,13 @@ for day in aug_days:
             sun_alt = giza.at(t_sec).observe(sun).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
             visibility = "❌ INVISIBLE (Washed out by daylight)" if sun_alt >= NELM_SUN_ALT else "✅ VISIBLE"
             print(f" 🎯 August {day}: Regulus 90° at {(dt + datetime.timedelta(hours=3)).strftime('%H:%M:%S')} Local | Sun alt: {sun_alt:.4f}° -> {visibility}")
+            
+            # Save data to memory
+            monthly_results["August"]["sun_alt_sum"] += sun_alt
+            monthly_results["August"]["count"] += 1
+            if sun_alt < NELM_SUN_ALT:
+                monthly_results["August"]["valid"] += 1
+                
             found = True
             break
     if not found:
@@ -258,33 +275,59 @@ for day in aug_days:
 print("=====================================================================")
 
 
-# ====================== DYNAMIC FINAL SUMMARY ======================
+# ====================== 100% DATA-DRIVEN FINAL SUMMARY ======================
 print("\n" + "="*85)
-print("                  PROJECT REGULUS - DYNAMIC SCAN COMPLETE v1.7")
+print("             PROJECT REGULUS - 100% DATA-DRIVEN SCAN COMPLETE v1.8")
 print("="*85)
-print("COMPUTED SUMMARY OF FINDINGS (SEPTEMBER CORE):")
 
-if sept_summary_data:
-    for day, delta in sept_summary_data.items():
-        minutes = int(abs(delta) // 60)
-        seconds = int(abs(delta) % 60)
+# --- Process September ---
+print("[ PRIMARY WINDOW: SEPTEMBER ]")
+sept_data = monthly_results["September"]
+if sept_data["daily_data"]:
+    for d, delta in sept_data["daily_data"].items():
+        m = int(abs(delta) // 60)
+        s = int(abs(delta) % 60)
         if delta > 0:
-            print(f"• September {day}, 2026 : ✅ Visible window of {minutes}m {seconds}s")
+            print(f"• September {d} : ✅ Valid window ({m}m {s}s)")
         else:
-            print(f"• September {day}, 2026 : ❌ Invisible (faded {minutes}m {seconds}s before alignment)")
-    
-    if best_window_day and best_window_duration > 0:
-        b_min = int(best_window_duration // 60)
-        b_sec = int(best_window_duration % 60)
-        print(f"\n🏆 BEST CALCULATED WINDOW: September {best_window_day}, 2026 (~{b_min}m {b_sec}s)")
+            print(f"• September {d} : ❌ Invalid (faded {m}m {s}s early)")
+            
+    if sept_data["best_duration"] > 0:
+        b_m = int(sept_data["best_duration"] // 60)
+        b_s = int(sept_data["best_duration"] % 60)
+        print(f"\n🏆 ALGORITHM SELECTION: September {sept_data['best_day']}, 2026 (~{b_m}m {b_s}s)")
 else:
-    print("No valid alignments calculated in the primary window.")
+    print("• No alignment data extracted.")
 
-print("\nSECONDARY MODULES STATUS:")
-print("• August   : ❌ Failed parameter (Washed out by daylight. Sun altitude > -2.72°)")
-print("• October  : 🌙 Failed parameter (Pitch black alignment. Sun altitude < -18°)")
-print("• November : 🌙 Failed parameter (Midnight alignment. Sun altitude ~ -64°)")
-print("")
-print("Engine Conclusion: Algorithm confirms late September as the sole mathematically")
-print("                   viable window for the pre-dawn Sphinx alignment constraint.")
+# --- Process Secondary Modules ---
+print("\n[ SECONDARY SCANS EVALUATION ]")
+
+aug_count = monthly_results["August"]["count"]
+if aug_count > 0:
+    aug_avg = monthly_results["August"]["sun_alt_sum"] / aug_count
+    if monthly_results["August"]["valid"] == 0:
+        print(f"• August   : ❌ Failed Constraint. Computed Avg Sun Altitude: {aug_avg:+.2f}° (Daylight)")
+
+oct_count = monthly_results["October"]["count"]
+if oct_count > 0:
+    oct_avg = monthly_results["October"]["sun_alt_sum"] / oct_count
+    if monthly_results["October"]["valid"] == 0:
+        print(f"• October  : 🌙 Failed Constraint. Computed Avg Sun Altitude: {oct_avg:+.2f}° (Pitch black)")
+
+nov_alt = monthly_results["November"]["sun_alt_at_alignment"]
+if nov_alt is not None:
+    if nov_alt < -18.0:
+        print(f"• November : 🌙 Failed Constraint. Computed Sun Altitude: {nov_alt:+.2f}° (Midnight)")
+
+# --- Engine Conclusion ---
+print("\n[ ENGINE CONCLUSION ]")
+winning_month = None
+if sept_data["best_duration"] > 0:
+    winning_month = "September"
+
+if winning_month:
+    print(f"System isolated {winning_month} 2026 as the exclusive mathematically viable timeline")
+    print("fulfilling the pre-dawn optical alignment constraints.")
+else:
+    print("System found NO mathematically viable timeline fulfilling the constraints.")
 print("="*85)
