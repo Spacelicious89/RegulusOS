@@ -1,40 +1,40 @@
-# 🔭 Project Regulus: Master Computation Engine
+# 🦁 Project Regulus - Master Computation Engine v1.9
+**The Atmospheric Extinction ("Red Dawn") Update**
 
-Project Regulus is a Python-based, high-precision astronomical computation engine built to verify geometric and optical alignment hypotheses regarding the Great Sphinx of Giza. 
+## 🎯 Project Overview
+Project Regulus is a data-driven Python computation engine utilizing `skyfield` (JPL DE421 ephemeris) to isolate the precise mathematical moments when the star **Regulus (α Leonis)** aligns perfectly with the **Great Sphinx of Giza** (Azimuth 90.0000° - True East) in the pre-dawn sky. 
 
-Instead of relying on approximations or static star charts, this engine performs a brute-force, second-by-second scan of orbital mechanics. It utilizes the `Skyfield` library, the WGS84 topocentric model, and official NASA JPL `de421.bsp` planetary ephemerides to calculate extreme-precision celestial events.
+Version 1.9 represents a major paradigm shift. The engine no longer simply searches for the "longest visible window." Instead, it acts as a dynamic archeoastronomical tool, optimizing for **Maximum Atmospheric Extinction (The Red Shift Score)**.
 
----
-
-## 📜 The Context: Testing the Prophecy
-This engine was specifically built to mathematically test the "Chris Bledsoe Prophecy" regarding the star Regulus. The claim suggests a specific global shift will occur when Regulus perfectly aligns with the exact gaze of the Sphinx (Azimuth 90° / True East) *just before dawn*. 
-
-Due to the spread of misinformation and the use of basic phone apps that ignore atmospheric physics, many impossible dates (August, October, November) have been circulated. This script acts as a mathematical auditor to separate physics from fiction.
-
----
-
-## 🎯 Key Findings (The TL;DR)
-Running the engine reveals hard astronomical truths about the 2026 timeline:
-* ❌ **November/October are Busted:** Alignments during these months occur in the dead of night (e.g., Sun is 64° below the horizon in November). They do not fit the "just before dawn" parameter.
-* ❌ **August is Busted:** In early August, Regulus rises completely washed out by the Sun's daylight glare. It is invisible to the naked eye.
-* ✅ **The True Window (Late September):** The actual mathematical window where Regulus hits exactly 90° and remains visible right before dawn occurs around **September 21-24**. 
-* ⏳ **The Precession Clock:** Due to the slow axial wobble of the Earth, Regulus is drifting south. In roughly 2,500 years, it will completely fall out of the Sphinx's 90° window and won't return for 13,000 years, acting as a massive countdown clock.
+## ⚙️ What's New in v1.9?
+* **Red Shift Scoring System:** The algorithm evaluates every scanned date against an ideal Sun altitude target (`IDEAL_SUN_ALT = -3.5°`).
+* **Nautical Dawn Sweet Spot:** It finds the exact compromise between optical visibility (Sun must be `< -2.72°` NELM) and maximum atmospheric density to filter the star's spectrum.
+* **Global Dynamic Evaluation:** All modules (August, September, October, November) dump their alignment data into a global memory pool. The engine independently ranks the data and mathematically selects the ultimate timeline without human bias.
+* **Foolproof User Input Zones:** Added clearly marked `👇 USER INPUT ZONE 👇` blocks so researchers can easily plug in custom dates to test other hypotheses.
 
 ---
 
-## ⚙️ Core Mechanics & Features
-* **Stationary Reference Point:** Defines the Great Sphinx as an optical instrument located at precise coordinates (29.97526° N, 31.13758° E) with a 20m elevation, targeting exactly Azimuth 90.0000°.
-* **Photometric Extinction Model (NELM):** Calculates the exact second of visual extinction (contrast threshold) for a +1.4 mag star. It computes when the Sun reaches approx `-2.72°` altitude during civil dawn, incorporating desert atmospheric refraction (21°C, 1011 hPa).
-* **Deep Time Verification:** Maps time vectors from the Mayan Long Count reset (Dec 21, 2012) to identify prime-number day intervals intersecting with alignment dates.
-* **Background Celestial Architecture:** Simultaneously calculates the transit of Orion's Belt, Venus, Mars, and the Galactic Center (Sgr A*) to map the complete astronomical background during the primary alignment.
+## 🔭 The Physics: Why 24.5° Altitude? (Addressing the "Red" Regulus)
+A critical feature of this engine is its adherence to strict spherical geometry. 
 
-**Data-Driven. Zero Approximations. Pure Physics.**
+Because of the latitude of Giza (~30° N) and the declination of Regulus (+11° 58'), **Regulus does not rise at True East (90°)**. It rises at roughly 76° (East-Northeast). As the Earth rotates, the star climbs diagonally. By the time it crosses the exact 90.0000° line of sight of the Sphinx, it is geometrically locked to an altitude of **~24.5°**.
+
+**The Airmass Factor:**
+At 0°–5° altitude, a star's light passes through massive amounts of atmosphere, scattering blue light and turning red (Rayleigh scattering). At 24.5°, the airmass is significantly thinner. 
+
+Therefore, Regulus at 90° azimuth will *not* be blood red. It will be an intense, warm white/yellow. **The v1.9 Extinction Score does not pretend to break physics.** Instead, it isolates the *maximum possible atmospheric warming effect* before the sky gets too bright, placing this brilliantly bright star against the deep purple/orange gradient of the nautical dawn.
 
 ---
 
-## 🚀 How to Run the Engine
+## 🏆 Key Findings for 2026
+Running the engine across the late 2026 timeline yields the following mathematically proven events:
 
-**1. Install Dependencies:**
-You will need Python 3 installed. Install the required `skyfield` library:
-```bash
-pip install skyfield
+1. **The Ultimate "Red Dawn" Window:** `September 21, 2026`. The engine isolates this date as the absolute mathematical peak. Regulus hits True East while the Sun is at exactly **-3.6031°** (just 0.1° deviation from our perfect target).
+2. **The Pitch Black Cutoff:** `October 6, 2026`. The engine proves that by early October, the Sun drops below -18.0° at the moment of alignment. The sky enters deep astronomical night (Pitch Black), destroying the dawn contrast effect.
+3. **The Mars Conjunction:** `November 25-27, 2026`. The engine successfully tracks Mars crossing the Sphinx's line of sight just 14.9 minutes after Regulus, resulting in a spectacular planetary conjunction on the eastern horizon.
+
+## 🚀 How to Run Locally
+1. Ensure you have Python installed.
+2. Install dependencies: `pip install skyfield`
+3. Run the script: `python regulus_engine.py`
+4. *Optional:* Modify the arrays inside the `USER INPUT ZONE` blocks to test your own dates!
