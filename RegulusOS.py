@@ -336,7 +336,7 @@ print("\n" + "="*70)
 # Iterates through all tracked dates and scores them against the Red Shift target
 # =====================================================================
 print("\n" + "="*85)
-print("         PROJECT REGULUS - 100% DATA-DRIVEN SCAN COMPLETE v2.0")
+print("         PROJECT REGULUS - 100% DATA-DRIVEN SCAN COMPLETE v1.9")
 print("="*85)
 print("\n[ GLOBAL DYNAMIC EVALUATION ]")
 print(f"Evaluating all scanned dates against ideal Red Shift atmospheric target: {IDEAL_SUN_ALT}°")
