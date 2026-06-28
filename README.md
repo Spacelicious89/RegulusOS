@@ -44,7 +44,7 @@ The easiest way to verify these calculations without installing anything on your
    ```python
    !pip install skyfield                                              
 3. Click **+ Code** to add a new cell below it.
-4. Copy the entire `Project Regulus v1.9` Python code and paste it into this new cell.
+4. Copy the entire `RegulusOS.py` Python code and paste it into this new cell.
 5. Click the **Play** button on the new cell. The engine will download the JPL ephemeris file and print the global evaluation logs instantly!
 6. *Optional:* Find the `👇 USER INPUT ZONE 👇` blocks in the code, change the numbers in the brackets (e.g., `days = [15, 16]`), and hit **Play** again to test your own theories!
 
