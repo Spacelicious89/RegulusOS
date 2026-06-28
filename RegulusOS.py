@@ -87,7 +87,7 @@ print("="*70)
 
 # 👇 ==================== USER INPUT ZONE ==================== 👇
 # Add or remove days in August you want to scan. Format: [day1, day2]
-aug_days = [20, 21]
+aug_days = [10, 20]
 # 👆 ========================================================= 👆
 
 for day in aug_days:
@@ -135,7 +135,7 @@ print("="*70)
 # 👇 ==================== USER INPUT ZONE ==================== 👇
 # Edit dates below to expand the September scan. 
 # These dates are closest to the -3.5° Red Shift atmospheric target.
-days = [20, 21, 22]
+days = [20, 21, 22, 23]
 # 👆 ========================================================= 👆
 
 for day in days:
@@ -238,7 +238,7 @@ print("Tracking the closure of the dawn window (transition to Pitch Black)")
 
 # 👇 ==================== USER INPUT ZONE ==================== 👇
 # These dates identify the exact day the sky transitions into deep night
-oct_days = [4, 5, 6, 7]
+oct_days = [4, 5, 6]
 # 👆 ========================================================= 👆
 
 for day in oct_days:
@@ -281,7 +281,7 @@ print("Checking Regulus-Mars proximity and exact conjunction on eastern horizon"
 
 # 👇 ==================== USER INPUT ZONE ==================== 👇
 # Track the Mars flyby. Nov 26 is the closest point of approach.
-nov_days = [25, 26, 27]
+nov_days = [2, 3, 4, 5, 6]
 # 👆 ========================================================= 👆
 
 for day in nov_days:
