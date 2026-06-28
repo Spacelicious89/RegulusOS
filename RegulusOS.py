@@ -1,4 +1,5 @@
 import datetime
+from zoneinfo import ZoneInfo
 from skyfield.api import load, Star, wgs84
 
 # =====================================================================
@@ -27,6 +28,9 @@ earth = eph['earth']
 sun = eph['sun']
 mars = eph['mars']
 venus = eph['venus']
+
+# Dynamic Timezone Resolver - Automatically handles DST for any year/month in Egypt
+EGYPT_TZ = ZoneInfo("Africa/Cairo")
 
 # Set exact coordinates for the Great Sphinx of Giza
 giza = earth + wgs84.latlon(29.97526, 31.13758, elevation_m=20.0)
@@ -69,6 +73,7 @@ print("• Target Star    : Regulus (α Leonis), visual magnitude +1.35~1.40")
 print("• Visibility     : Sun altitude < -2.72° (empirical NELM threshold)")
 print("• Alignment      : Regulus azimuth = exactly 90.0000° (True East)")
 print("• Extinction     : Ideal Sun altitude ~ -3.5° (Red Dawn effect)")
+print("• Timezone       : Africa/Cairo (Dynamic Auto-DST Resolution)")
 print("=====================================================================")
 
 
@@ -103,7 +108,10 @@ for day in aug_days:
             
             is_vis = (-18.0 <= sun_alt < NELM_SUN_ALT)
             visibility = "❌ INVISIBLE (Washed out by daylight)" if sun_alt >= NELM_SUN_ALT else "✅ VISIBLE"
-            print(f" 🎯 August {day}: Regulus 90° at {(dt + datetime.timedelta(hours=3)).strftime('%H:%M:%S')} Local | Sun alt: {sun_alt:.4f}° -> {visibility}")
+            
+            # Dynamic Timezone resolution for print output
+            local_time = t_sec.utc_datetime().astimezone(EGYPT_TZ).strftime('%H:%M:%S')
+            print(f" 🎯 August {day}: Regulus 90° at {local_time} Local | Sun alt: {sun_alt:.4f}° -> {visibility}")
             
             global_candidates.append({
                 "month": "August", "day": day, "sun_alt": sun_alt, "is_visible": is_vis, "delta": None
@@ -159,13 +167,13 @@ for day in days:
 
         # Marker 1: When does the sky get too bright? (Sun hits -2.72)
         if time_nelm is None and sun_alt >= NELM_SUN_ALT:
-            time_nelm = dt + datetime.timedelta(hours=3)
+            time_nelm = t_sec.utc_datetime().astimezone(EGYPT_TZ)
             reg_az_at_nelm = reg_az
             reg_alt_at_nelm = reg_alt
 
         # Marker 2: When does Regulus hit exactly 90.000° azimuth?
         if time_lock is None and reg_az >= REGULUS_EAST_AZ:
-            time_lock = dt + datetime.timedelta(hours=3)
+            time_lock = t_sec.utc_datetime().astimezone(EGYPT_TZ)
             sun_alt_at_lock = sun_alt
             reg_alt_at_lock = reg_alt
 
@@ -188,7 +196,7 @@ for day in days:
     if time_nelm and time_lock:
         print(f" 🌅 DAWN VISIBILITY LIMIT: Regulus fades at {time_nelm.strftime('%H:%M:%S')} Local | Az: {reg_az_at_nelm:.4f}°")
         print(f" 🏹 SPHINX 90° ALIGNMENT (Regulus hits True East):")
-        print(f"    Local Time (UTC+3)     : {time_lock.strftime('%H:%M:%S')}")
+        print(f"    Local Time (Egypt)     : {time_lock.strftime('%H:%M:%S')}")
         print(f"    Sun / Regulus Altitude : Sun: {sun_alt_at_lock:.4f}° | Regulus: +{reg_alt_at_lock:.4f}°")
         
         # Calculate how long the star remains visible after aligning
@@ -247,7 +255,9 @@ for day in oct_days:
             is_vis = (-18.0 <= sun_alt < NELM_SUN_ALT)
             # Flag as Pitch Black if sun is lower than -18.0
             status = "🌙 NIGHTTIME (Pitch black, no red shift)" if sun_alt < -18.0 else "✅ VISIBLE"
-            print(f" 🎯 October {day}: Regulus 90° at {(dt + datetime.timedelta(hours=3)).strftime('%H:%M:%S')} Local | Sun alt: {sun_alt:.4f}° -> {status}")
+            
+            local_time = t_sec.utc_datetime().astimezone(EGYPT_TZ).strftime('%H:%M:%S')
+            print(f" 🎯 October {day}: Regulus 90° at {local_time} Local | Sun alt: {sun_alt:.4f}° -> {status}")
             
             global_candidates.append({
                 "month": "October", "day": day, "sun_alt": sun_alt, "is_visible": is_vis, "delta": None
@@ -288,7 +298,7 @@ for day in nov_days:
         
         # Track when Regulus hits True East
         if time_reg_90 is None and reg_az >= REGULUS_EAST_AZ:
-            time_reg_90 = dt + datetime.timedelta(hours=2)
+            time_reg_90 = t_sec.utc_datetime().astimezone(EGYPT_TZ)
             sun_alt_reg = giza.at(t_sec).observe(sun).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
             reg_alt = giza.at(t_sec).observe(regulus).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
             
@@ -299,7 +309,7 @@ for day in nov_days:
         
         # Track when Mars hits True East
         if time_mars_90 is None and mars_az >= REGULUS_EAST_AZ:
-            time_mars_90 = dt + datetime.timedelta(hours=2)
+            time_mars_90 = t_sec.utc_datetime().astimezone(EGYPT_TZ)
             sun_alt_mars = giza.at(t_sec).observe(sun).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
             mars_alt = giza.at(t_sec).observe(mars).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
 
@@ -326,7 +336,7 @@ print("\n" + "="*70)
 # Iterates through all tracked dates and scores them against the Red Shift target
 # =====================================================================
 print("\n" + "="*85)
-print("         PROJECT REGULUS - 100% DATA-DRIVEN SCAN COMPLETE v1.9")
+print("         PROJECT REGULUS - 100% DATA-DRIVEN SCAN COMPLETE v2.0")
 print("="*85)
 print("\n[ GLOBAL DYNAMIC EVALUATION ]")
 print(f"Evaluating all scanned dates against ideal Red Shift atmospheric target: {IDEAL_SUN_ALT}°")
@@ -350,7 +360,7 @@ for c in global_candidates:
             s = int(abs(c['delta']) % 60)
             print(f"• {date_str:<20} : ✅ Valid window ({m}m {s}s) | Sun alt: {alt:+.4f}° | Extinction Score: {score:+.4f}")
         else:
-            print(f"• {date_str:<20} : ✅ Valid (Visible)       | Sun alt: {alt:+.4f}° | Extinction Score: {score:+.4f}")
+            print(f"• {date_str:<20} : ✅ Valid (Visible)        | Sun alt: {alt:+.4f}° | Extinction Score: {score:+.4f}")
             
         # Update the best match if this date scores higher
         if score > best_score:
@@ -361,7 +371,7 @@ for c in global_candidates:
             reason = "Washed out by daylight"
         else:
             reason = "Pitch black / No red shift"
-        print(f"• {date_str:<20} : ❌ Invalid ({reason}) | Sun alt: {alt:+.4f}°")
+        print(f"• {date_str:<20} : ❌ Invalid ({reason}) | Sun alt: {alt:+.4f}° | Extinction Score: {score:+.4f}")
 
 
 # --- Output the ultimate mathematical conclusion ---
