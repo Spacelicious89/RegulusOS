@@ -44,13 +44,18 @@ sgra = Star(ra_hours=(17, 45, 40.04), dec_degrees=(-29, 0, 28.1))
 # Baseline date for day-counting logic
 start_date = datetime.date(2012, 12, 21)
 
-# --- CRITICAL OPTICAL THRESHOLDS ---
+# 👇 ==================== CRITICAL OPTICAL THRESHOLDS ==================== 👇
+# Modify these values to test different atmospheric or optical hypotheses.
+# • NELM_SUN_ALT : Change to a higher value (e.g., -2.0) if you believe the star remains visible in brighter twilight.
+# • IDEAL_SUN_ALT: Change this to alter the "perfect" target for the Red Dawn effect scoring.
+# • REGULUS_EAST_AZ: Leave at 90.0 unless you are testing a different Sphinx alignment theory.
 # NELM (Naked-Eye Limiting Magnitude): Sun must be below this to see Regulus
 NELM_SUN_ALT = -2.72 
 # The exact azimuth the Sphinx faces (True East)
 REGULUS_EAST_AZ = 90.0
 # The perfect Sun altitude for maximum atmospheric Red-Shift (extinction effect)
 IDEAL_SUN_ALT = -3.5  
+# 👆 ========================================================= 👆
 
 # Memory array to hold all valid dates across all scanned months
 global_candidates = []
