@@ -280,7 +280,7 @@ print("="*70)
 print("Checking Regulus-Mars proximity and exact conjunction on eastern horizon")
 
 # 👇 ==================== USER INPUT ZONE ==================== 👇
-# Track the Mars flyby. Nov 26 is the closest point of approach.
+# Track the Mars flyby. Nov 3-4 is the closest point of approach (0.4 min difference).
 nov_days = [2, 3, 4, 5, 6]
 # 👆 ========================================================= 👆
 
