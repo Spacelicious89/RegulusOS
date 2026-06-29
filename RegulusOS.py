@@ -17,377 +17,249 @@ def is_prime(n):
         i += 6
     return True
 
+# =====================================================================
+# GLOBAL USER INPUT ZONE & CONFIGURATION
+# =====================================================================
+# 👇 ================================================================ 👇
+# CHANGE THE TARGET YEAR HERE. The entire engine will adjust to this value.
+TARGET_YEAR = 2026
+
+# MASTER SCAN CONFIGURATION
+# Format: Month: {"days": [list of days], "start_h": hour, "scan_h": duration_in_hours}
+TARGET_SCANS = {
+    8:  {"days": [10, 20],             "start_h": 1,  "scan_h": 9},  # Summer Washout Test
+    9:  {"days": [20, 21, 22, 23, 24], "start_h": 3,  "scan_h": 4},  # Red Shift Target Window
+    10: {"days": [4, 5, 6],            "start_h": 0,  "scan_h": 8},  # Pitch Black Test
+    11: {"days": [2, 3, 4, 5, 6],      "start_h": 22, "scan_h": 5}   # Mars Conjunction Window
+}
+
+# CRITICAL OPTICAL THRESHOLDS
+NELM_SUN_ALT = -2.72       # Sun altitude for Naked-Eye Limiting Magnitude (Sky too bright)
+REGULUS_EAST_AZ = 90.0     # The exact azimuth the Sphinx faces (True East)
+IDEAL_SUN_ALT = -3.5       # The perfect Sun altitude for maximum 'Red Dawn' extinction effect
+# 👆 ================================================================ 👆
 
 # =====================================================================
-# SYSTEM CONFIGURATION & EPHEMERIS SETUP
+# EPHEMERIS & TARGET SETUP
 # =====================================================================
-# Load JPL ephemeris data for highly accurate planetary positions
 ts = load.timescale()
 eph = load('de421.bsp')
-earth = eph['earth']
-sun = eph['sun']
-mars = eph['mars']
-venus = eph['venus']
+earth, sun, mars, venus = eph['earth'], eph['sun'], eph['mars'], eph['venus']
 
-# Dynamic Timezone Resolver - Automatically handles DST for any year/month in Egypt
 EGYPT_TZ = ZoneInfo("Africa/Cairo")
-
-# Set exact coordinates for the Great Sphinx of Giza
 giza = earth + wgs84.latlon(29.97526, 31.13758, elevation_m=20.0)
 lon_hours = 31.13758 / 15.0
 
-# Define specific astronomical targets using J2000 epoch coordinates
 regulus = Star(ra_hours=(10, 8, 22.311), dec_degrees=(11, 58, 1.95))
 alnilam = Star(ra_hours=(5, 36, 12.81), dec_degrees=(-1, 12, 6.9))
 sgra = Star(ra_hours=(17, 45, 40.04), dec_degrees=(-29, 0, 28.1))
 
-# Baseline date for day-counting logic
 start_date = datetime.date(2012, 12, 21)
-
-# 👇 ==================== CRITICAL OPTICAL THRESHOLDS ==================== 👇
-# Modify these values to test different atmospheric or optical hypotheses.
-# • NELM_SUN_ALT : Change to a higher value (e.g., -2.0) if you believe the star remains visible in brighter twilight.
-# • IDEAL_SUN_ALT: Change this to alter the "perfect" target for the Red Dawn effect scoring.
-# • REGULUS_EAST_AZ: Leave at 90.0 unless you are testing a different Sphinx alignment theory.
-# NELM (Naked-Eye Limiting Magnitude): Sun must be below this to see Regulus
-NELM_SUN_ALT = -2.72 
-# The exact azimuth the Sphinx faces (True East)
-REGULUS_EAST_AZ = 90.0
-# The perfect Sun altitude for maximum atmospheric Red-Shift (extinction effect)
-IDEAL_SUN_ALT = -3.5  
-# 👆 ========================================================= 👆
-
-# Memory array to hold all valid dates across all scanned months
 global_candidates = []
 
-
 # =====================================================================
-# ENGINE STARTUP LOGS
+# ENGINE STARTUP
 # =====================================================================
 print("=====================================================================")
-print("         [PROJECT REGULUS] - MASTER COMPUTATION ENGINE v1.9")
+print("         [PROJECT REGULUS] - MASTER COMPUTATION ENGINE v2.0")
 print("=====================================================================")
-print("Purpose: Calculate precise moments when Regulus aligns exactly with")
+print(f"TARGET YEAR SET TO: {TARGET_YEAR}")
+print(f"SCANS ACTIVE      : Months {list(TARGET_SCANS.keys())}")
+print("\nPurpose: Calculate precise moments when Regulus aligns exactly with")
 print("         the Great Sphinx of Giza facing True East (azimuth 90°)")
 print("         in the pre-dawn sky, evaluating naked-eye visibility and")
 print("         optimizing for maximum atmospheric red-shift.")
-print("")
-print("Key Parameters:")
+print("\nKey Parameters:")
 print("• Location       : Great Sphinx of Giza (29.97526°N, 31.13758°E)")
 print("• Target Star    : Regulus (α Leonis), visual magnitude +1.35~1.40")
-print("• Visibility     : Sun altitude < -2.72° (empirical NELM threshold)")
-print("• Alignment      : Regulus azimuth = exactly 90.0000° (True East)")
-print("• Extinction     : Ideal Sun altitude ~ -3.5° (Red Dawn effect)")
+print(f"• Visibility     : Sun altitude < {NELM_SUN_ALT}° (empirical NELM threshold)")
+print(f"• Alignment      : Regulus azimuth = exactly {REGULUS_EAST_AZ}° (True East)")
+print(f"• Extinction     : Ideal Sun altitude ~ {IDEAL_SUN_ALT}° (Red Dawn effect)")
 print("• Timezone       : Africa/Cairo (Dynamic Auto-DST Resolution)")
-print("=====================================================================")
-
+print("=====================================================================\n")
 
 # =====================================================================
-# AUGUST MODULE (CONTROL GROUP)
-# Checks summer conditions to verify the engine handles daylight washout
+# UNIFIED SCAN LOOP
 # =====================================================================
-print("\n" + "="*70)
-print("                 SCAN MODULE - AUGUST 2026")
-print("="*70)
-
-# 👇 ==================== USER INPUT ZONE ==================== 👇
-# Add or remove days in August you want to scan. Format: [day1, day2]
-aug_days = [10, 20]
-# 👆 ========================================================= 👆
-
-for day in aug_days:
-    t_start = datetime.datetime(2026, 8, day, 1, 0, 0)
-    found = False
+for month, config in TARGET_SCANS.items():
+    print("="*75)
+    print(f"                 SCAN MODULE - MONTH: {month:02d} / {TARGET_YEAR}")
+    print("="*75)
     
-    # Loop through 32,400 seconds (9 hours) to find the exact second of alignment
-    for s in range(32400):
-        dt = t_start + datetime.timedelta(seconds=s)
-        t_sec = ts.utc(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
+    for day in config["days"]:
+        # Calculate Mayan Baseline
+        current_date = datetime.date(TARGET_YEAR, month, day)
+        days_delta = (current_date - start_date).days
+        prime_status = "PRIME NUMBER" if is_prime(days_delta) else "COMPOSITE NUMBER"
         
-        # Calculate apparent azimuth of Regulus including atmospheric refraction
-        reg_az = giza.at(t_sec).observe(regulus).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[1].degrees
+        print(f"\n📅 SCANNING: {current_date.strftime('%B %d, %Y')}")
+        print(f"  ↳ Days from 2012-12-21: {days_delta} → {prime_status}")
+        print("-" * 75)
         
-        # Lock data exactly when Regulus crosses True East (90 degrees)
-        if reg_az >= REGULUS_EAST_AZ:
-            sun_alt = giza.at(t_sec).observe(sun).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
+        t_start = datetime.datetime(TARGET_YEAR, month, day, config["start_h"], 0, 0)
+        
+        # State Trackers
+        time_nelm = None
+        time_lock = None
+        time_mars = None
+        
+        sun_alt_at_lock = reg_alt_at_lock = 0.0
+        mars_alt_at_cross = 0.0
+        lst_data = aln_pos = sgra_pos = venus_pos = None
+
+        # AZIMUTH MEMORY (To detect exact physical crossing, preventing instant-triggers)
+        prev_reg_az = None
+        prev_mars_az = None
+
+        # Main Time Loop (Iterating strictly per second within the defined scan window)
+        for s in range(config["scan_h"] * 3600): 
+            dt = t_start + datetime.timedelta(seconds=s)
+            t_sec = ts.utc(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
             
-            is_vis = (-18.0 <= sun_alt < NELM_SUN_ALT)
-            visibility = "❌ INVISIBLE (Washed out by daylight)" if sun_alt >= NELM_SUN_ALT else "✅ VISIBLE"
+            # 1. Track Sun for NELM Limit (Washout marker)
+            if time_nelm is None:
+                sun_alt = giza.at(t_sec).observe(sun).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
+                if sun_alt >= NELM_SUN_ALT:
+                    time_nelm = t_sec.utc_datetime().astimezone(EGYPT_TZ)
+                    reg_az_at_nelm = giza.at(t_sec).observe(regulus).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[1].degrees
+
+            # Get exact current coordinates for Regulus ONLY (saves CPU time)
+            reg_pos = giza.at(t_sec).observe(regulus).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)
+            curr_reg_az = reg_pos[1].degrees
             
-            # Dynamic Timezone resolution for print output
-            local_time = t_sec.utc_datetime().astimezone(EGYPT_TZ).strftime('%H:%M:%S')
-            print(f" 🎯 August {day}: Regulus 90° at {local_time} Local | Sun alt: {sun_alt:.4f}° -> {visibility}")
+            # 2. Track Regulus for EXACT 90.0° Physical Crossing
+            if time_lock is None and prev_reg_az is not None:
+                if prev_reg_az < REGULUS_EAST_AZ <= curr_reg_az:
+                    time_lock = t_sec.utc_datetime().astimezone(EGYPT_TZ)
+                    reg_alt_at_lock = reg_pos[0].degrees
+                    sun_alt_at_lock = giza.at(t_sec).observe(sun).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
+                    
+                    # Fetch expensive Skymap data ONLY ONCE when alignment is hit
+                    gmst = t_sec.gmst
+                    lst_hours = (gmst + lon_hours) % 24.0
+                    lst_h, lst_m = int(lst_hours), int((lst_hours % 1) * 60)
+                    lst_s = ((lst_hours * 60) % 1) * 60
+                    lst_data = (lst_h, lst_m, lst_s)
+                    
+                    aln_pos = giza.at(t_sec).observe(alnilam).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)
+                    sgra_pos = giza.at(t_sec).observe(sgra).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)
+                    venus_pos = giza.at(t_sec).observe(venus).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)
+
+            # 3. Track Mars (OPTIMIZED: Scans Mars ONLY in November to save CPU load)
+            if month == 11:
+                mars_pos = giza.at(t_sec).observe(mars).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)
+                curr_mars_az = mars_pos[1].degrees
+                
+                if time_mars is None and prev_mars_az is not None:
+                    if prev_mars_az < REGULUS_EAST_AZ <= curr_mars_az:
+                        time_mars = t_sec.utc_datetime().astimezone(EGYPT_TZ)
+                        mars_alt_at_cross = mars_pos[0].degrees
+                
+                prev_mars_az = curr_mars_az
+
+            # Save Regulus azimuth for the next second's calculation
+            prev_reg_az = curr_reg_az
+
+            # Break early if all parameters are found to save CPU time
+            if time_lock and time_nelm and (time_mars or month != 11):
+                break
+
+        # ==================== DAILY REPORT GENERATION ====================
+        if time_lock:
+            # Determine Naked-Eye Status
+            is_visible = False
+            delta = None
+            if sun_alt_at_lock >= NELM_SUN_ALT:
+                status = "❌ INVISIBLE (Washed out by daylight)"
+                is_visible = False
+            elif sun_alt_at_lock < -18.0:
+                status = "🌙 NIGHTTIME (Pitch black, no red shift)"
+                is_visible = False # Poprawiony bug!
+            else:
+                is_visible = True
+                if time_nelm:
+                    delta = (time_nelm - time_lock).total_seconds()
+                    minutes, seconds = int(abs(delta) // 60), int(abs(delta) % 60)
+                    if delta > 0:
+                        status = f"✅ VISIBLE for {minutes}m {seconds}s after alignment"
+                    else:
+                        status = f"❌ INVISIBLE (Faded {minutes}m {seconds}s BEFORE alignment)"
+                        is_visible = False
+                else:
+                    status = "✅ VISIBLE (Dawn limit not reached in scan window)"
             
             global_candidates.append({
-                "month": "August", "day": day, "sun_alt": sun_alt, "is_visible": is_vis, "delta": None
+                "date": current_date, "sun_alt": sun_alt_at_lock, "is_visible": is_visible, "delta": delta
             })
-            found = True
-            break
+
+            # Print Data
+            print(f" 🏹 SPHINX 90° ALIGNMENT (Regulus hits True East):")
+            print(f"    Time (Egypt) : {time_lock.strftime('%H:%M:%S')} Local")
+            print(f"    Altitudes    : Sun: {sun_alt_at_lock:+.4f}° | Regulus: {reg_alt_at_lock:+.4f}°")
+            print(f"    Eye Status   : {status}")
             
-    if not found:
-        print(f" ❌ August {day}: No 90° alignment found in scanned window.")
-print("=====================================================================")
+            if time_nelm and sun_alt_at_lock < NELM_SUN_ALT:
+                print(f" 🌅 DAWN LIMIT   : Regulus fades at {time_nelm.strftime('%H:%M:%S')} (Az: {reg_az_at_nelm:.4f}°)")
 
-
-# =====================================================================
-# SEPTEMBER MODULE (RED SHIFT TARGET WINDOW)
-# Tracks the exact days where Regulus perfectly balances visibility & color
-# =====================================================================
-print("\n" + "="*70)
-print("                 SCAN MODULE - SEPTEMBER 2026")
-print("="*70)
-
-# 👇 ==================== USER INPUT ZONE ==================== 👇
-# Edit dates below to expand the September scan. 
-# These dates are closest to the -3.5° Red Shift atmospheric target.
-days = [20, 21, 22, 23]
-# 👆 ========================================================= 👆
-
-for day in days:
-    current_date = datetime.date(2026, 9, day)
-    days_delta = (current_date - start_date).days
-    prime_status = "PRIME NUMBER" if is_prime(days_delta) else "COMPOSITE NUMBER"
-    
-    print(f"\n📅 MORNING SCAN: September {day}, 2026")
-    print(f"  ↳ Days from 2012-12-21: {days_delta} → {prime_status}")
-    print("---------------------------------------------------------------------")
-    
-    t_start = datetime.datetime(2026, 9, day, 3, 0, 0)
-    
-    time_nelm = None
-    time_lock = None
-    reg_az_at_nelm = reg_alt_at_nelm = 0.0
-    sun_alt_at_lock = reg_alt_at_lock = 0.0
-    lst_data = aln_pos = sgra_pos = mars_pos = venus_pos = None
-
-    # Scan 14,400 seconds (4 hours) starting from 03:00 AM
-    for s in range(14400): 
-        dt = t_start + datetime.timedelta(seconds=s)
-        t_sec = ts.utc(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
-        
-        sun_alt = giza.at(t_sec).observe(sun).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
-        reg_pos = giza.at(t_sec).observe(regulus).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)
-        reg_az = reg_pos[1].degrees
-        reg_alt = reg_pos[0].degrees
-
-        # Marker 1: When does the sky get too bright? (Sun hits -2.72)
-        if time_nelm is None and sun_alt >= NELM_SUN_ALT:
-            time_nelm = t_sec.utc_datetime().astimezone(EGYPT_TZ)
-            reg_az_at_nelm = reg_az
-            reg_alt_at_nelm = reg_alt
-
-        # Marker 2: When does Regulus hit exactly 90.000° azimuth?
-        if time_lock is None and reg_az >= REGULUS_EAST_AZ:
-            time_lock = t_sec.utc_datetime().astimezone(EGYPT_TZ)
-            sun_alt_at_lock = sun_alt
-            reg_alt_at_lock = reg_alt
-
-            # Calculate Local Sidereal Time for the global skymap
-            gmst = t_sec.gmst
-            lst_hours = (gmst + lon_hours) % 24.0
-            lst_h = int(lst_hours)
-            lst_m = int((lst_hours - lst_h) * 60)
-            lst_s = (lst_hours - lst_h) * 3600 - lst_m * 60
-
-            # Lock coordinates of other key celestial objects for context
-            aln_pos = giza.at(t_sec).observe(alnilam).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)
-            sgra_pos = giza.at(t_sec).observe(sgra).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)
-            mars_pos = giza.at(t_sec).observe(mars).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)
-            venus_pos = giza.at(t_sec).observe(venus).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)
-            
-            lst_data = (lst_h, lst_m, lst_s)
-
-    # Output detailed results for the daily scan
-    if time_nelm and time_lock:
-        print(f" 🌅 DAWN VISIBILITY LIMIT: Regulus fades at {time_nelm.strftime('%H:%M:%S')} Local | Az: {reg_az_at_nelm:.4f}°")
-        print(f" 🏹 SPHINX 90° ALIGNMENT (Regulus hits True East):")
-        print(f"    Local Time (Egypt)     : {time_lock.strftime('%H:%M:%S')}")
-        print(f"    Sun / Regulus Altitude : Sun: {sun_alt_at_lock:.4f}° | Regulus: +{reg_alt_at_lock:.4f}°")
-        
-        # Calculate how long the star remains visible after aligning
-        delta = (time_nelm - time_lock).total_seconds()
-        is_visible = delta > 0
-        
-        global_candidates.append({
-            "month": "September", "day": day, "sun_alt": sun_alt_at_lock, "is_visible": is_visible, "delta": delta
-        })
-
-        minutes = int(abs(delta) // 60)
-        seconds = int(abs(delta) % 60)
-        
-        if is_visible:
-            print(f"    Naked-Eye Status       : ✅ VISIBLE for {minutes}m {seconds}s after alignment")
-        else:
-            print(f"    Naked-Eye Status       : ❌ INVISIBLE - faded {minutes}m {seconds}s BEFORE 90°")
-
-        if lst_data:
+            # Global Skymap
             lst_h, lst_m, lst_s = lst_data
-            print(f" 🌌 GLOBAL SKYMAP AT ALIGNMENT:")
-            print(f"    Local Sidereal Time    : {lst_h:02d}:{lst_m:02d}:{lst_s:05.2f}")
-            print(f"    Orion's Belt (Alnilam) : Az: {aln_pos[1].degrees:.4f}° | Alt: +{aln_pos[0].degrees:.4f}°")
-            print(f"    Galactic Center (Sgr A*): Alt: {sgra_pos[0].degrees:.4f}°")
-            print(f"    Planets                : Mars Az: {mars_pos[1].degrees:.4f}° | Venus Az: {venus_pos[1].degrees:.4f}°")
-    else:
-        print("    ⚠️  Regulus did not reach 90° in the scanned window.")
-    print("=====================================================================")
+            print(f" 🌌 GLOBAL SKYMAP:")
+            print(f"    LST Clock    : {lst_h:02d}:{lst_m:02d}:{lst_s:05.2f}")
+            print(f"    Orion's Belt : Az: {aln_pos[1].degrees:.4f}° | Alt: {aln_pos[0].degrees:+.4f}°")
+            print(f"    Galactic Ctr : Alt: {sgra_pos[0].degrees:+.4f}°")
+            print(f"    Venus        : Az: {venus_pos[1].degrees:.4f}°")
+
+            # Mars Radar Alert System
+            if time_mars:
+                delta_mars_sec = (time_mars - time_lock).total_seconds()
+                delta_mars_min = abs(delta_mars_sec) / 60
+                
+                print(f" 🔴 MARS RADAR  : Mars hits 90° at {time_mars.strftime('%H:%M:%S')} (Alt: {mars_alt_at_cross:+.2f}°)")
+                if delta_mars_min <= 60.0:
+                    timing_word = "AFTER" if delta_mars_sec > 0 else "BEFORE"
+                    print(f"    ⚠️ CONJUNCTION ALERT: Mars crosses exact azimuth {delta_mars_min:.1f} min {timing_word} Regulus!")
+        else:
+            print("    ⚠️ Regulus did not reach 90° in the scanned window. Adjust scan_h or start_h.")
 
 
 # =====================================================================
-# OCTOBER MODULE (PITCH BLACK / WINDOW CLOSURE)
-# Tracks when the Sun drops below -18°, entering deep astronomical night
-# =====================================================================
-print("\n" + "="*70)
-print("                 SCAN MODULE - OCTOBER 2026")
-print("="*70)
-print("Tracking the closure of the dawn window (transition to Pitch Black)")
-
-# 👇 ==================== USER INPUT ZONE ==================== 👇
-# These dates identify the exact day the sky transitions into deep night
-oct_days = [4, 5, 6]
-# 👆 ========================================================= 👆
-
-for day in oct_days:
-    t_start = datetime.datetime(2026, 10, day, 0, 0, 0)
-    found = False
-    for s in range(28800):
-        dt = t_start + datetime.timedelta(seconds=s)
-        t_sec = ts.utc(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
-        reg_az = giza.at(t_sec).observe(regulus).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[1].degrees
-        
-        if reg_az >= REGULUS_EAST_AZ:
-            sun_alt = giza.at(t_sec).observe(sun).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
-            
-            is_vis = (-18.0 <= sun_alt < NELM_SUN_ALT)
-            # Flag as Pitch Black if sun is lower than -18.0
-            status = "🌙 NIGHTTIME (Pitch black, no red shift)" if sun_alt < -18.0 else "✅ VISIBLE"
-            
-            local_time = t_sec.utc_datetime().astimezone(EGYPT_TZ).strftime('%H:%M:%S')
-            print(f" 🎯 October {day}: Regulus 90° at {local_time} Local | Sun alt: {sun_alt:.4f}° -> {status}")
-            
-            global_candidates.append({
-                "month": "October", "day": day, "sun_alt": sun_alt, "is_visible": is_vis, "delta": None
-            })
-            found = True
-            break
-            
-    if not found:
-        print(f" ❌ October {day}: No 90° alignment found in scanned window.")
-print("=====================================================================")
-
-
-# =====================================================================
-# NOVEMBER MODULE (MARS CONJUNCTION)
-# Tracks the planetary approach of Mars and its conjunction with Regulus
-# =====================================================================
-print("\n" + "="*70)
-print("                 SCAN MODULE - NOVEMBER 2026")
-print("="*70)
-print("Checking Regulus-Mars proximity and exact conjunction on eastern horizon")
-
-# 👇 ==================== USER INPUT ZONE ==================== 👇
-# Track the Mars flyby. Nov 3-4 is the closest point of approach (0.4 min difference).
-nov_days = [2, 3, 4, 5, 6]
-# 👆 ========================================================= 👆
-
-for day in nov_days:
-    t_start = datetime.datetime(2026, 11, day, 22, 0, 0)   
-    time_reg_90 = time_mars_90 = None
-    sun_alt_reg = sun_alt_mars = reg_alt = mars_alt = None
-
-    for s in range(18000):   
-        dt = t_start + datetime.timedelta(seconds=s)
-        t_sec = ts.utc(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
-        
-        reg_az = giza.at(t_sec).observe(regulus).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[1].degrees
-        mars_az = giza.at(t_sec).observe(mars).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[1].degrees
-        
-        # Track when Regulus hits True East
-        if time_reg_90 is None and reg_az >= REGULUS_EAST_AZ:
-            time_reg_90 = t_sec.utc_datetime().astimezone(EGYPT_TZ)
-            sun_alt_reg = giza.at(t_sec).observe(sun).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
-            reg_alt = giza.at(t_sec).observe(regulus).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
-            
-            is_vis = (-18.0 <= sun_alt_reg < NELM_SUN_ALT)
-            global_candidates.append({
-                "month": "November", "day": day, "sun_alt": sun_alt_reg, "is_visible": is_vis, "delta": None
-            })
-        
-        # Track when Mars hits True East
-        if time_mars_90 is None and mars_az >= REGULUS_EAST_AZ:
-            time_mars_90 = t_sec.utc_datetime().astimezone(EGYPT_TZ)
-            sun_alt_mars = giza.at(t_sec).observe(sun).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
-            mars_alt = giza.at(t_sec).observe(mars).apparent().altaz(temperature_C=21.0, pressure_mbar=1011.0)[0].degrees
-
-    print(f"\n📅 November {day}, 2026")
-    if time_reg_90:
-        print(f"   Regulus → 90° at: {time_reg_90.strftime('%H:%M:%S')} Local | Alt: {reg_alt:+.2f}° | Sun: {sun_alt_reg:+.2f}°")
-    if time_mars_90:
-        print(f"   Mars    → 90° at: {time_mars_90.strftime('%H:%M:%S')} Local | Alt: {mars_alt:+.2f}° | Sun: {sun_alt_mars:+.2f}°")
-    
-    # Calculate time difference between Regulus and Mars hitting the azimuth mark
-    if time_reg_90 and time_mars_90:
-        delta_min = (time_mars_90 - time_reg_90).total_seconds() / 60
-        note = ""
-        if delta_min < 15:
-            note = "   ← CLOSE OVERLAP / CONJUNCTION"
-        elif delta_min < 30:
-            note = "   ← Moderate separation"
-        print(f"   Difference: {delta_min:.1f} minutes apart{note}")
-print("\n" + "="*70)
-
-
-# =====================================================================
-# SYSTEM CORE: FINAL DATA EVALUATION & SELECTION
-# Iterates through all tracked dates and scores them against the Red Shift target
+# FINAL SYSTEM EVALUATION & SCORING
 # =====================================================================
 print("\n" + "="*85)
-print("         PROJECT REGULUS - 100% DATA-DRIVEN SCAN COMPLETE v1.9")
+print("         PROJECT REGULUS - GLOBAL DYNAMIC EVALUATION v2.0")
 print("="*85)
-print("\n[ GLOBAL DYNAMIC EVALUATION ]")
-print(f"Evaluating all scanned dates against ideal Red Shift atmospheric target: {IDEAL_SUN_ALT}°")
+print(f"Evaluating valid dates against ideal Red Shift target: {IDEAL_SUN_ALT}°")
 print("-" * 85)
 
 best_match = None
 best_score = -9999
 
 for c in global_candidates:
-    date_str = f"{c['month']} {c['day']}, 2026"
+    date_str = c['date'].strftime('%B %d, %Y')
     alt = c['sun_alt']
     vis = c['is_visible']
-    
-    # Mathematical Scoring: Distance from the IDEAL_SUN_ALT. 
-    # Closer to 0 is better. Perfect score = 0.
-    score = -abs(alt - IDEAL_SUN_ALT)
+    score = -abs(alt - IDEAL_SUN_ALT) # Closer to 0 is better
     
     if vis:
-        if c['delta'] is not None:
-            m = int(abs(c['delta']) // 60)
-            s = int(abs(c['delta']) % 60)
-            print(f"• {date_str:<20} : ✅ Valid window ({m}m {s}s) | Sun alt: {alt:+.4f}° | Extinction Score: {score:+.4f}")
-        else:
-            print(f"• {date_str:<20} : ✅ Valid (Visible)        | Sun alt: {alt:+.4f}° | Extinction Score: {score:+.4f}")
-            
-        # Update the best match if this date scores higher
+        time_note = ""
+        if c['delta'] is not None and c['delta'] > 0:
+            m, s = int(c['delta'] // 60), int(c['delta'] % 60)
+            time_note = f"({m}m {s}s)"
+        print(f"• {date_str:<20} : ✅ Valid Window {time_note:<10} | Sun alt: {alt:+.4f}° | Score: {score:+.4f}")
+        
         if score > best_score:
             best_score = score
             best_match = c
     else:
-        if alt >= NELM_SUN_ALT:
-            reason = "Washed out by daylight"
-        else:
-            reason = "Pitch black / No red shift"
-        print(f"• {date_str:<20} : ❌ Invalid ({reason}) | Sun alt: {alt:+.4f}° | Extinction Score: {score:+.4f}")
+        reason = "Daylight Washout" if alt >= NELM_SUN_ALT else "Pitch Black"
+        print(f"• {date_str:<20} : ❌ Invalid ({reason:<16}) | Sun alt: {alt:+.4f}° | Score: {score:+.4f}")
 
-
-# --- Output the ultimate mathematical conclusion ---
 print("\n[ ENGINE CONCLUSION : OPTIMAL RED-SHIFT SELECTION ]")
 if best_match:
-    print(f"🏆 SYSTEM SELECTION: {best_match['month']} {best_match['day']}, 2026")
+    print(f"🏆 SYSTEM SELECTION: {best_match['date'].strftime('%B %d, %Y')}")
     print(f"   Sun Altitude    : {best_match['sun_alt']:+.4f}°")
-    print(f"   Target Zone     : {IDEAL_SUN_ALT}° (Maximum Atmospheric Extinction)")
-    print(f"   Score Distance  : {abs(best_score):.4f}° deviation from perfect ideal")
-    print("\nConclusion: The engine mathematically isolated this specific date as the absolute best")
-    print("timeline fulfilling both pre-dawn True East alignment AND maximum 'Red Dawn' effect.")
+    print(f"   Target Zone     : {IDEAL_SUN_ALT}° (Max Extinction)")
+    print(f"   Deviation       : {abs(best_score):.4f}° from ideal")
 else:
-    print("System found NO mathematically viable timeline fulfilling the constraints across all scanned months.")
+    print("System found NO mathematically viable timeline fulfilling all constraints.")
 print("="*85)
