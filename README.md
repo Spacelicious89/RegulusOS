@@ -29,9 +29,11 @@ At this altitude, the airmass is thinner than at the horizon. Therefore, Regulus
 * **The Mars-Regulus Conjunction:** The engine tracks a precise vertical stacking event on November 3-4, 2026. Mars and Regulus cross the 90.000° true azimuth mark in an incredibly tight sequence, forming a vertical alignment over the True East horizon.
 
 ---
-
 ## 🚀 How to Run (No Installation Required)
+
 1. Go to [Google Colab](https://colab.research.google.com/) and click **New Notebook**.
 2. In the first cell, paste this command and click **Play**:
    ```python
    !pip install skyfield
+3. Add a new cell, paste the entire `ProjectRegulus.py` code, and click **Play**.
+4. To customize: Edit the `TARGET_SCANS` dictionary at the top of the code to add your own months, days, or scan hours—the engine will handle the rest automatically.
