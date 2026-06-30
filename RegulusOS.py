@@ -174,7 +174,7 @@ for month, config in TARGET_SCANS.items():
                 is_visible = False
             elif sun_alt_at_lock < -18.0:
                 status = "🌙 NIGHTTIME (Pitch black, no red shift)"
-                is_visible = False # Poprawiony bug!
+                is_visible = False
             else:
                 is_visible = True
                 if time_nelm:
