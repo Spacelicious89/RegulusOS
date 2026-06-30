@@ -24,7 +24,7 @@ At this altitude, the airmass is thinner than at the horizon. Therefore, Regulus
 ---
 
 ## 🏆 Key Findings for 2026
-* **The Optimal "Red Dawn" Window:** `September 21, 2026`. The engine mathematically isolates this date as the peak convergence between True East alignment and ideal extinction targets (-3.6031° Sun altitude).
+* **The Optimal "Red Dawn" Window:** `September 21, 2026`. The engine identifies September 21, 2026 as the optimal solution under the selected physical and optical constraints. (-3.6031° Sun altitude).
 * **The "Dead of Night" Cutoff:** By October 6th, the alignment occurs in deep astronomical night (Sun < -18.0°), losing the dawn contrast effect.
 * **The Mars-Regulus Conjunction:** The engine tracks a precise vertical stacking event on November 3-4, 2026. Mars and Regulus cross the 90.000° true azimuth mark in an incredibly tight sequence, forming a vertical alignment over the True East horizon.
 
