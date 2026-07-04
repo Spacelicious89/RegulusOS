@@ -36,7 +36,7 @@ Here is the complete cheat sheet for the major bodies:
 ### 🔭 The Physics & Methodology
 
 **1. Atmospheric Extinction & The Red Star Phase**
-The engine strictly adheres to spherical geometry and atmospheric physics. Because of Giza's latitude and Regulus's declination, the engine independently tracks the Red Star Phase, which triggers when Regulus is at an altitude of ~7.5°. At this low altitude, the star's light passes through extreme atmospheric thickness. The engine calculates this using the Airmass (X) formula:
+The engine strictly adheres to spherical geometry and atmospheric physics. Because of Giza's latitude and Regulus's declination, the engine independently tracks the Red Star Phase, which triggers when Regulus is at a low altitude of ~7.5°. At this altitude, the star's light passes through extreme atmospheric thickness. The engine calculates this using the Airmass (X) formula:
 
 $$X = \frac{1}{\sin(\text{altitude})}$$
 
@@ -44,28 +44,28 @@ This extreme airmass triggers intense Rayleigh scattering, modifying the star's 
 
 $$\Delta(B-V) \approx 0.15 \times X$$
 
-This strips away the star's natural blue-white spectrum, shifting it heavily toward the red/orange spectrum before it climbs higher to the alignment point.
+This filters out the star's natural blue-white spectrum, causing **the star itself** to appear heavily shifted toward the red/orange spectrum while the sky remains pitch black.
 
 **2. The Red Dawn Trigger (Civil Twilight)**
-At the moment of the 90° alignment, the airmass is thinner and Regulus burns bright white. To recreate the "Red Shift" effect at this altitude, the engine hunts for a Red Dawn Limit where the Sun is at ~-6.5° altitude. At this specific depth (Civil Twilight), the Sun casts a deep, red/orange gradient across the Eastern horizon. 
+By the time Regulus reaches the 90.0° alignment point, it has climbed to an altitude of ~24.5°. Here, the airmass is thinner, and Regulus regains its intense, piercing white brilliance. However, to recreate the exact "Red Dawn" prophecy conditions, the engine hunts for the moment the Sun reaches exactly ~-6.5° altitude (Civil Twilight). At this specific depth, the Sun casts a deep, burning red/orange gradient across the Eastern horizon. The result is a brilliant white star standing directly over a blood-red dawn.
 
 ### 🏆 Key Findings for The 2026 Trigger Event
 
-**1. The Kings' Syzygy (November 4, 2026)**
+**1. The Royal Syzygy (November 4, 2026)**
 The engine detected a statistically unprecedented 5-body Vertical Syzygy striking the exact 90° azimuth. This is not a scattered "planetary parade," but a tightly stacked vertical pillar occurring simultaneously:
 
-* **Mars:** Altitude +34.4351° | Azimuth 90.0681°
-* **Jupiter:** Altitude +29.77° | Azimuth 90.51° 
-* **Regulus:** Altitude +24.3053° | Azimuth 90.0°
+* **Mars (God of War):** Altitude +34.4351° | Azimuth 90.0681°
+* **Jupiter (King of Gods):** Altitude +29.77° | Azimuth 90.51° 
+* **Regulus (The Little King):** Altitude +24.3053° | Azimuth 90.0°
 * **Moon:** Altitude +14.4209° | Azimuth 90.4551°
-* **Venus (The Underworld Anchor):** Altitude -30.5457° | Azimuth 88.3895°
+* **Venus (The Queen / Underworld Anchor):** Altitude -30.5457° | Azimuth 88.3895°
 
 *Notice Venus:* By expanding the array beyond the visible horizon, the engine reveals Venus deeply submerged below the surface. This vertical geometry pierces the horizon, forming a continuous pillar anchored in the Egyptian Duat (underworld). The alignment of these specific 5 bodies on this exact precessional axis is an anomaly on the scale of tens of thousands of years.
 
 **2. The Biennial Mars Resonance & The 2026 Catalyst**
 Running the dynamic evaluation across the 2026-2031 timeline revealed a strict 2-year (biennial) orbital resonance pattern tied to Mars. The optimal Red Dawn alignments cluster perfectly in 2026, 2028, and 2030. 
 
-The engine identifies the window of **September 24, 2026** (Sun Altitude: -6.4670°) as the true "Trigger Event." This specific 2026 window acts as the catalyst, initiating the sequence that culminates in the massive 5-body Kings' Syzygy just weeks later in November. The subsequent years (2028, 2030) act as the mechanical echoes of this primary orbital lock.
+The engine identifies the window of **September 24, 2026** (Sun Altitude: -6.4670°) as the true "Trigger Event." This specific 2026 window acts as the catalyst, initiating the sequence that culminates in the massive 5-body Royal Syzygy just weeks later in November. The subsequent years (2028, 2030) act as the mechanical echoes of this primary orbital lock.
 
 ### 🚀 How to Run (No Installation Required)
 
