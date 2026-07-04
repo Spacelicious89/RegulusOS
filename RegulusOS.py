@@ -27,7 +27,7 @@ GLOSSARY, LEGEND & SCIENTIFIC DERIVATIONS
 # =====================================================================
 # GLOBAL USER INPUT ZONE & CONFIGURATION
 # =====================================================================
-# 👇 ================================================================ 👇
+# 👇 =================CHANGE HERE==================================== 👇
 TARGET_YEARS = [2026] # Target years
 
 # ENGINE OPTIMIZATION
@@ -54,8 +54,8 @@ TARGET_PLANETS = {
 
 # SCAN CONFIGURATION (SNIPER MODE) # here you can add more months and days to scan
 TARGET_SCANS = {
-    9: {"days": [20, 21, 22, 23, 24, 25, 26], "start_h": 0, "scan_h": 24},
-    11: {"days": [3, 4, 5, 6, 7], "start_h": 0, "scan_h": 24} 
+    9: {"days": [24], "start_h": 0, "scan_h": 24},
+    11: {"days": [1, 2, 3, 4, 5, 6, 7, 8], "start_h": 0, "scan_h": 24} 
 }
 
 # CRITICAL OPTICAL THRESHOLDS
@@ -63,7 +63,7 @@ NELM_SUN_ALT = -2.72          # Threshold for Daylight Washout
 MONUMENT_ALIGNMENT_AZ = 90.0  # Geodetic anchor for monument orientation
 IDEAL_SUN_ALT = -6.5          # Red Dawn effect (just before Civil Twilight 6°)
 RED_STAR_ALT = 7.5            # Color shift altitude threshold, where Regulus appears reddish-orange due to atmospheric extinction.
-# 👆 ================================================================ 👆
+# 👆 =========================CHANGE HERE============================== 👆
 
 # =====================================================================
 # TYPE COERCION FOR TARGET YEARS
@@ -291,8 +291,21 @@ for TARGET_YEAR in TARGET_YEARS:
                     # Logic: If diff is positive, Lock happened AFTER Mars cross
                     before_after = "AFTER" if diff_seconds > 0 else "BEFORE"
         
+                    # Convert absolute difference to hours, minutes, seconds
+                    abs_diff_sec = int(abs(diff_seconds))
+                    h, remainder = divmod(abs_diff_sec, 3600)
+                    m, s = divmod(remainder, 60)
+                    
+                    # Formating the time string
+                    if h > 0:
+                        time_str = f"{h}h {m}m {s}s"
+                    elif m > 0:
+                        time_str = f"{m}m {s}s"
+                    else:
+                        time_str = f"{s} seconds"
+        
                     print(f" 🔴 MARS CROSSING: Hits {MONUMENT_ALIGNMENT_AZ}° azimuth at {time_mars_cross.strftime('%H:%M:%S')} (Alt: {mars_alt_at_cross:+.2f}°)")
-                    print(f"    ⚠️ CONJUNCTION ALERT: Mars crosses exact azimuth {diff_min:.2f} min {before_after} Regulus!")
+                    print(f"    ⚠️ CONJUNCTION ALERT: Mars crosses exact azimuth {time_str} {before_after} Regulus!")
 
             else:
                 print(f"    ⚠️ Regulus did not reach {MONUMENT_ALIGNMENT_AZ}° in scan window.")
