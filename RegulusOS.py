@@ -54,8 +54,8 @@ TARGET_PLANETS = {
 
 # SCAN CONFIGURATION (SNIPER MODE) # here you can add more months and days to scan
 TARGET_SCANS = {
-    12: {"days": list(range(5, 14)), "start_h": 0, "scan_h": 24},
-    10: {"days": list(range(1, 12)), "start_h": 0, "scan_h": 24}  
+    9: {"days": list(range(20, 25)), "start_h": 0, "scan_h": 24},
+    11: {"days": list(range(1, 5)), "start_h": 0, "scan_h": 24}  
 }
 
 # CRITICAL OPTICAL THRESHOLDS
