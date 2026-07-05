@@ -23,7 +23,7 @@ $$\text{Azimuth} = 90.0^\circ$$
 * **Washout Limit (-2.72°):** The empirical threshold where sky background luminance ($B_{sky}$) mathematically overrides stellar flux ($F_{star}$), making the star invisible to the naked eye.
 
 ### 🧠 Archaeological Context
-This tool provides a data-driven framework for archaeoastronomy. Building on the work of Dr. Filippo Biondi and Prof. Corrado Malanga regarding subterranean structures and Giza's physical resonance, this script lets researchers turn back the celestial clock. It allows users to verify what the sky looked like during antiquity, testing if specific planetary alignments—such as Venus (Hathor) in the Duat and Mars (Horus) at the zenith—dictated the original architectural design, orientation, and "pre-programmed" logic of these ancient monuments.
+This tool provides a data-driven framework for archaeoastronomy. Building on the work of Dr. Filippo Biondi and Prof. Corrado Malanga regarding subterranean structures and Giza's physical resonance, this script lets researchers turn back the celestial clock. It allows users to verify what the sky looked like during antiquity, testing if specific planetary alignments-such as Venus (Hathor) in the Duat and Mars (Horus) at the zenith—dictated the original architectural design, orientation, and "pre-programmed" logic of these ancient monuments.
 
 ### ⚙️ Engine Capabilities
 * **Visibility Logic:** Automated washout detection. The engine cross-references Sun altitude (NELM) and Lunar illumination (> 75%) to determine if a celestial object is truly "visible" or washed out at the moment of alignment.
