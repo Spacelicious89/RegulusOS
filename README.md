@@ -44,7 +44,8 @@ $$\mathcal{C} = \frac{F_{star}}{B_{sky}} > \text{Threshold}$$
 When the Sun exceeds $-2.72^\circ$, the sky background brightness $B_{sky}$ exponentially overrides the stellar signal $F_{star}$, effectively "closing" the prophecy window.
 
 ### 🧠 The NHI & Archeological Context
-This analysis tool provides a data-driven framework for investigating theories regarding ancient contact and Non-Human Intelligence (NHI). By mapping orbital mechanics against any chosen site, the script allows for testing the hypothesis that certain monuments function as "contact protocols" or "cosmic clocks."
+This analysis tool provides a data-driven framework for investigating theories regarding ancient contact and Non-Human Intelligence (NHI).
+By mapping orbital mechanics against any chosen site, the script allows for testing the hypothesis that certain monuments function as "contact protocols" or "cosmic clocks."
 
 Recent interpretations of Giza (notably the work of Biondi and Malanga regarding the "Second Sphinx" and subterranean structures) suggest that the plateau may align with a pre-programmed orbital logic. This script enables researchers to test whether vertical alignments—such as Venus (Hathor) anchored in the Duat (sub-horizon) while Mars (Horus) guards the zenith, correlate with high probability "contact windows."
 
