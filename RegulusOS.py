@@ -11,16 +11,27 @@ GLOSSARY, LEGEND & SCIENTIFIC DERIVATIONS
 
 1. OPTICAL & ATMOSPHERIC PARAMETERS:
    - NELM (Naked-Eye Limiting Magnitude): The brightness threshold where 
-     sky background luminance washes out celestial objects.
+     sky background luminance washes out celestial objects (-2.72° Sun Alt).
    - RED_STAR_ALT: The altitude threshold (~7.5°) where atmospheric 
      extinction shifts stellar spectra to a reddish-orange tint.
      Formula: Δ(B-V) ≈ 0.15 * X (where Airmass X = 1/sin(altitude)).
+   - IDEAL_SUN_ALT: The precise pre-dawn target (-6.5°). Distinct from 
+     standard Civil Twilight (-6.0°) to isolate the fleeting 2-3 minute 
+     temporal window required for the geodetic lock.
      
 2. GEODETIC PARAMETERS:
    - MONUMENT_ALIGNMENT_AZ: The target azimuth (e.g., 90.0° for True East). 
      Acts as the geodetic anchor for the monument's architectural 
      orientation, serving as the alignment target for celestial events.
 
+3. ORBITAL & TEMPORAL MECHANICS:
+   - MARS_DELTA_SEC: The temporal divergence (in seconds) between Mars 
+     crossing the target azimuth and the primary Regulus alignment lock. 
+     Used to measure the strength of multi-planetary orbital resonance.
+   - PRIME METRIC: A harmonic resonance check evaluating if the elapsed 
+     days from the global epoch (Dec 21, 2012) form a prime number.
+   - LST (Local Sidereal Time): Used during the SkyMap rendering to sync 
+     the local meridian with deep-sky anchors (Orion, Galactic Center).
 =====================================================================
 '''
 
@@ -186,6 +197,7 @@ for TARGET_YEAR in TARGET_YEARS:
                 
                 if time_nelm is None and sun_alt >= NELM_SUN_ALT:
                     time_nelm = t_sec.utc_datetime().astimezone(OBSERVATION_TZ)
+
                 # --- REGULUS TRACKING ---
                 reg_pos = site.at(t_sec).observe(regulus).apparent().altaz(temperature_C=ATM_TEMPERATURE, pressure_mbar=ATM_PRESSURE)
                 curr_reg_az, curr_reg_alt = reg_pos[1].degrees, reg_pos[0].degrees
