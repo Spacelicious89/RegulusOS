@@ -27,11 +27,13 @@ To validate this, the script maps the text to three specific mathematical constr
 
 **1. The "Red Star" Condition (Atmospheric Extinction)**
 
-The engine tracks the "Red Star Phase," which occurs when Regulus reaches a low altitude of ~7.5°. At this altitude, the star's light travels through extreme atmospheric thickness ($X$), causing Rayleigh scattering that shifts the spectrum toward red. The engine calculates the Airmass ($X$) and the resulting color shift ($\Delta(B-V)$) using:
+The engine tracks the "Red Star Phase," which occurs when Regulus reaches a low altitude of ~7.5°. At this altitude, the star's light travels through extreme atmospheric thickness ($X$), causing Rayleigh scattering that shifts the spectrum toward red.
+
+The engine calculates the Airmass ($X$) and the color shift ($\Delta(B-V)$) using these formulas:
 
 $$X = \frac{1}{\sin(\text{altitude})}$$
 
-$\Delta(B-V)$ \approx 0.15 \times X$$
+$$\Delta(B-V) \approx 0.15 \times X$$
 
 This physics-based calculation causes Regulus to appear blood-red against a still-dark sky, fulfilling the first condition of the prophecy.
 
