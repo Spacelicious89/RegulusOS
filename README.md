@@ -47,7 +47,7 @@ The engine isolates the exact moment the Sun reaches -6.5° altitude (Civil Twil
 As a secondary (but statistically anomalous) discovery, the script identified a 5-body vertical syzygy striking the 90° azimuth. This is not a scattered "planetary parade," but a tightly stacked vertical pillar: Mars, Jupiter, the Moon, and Regulus align in a vertical column, while Venus anchors the structure at -30° altitude (hidden below the horizon in the Duat).
 
 **3. The Biennial Mars Resonance**
-By scanning the 2024–2030 window, the script reveals a strict 2-year orbital resonance pattern:
+By scanning the 2024-2030 window, the script reveals a strict 2-year orbital resonance pattern:
 * **2024:** Mars/Regulus alignment divergence (minutes).
 * **2026:** The mechanical catalyst (divergence < 23 seconds).
 * **2028/2030:** Mechanical echoes/decay of the orbital lock.
