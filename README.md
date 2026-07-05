@@ -36,6 +36,7 @@ $$\Delta(B-V) \approx 0.15 \times X$$
 
 This physics-based calculation causes Regulus to appear blood-red against a still-dark sky, fulfilling the first condition of the prophecy.
 
+
 **2. "Aligns ... in the gaze of the Sphinx" (Geodetic Anchor)**
 
 The "gaze" is defined as the True East orientation of the Sphinx. The engine enforces a strict constraint where the celestial object must hit an Azimuth of exactly:
@@ -43,6 +44,7 @@ The "gaze" is defined as the True East orientation of the Sphinx. The engine enf
 $$\text{Azimuth} = 90.0^\circ$$
 
 The script flags the alignment only when Regulus pierces this precise geodetic line.
+
 
 **3. "Just before dawn" (Luminosity Thresholds)**
 
