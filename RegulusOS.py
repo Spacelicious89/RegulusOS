@@ -31,7 +31,7 @@ GLOSSARY, LEGEND & SCIENTIFIC DERIVATIONS
 TARGET_YEARS = [2026] # Target years
 
 # ENGINE OPTIMIZATION
-TIME_STEP_SECONDS = 20  # Scanning time step in seconds (1 = MAXIMUM PRECISION)
+TIME_STEP_SECONDS = 1  # Scanning time step in seconds (1 = MAXIMUM PRECISION) 
 
 # OBSERVATION SITE CONFIGURATION
 SITE_NAME = "Great Sphinx of Giza (Body Core)" 
@@ -54,8 +54,8 @@ TARGET_PLANETS = {
 
 # SCAN CONFIGURATION (SNIPER MODE) # here you can add more months and days to scan
 TARGET_SCANS = {
-    9: {"days": [24], "start_h": 0, "scan_h": 24},
-    11: {"days": [1, 2, 3, 4, 5, 6, 7, 8], "start_h": 0, "scan_h": 24} 
+    9: {"days": [23, 24, 25], "start_h": 0, "scan_h": 24},
+   11: {"days": [3, 4, 5], "start_h": 0, "scan_h": 24} 
 }
 
 # CRITICAL OPTICAL THRESHOLDS
