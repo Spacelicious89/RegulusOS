@@ -39,7 +39,7 @@ This tool provides a data-driven framework for archaeoastronomy. Building on the
 3. **Biennial Mars Resonance:** Scanning the 2024–2030 window reveals a strict 2-year cycle. The 2026 event acts as the "primary lock" (< 23s divergence), while 2028 and 2030 represent mechanical echoes/decay.
 
 ### 📊 Empirical Proof: The 2026 Mars Resonance (Data Logs)
-To prove this isn't a common occurrence, I ran the `ProjectRegulus.py` engine across a multi-year baseline (2024–2030) to test the exact synchronization of Mars and Regulus striking the 90.0° Sphinx azimuth. 
+To prove this isn't a common occurrence, I ran the `ProjectRegulus.py` engine across a multi year baseline (2024–2030) to test the exact synchronization of Mars and Regulus striking the 90.0° Sphinx azimuth. 
 
 The engine tracks `Mars_Delta_Sec` (the exact time divergence between Mars crossing the target azimuth and the Regulus alignment lock). The results show a strict orbital decay pattern centering on 2026:
 
