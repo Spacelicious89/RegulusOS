@@ -28,7 +28,7 @@ GLOSSARY, LEGEND & SCIENTIFIC DERIVATIONS
 # GLOBAL USER INPUT ZONE & CONFIGURATION
 # =====================================================================
 # 👇 ================================================================ 👇
-TARGET_YEARS = [2024, 2028, 2030] # Target years
+TARGET_YEARS = [2026] # Target years
 
 # ENGINE OPTIMIZATION
 TIME_STEP_SECONDS = 1  # Scanning time step in seconds (1 = MAXIMUM PRECISION)
