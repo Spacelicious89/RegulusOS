@@ -26,6 +26,7 @@ The engine decodes the prophecy as recounted by Chris Bledsoe in his book *UFO o
 To validate this, the script maps the text to three specific mathematical constraints:
 
 **1. The "Red Star" Condition (Atmospheric Extinction)**
+
 The engine tracks the "Red Star Phase," which occurs when Regulus reaches a low altitude of ~7.5°. At this altitude, the star's light travels through extreme atmospheric thickness ($X$), causing Rayleigh scattering that shifts the spectrum toward red. The engine calculates the Airmass ($X$) and the resulting color shift ($\Delta(B-V)$) using:
 
 $$X = \frac{1}{\sin(\text{altitude})}$$
@@ -35,15 +36,22 @@ $$\Delta(B-V) \approx 0.15 \times X$$
 This physics-based calculation causes Regulus to appear blood-red against a still-dark sky, fulfilling the first condition of the prophecy.
 
 **2. "Aligns ... in the gaze of the Sphinx" (Geodetic Anchor)**
+
 The "gaze" is defined as the True East orientation of the Sphinx. The engine enforces a strict constraint where the celestial object must hit an Azimuth of exactly:
+
 $$\text{Azimuth} = 90.0^\circ$$
+
 The script flags the alignment only when Regulus pierces this precise geodetic line.
 
 **3. "Just before dawn" (Luminosity Thresholds)**
+
 This is the "contact window." The script validates two sun-altitude constraints:
+
 * **The Dawn Start:** Sun at $\approx -6.5^\circ$ (the calculated optimal "Red Dawn" horizon gradient).
 * **The Washout Limit (NELM):** The star becomes invisible when sky background luminance exceeds the star's flux. We define this limit at a Sun altitude of **-2.72°**. The contrast threshold ($\mathcal{C}$) is derived from the stellar magnitude ($m$) relative to sky background ($B$):
+
 $$\mathcal{C} = \frac{F_{star}}{B_{sky}} > \text{Threshold}$$
+
 When the Sun exceeds $-2.72^\circ$, the sky background brightness $B_{sky}$ exponentially overrides the stellar signal $F_{star}$, effectively "closing" the prophecy window.
 
 ### 🧠 The NHI & Archeological Context
