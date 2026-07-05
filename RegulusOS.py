@@ -38,6 +38,7 @@ SITE_NAME = "Great Sphinx of Giza (Head)" # change this to your desired observat
 SITE_LAT = 29.975234 # change this to your desired observation site latitude in decimal degrees
 SITE_LON = 31.137772  # change this to your desired observation site longitude in decimal degrees
 SITE_ELEVATION = 20.0  # change this to your desired observation site elevation in meters above sea level
+SITE_TZ = "Africa/Cairo" # Change this for other monuments, e.g., "America/Mexico_City"
 
 # ATMOSPHERIC CONDITIONS (Used for light refraction calculations)
 ATM_TEMPERATURE = 21.0 # Degrees Celsius change this to your desired observation site temperature in Celsius
@@ -96,7 +97,7 @@ earth, sun = eph['earth'], eph['sun']
 
 planets = {name: eph[target] for name, target in TARGET_PLANETS.items()}
 
-EGYPT_TZ = ZoneInfo("Africa/Cairo")
+OBSERVATION_TZ = ZoneInfo(SITE_TZ)
 site = earth + wgs84.latlon(SITE_LAT, SITE_LON, elevation_m=SITE_ELEVATION)
 lon_hours = SITE_LON / 15.0
 
@@ -184,20 +185,19 @@ for TARGET_YEAR in TARGET_YEARS:
                 sun_alt = site.at(t_sec).observe(sun).apparent().altaz(temperature_C=ATM_TEMPERATURE, pressure_mbar=ATM_PRESSURE)[0].degrees
                 
                 if time_nelm is None and sun_alt >= NELM_SUN_ALT:
-                    time_nelm = t_sec.utc_datetime().astimezone(EGYPT_TZ)
-
+                    time_nelm = t_sec.utc_datetime().astimezone(OBSERVATION_TZ)
                 # --- REGULUS TRACKING ---
                 reg_pos = site.at(t_sec).observe(regulus).apparent().altaz(temperature_C=ATM_TEMPERATURE, pressure_mbar=ATM_PRESSURE)
                 curr_reg_az, curr_reg_alt = reg_pos[1].degrees, reg_pos[0].degrees
                 
                 if time_reg_rise is None and prev_reg_alt is not None:
                     if prev_reg_alt < 0.0 <= curr_reg_alt:
-                        time_reg_rise = t_sec.utc_datetime().astimezone(EGYPT_TZ)
+                        time_reg_rise = t_sec.utc_datetime().astimezone(OBSERVATION_TZ)
                         reg_az_at_rise = curr_reg_az
 
                 if time_red_star is None and prev_reg_alt is not None:
                     if prev_reg_alt < RED_STAR_ALT <= curr_reg_alt:
-                        time_red_star = t_sec.utc_datetime().astimezone(EGYPT_TZ)
+                        time_red_star = t_sec.utc_datetime().astimezone(OBSERVATION_TZ)
                         sun_alt_at_red = sun_alt
                         reg_az_at_red = curr_reg_az
 
@@ -207,13 +207,13 @@ for TARGET_YEAR in TARGET_YEARS:
                 
                 if time_mars_cross is None and prev_mars_az is not None:
                     if prev_mars_az < MONUMENT_ALIGNMENT_AZ <= curr_mars_az:
-                        time_mars_cross = t_sec.utc_datetime().astimezone(EGYPT_TZ)
+                        time_mars_cross = t_sec.utc_datetime().astimezone(OBSERVATION_TZ)
                         mars_alt_at_cross = curr_mars_alt
 
                 # --- MAIN ALIGNMENT LOCK ---
                 if time_lock is None and prev_reg_az is not None:
                     if prev_reg_az < MONUMENT_ALIGNMENT_AZ <= curr_reg_az:
-                        time_lock = t_sec.utc_datetime().astimezone(EGYPT_TZ)
+                        time_lock = t_sec.utc_datetime().astimezone(OBSERVATION_TZ)
                         time_lock_tsec = t_sec
                         reg_alt_at_lock = curr_reg_alt
                         sun_alt_at_lock = sun_alt
