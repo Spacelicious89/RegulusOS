@@ -5,7 +5,7 @@
 The engine decodes the prophecy from Chris Bledsoe's *UFO of GOD*: *"When the red star of Regulus aligns just before dawn in the gaze of the Sphinx, a new knowledge shall come into the world."*
 
 **1. "The Red Star" (Atmospheric Extinction)**
-Regulus at ~7.5° altitude triggers the "Red Star" phase. I implemented Rayleigh scattering math to calculate the spectral shift ($\Delta(B-V)$) based on airmass ($X$). At this altitude, the light of the B-type star Regulus is filtered through dense atmosphere, resulting in a distinct reddish-orange spectral shift:
+Regulus at ~7.5° altitude triggers the "Red Star" phase. I implemented Rayleigh scattering math to calculate the spectral shift Δ(B-V) based on airmass (X). At this altitude, the light of the B-type star Regulus is filtered through dense atmosphere, resulting in a distinct reddish-orange spectral shift:
 
 $$X = \frac{1}{\sin(\text{altitude})}$$
 
@@ -23,7 +23,7 @@ $$\text{Azimuth} = 90.0^\circ$$
 * **Washout Limit (-2.72°):** The empirical threshold where sky background luminance ($B_{sky}$) mathematically overrides stellar flux ($F_{star}$), making the star invisible to the naked eye.
 
 ### 🧠 Archaeological Context
-This tool provides a data-driven framework for archaeoastronomy. Building on the work of Dr. Filippo Biondi and Prof. Corrado Malanga regarding subterranean structures and Giza's physical resonance, this script lets researchers turn back the celestial clock. It allows users to verify what the sky looked like during antiquity, testing if specific planetary alignments—such as Venus (Hathor) in the Duat and Mars (Horus) at the zenith-dictated the original architectural design, orientation, and "pre-programmed" logic of these ancient monuments.
+This tool provides a data-driven framework for archaeoastronomy. Building on the work of Dr. Filippo Biondi and Prof. Corrado Malanga regarding subterranean structures and Giza's physical resonance, this script lets researchers turn back the celestial clock. It allows users to verify what the sky looked like during antiquity, testing if specific planetary alignments-such as Venus (Hathor) in the Duat and Mars (Horus) at the zenith-dictated the original architectural design, orientation, and "pre-programmed" logic of these ancient monuments.
 
 ### ⚙️ Engine Capabilities
 * **Visibility Logic:** Automated washout detection. The engine cross-references Sun altitude (NELM) and Lunar illumination (> 75%) to determine if a celestial object is truly "visible" or washed out at the moment of alignment.
@@ -36,10 +36,10 @@ This tool provides a data-driven framework for archaeoastronomy. Building on the
 ### 🏆 Key Findings (The 2026 Trigger)
 1. **Sept 24, 2026:** Validates the "Red Star just before dawn" condition at -6.5° sun altitude.
 2. **Nov 4, 2026 (Royal Syzygy):** A 5-body vertical pillar (Mars, Jupiter, Moon, Regulus) striking 90° azimuth, with Venus anchoring the underworld at -30°.
-3. **Biennial Mars Resonance:** Scanning the 2024–2030 window reveals a strict 2-year cycle. The 2026 event acts as the "primary lock" (< 23s divergence), while 2028 and 2030 represent mechanical echoes/decay.
+3. **Biennial Mars Resonance:** Scanning the 2024-2030 window reveals a strict 2-year cycle. The 2026 event acts as the "primary lock" (< 23s divergence), while 2028 and 2030 represent mechanical echoes/decay.
 
 ### 📊 Empirical Proof: The 2026 Mars Resonance (Data Logs)
-To prove this isn't a common occurrence, I ran the `ProjectRegulus.py` engine across a multi year baseline (2024–2030) to test the exact synchronization of Mars and Regulus striking the 90.0° Sphinx azimuth. 
+To prove this isn't a common occurrence, I ran the `ProjectRegulus.py` engine across a multi year baseline (2024-2030) to test the exact synchronization of Mars and Regulus striking the 90.0° Sphinx azimuth. 
 
 The engine tracks `Mars_Delta_Sec` (the exact time divergence between Mars crossing the target azimuth and the Regulus alignment lock). The results show a strict orbital decay pattern centering on 2026:
 
