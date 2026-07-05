@@ -47,7 +47,7 @@ The engine tracks `Mars_Delta_Sec` (the exact time divergence between Mars cross
 * **Nov 4, 2026 (The Lock):** Divergence is **< 23 seconds**. A near-perfect simultaneous geometrical lock on the geodetic target.
 * **Oct 2030 (Echo):** Divergence is ~ -769 seconds (almost **13 minutes**). The orbital machinery is shifting out of resonance.
 
-This isn't astrology; it's hard celestial mechanics. The exact parameters described in Bledsoe's "prophecy" (Regulus at 90° before dawn) happen annually—they act purely as a celestial timing key. However, the script mathematically proves that in late 2026, this annual key perfectly synchronizes with a hidden, multi-planetary orbital resonance (the < 23s Mars lock). This creates an isolated, highly specific geometric window that simply does not exist in the surrounding years. The prophecy itself isn't the anomaly; it's the precise coordinate required to witness the anomaly.
+This isn't astrology; it's hard celestial mechanics. The exact parameters described in Bledsoe's "prophecy" (Regulus at 90° before dawn) happen annually-they act purely as a celestial timing key. However, the script mathematically proves that in late 2026, this annual key perfectly synchronizes with a hidden, multi-planetary orbital resonance (the < 23s Mars lock). This creates an isolated, highly specific geometric window that simply does not exist in the surrounding years. The prophecy itself isn't the anomaly; it's the precise coordinate required to witness the anomaly.
 
 ### 🚀 Quick Start
 1. **Google Colab:** Create a New Notebook.
