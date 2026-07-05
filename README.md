@@ -31,7 +31,7 @@ The engine tracks the "Red Star Phase," which occurs when Regulus reaches a low 
 
 $$X = \frac{1}{\sin(\text{altitude})}$$
 
-$$\Delta(B-V) \approx 0.15 \times X$$
+$\Delta(B-V)$ \approx 0.15 \times X$$
 
 This physics-based calculation causes Regulus to appear blood-red against a still-dark sky, fulfilling the first condition of the prophecy.
 
