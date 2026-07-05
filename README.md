@@ -69,7 +69,7 @@ All critical controls are at the top of the file in the `GLOBAL USER INPUT ZONE`
 
 ### 🛠️ Default Settings Rationale
 * **Azimuth 90.0°:** The geodetic anchor for the Sphinx's True East orientation.
-* **RED_STAR_ALT (7.5°):** The critical altitude where Rayleigh scattering increases significantly. While Regulus is naturally blue-white, observation at this low angle—especially in the presence of aerosols, desert dust, or high humidity—intensifies light scattering, shifting the hue to a deep reddish-orange or "blood-red," fulfilling the prophecy under specific atmospheric conditions.
+* **RED_STAR_ALT (7.5°):** The critical altitude where Rayleigh scattering increases significantly. While Regulus is naturally blue-white, observation at this low angle - especially in the presence of aerosols, desert dust, or high humidity—intensifies light scattering, shifting the hue to a deep reddish-orange or "blood-red," fulfilling the prophecy under specific atmospheric conditions.
 * **Sun Altitude -6.5°:** Custom threshold for the pre-dawn window; ensures we are in the deeper pre-dawn phase before civil twilight.
 * **Sun Altitude -2.72° (Washout Limit):** Empirical threshold where sky background luminance ($B_{sky}$) overrides stellar flux ($F_{star}$).
 
