@@ -28,23 +28,24 @@ GLOSSARY, LEGEND & SCIENTIFIC DERIVATIONS
 # GLOBAL USER INPUT ZONE & CONFIGURATION
 # =====================================================================
 # 👇 ================================================================ 👇
-TARGET_YEARS = [2026] # Target years
+TARGET_YEARS = [2026] # List of years to scan. Format : [2024, 2025, 2026] or [2024] for a single year.
 
 # ENGINE OPTIMIZATION
-TIME_STEP_SECONDS = 1  # Scanning time step in seconds (1 = MAXIMUM PRECISION)
+TIME_STEP_SECONDS = 1  # Scanning time step in seconds (1 = MAXIMUM PRECISION) more than 1 second will speed up the scan but may skip critical events.
 
 # OBSERVATION SITE CONFIGURATION
-SITE_NAME = "Great Sphinx of Giza (Body Core)" 
-SITE_LAT = 29.975234 
-SITE_LON = 31.137772 
-SITE_ELEVATION = 20.0  
+SITE_NAME = "Great Sphinx of Giza (Head)" # change this to your desired observation site name for logging purposes
+SITE_LAT = 29.975234 # change this to your desired observation site latitude in decimal degrees
+SITE_LON = 31.137772  # change this to your desired observation site longitude in decimal degrees
+SITE_ELEVATION = 20.0  # change this to your desired observation site elevation in meters above sea level
 
 # ATMOSPHERIC CONDITIONS (Used for light refraction calculations)
-ATM_TEMPERATURE = 21.0 # Degrees Celsius
-ATM_PRESSURE = 1011.0  # Hectopascals (mbar)
+ATM_TEMPERATURE = 21.0 # Degrees Celsius change this to your desired observation site temperature in Celsius
+ATM_PRESSURE = 1011.0  # Hectopascals (mbar) change this to your desired observation site atmospheric pressure in hPa
 
-# CELESTIAL BODIES TO TRACK
-# Note: NASA DE421 ephemeris requires 'barycenter' tag for gas giants.
+# CELESTIAL BODIES TO TRACK - you can add more planets or celestial bodies here. The keys are the names used in the code, and the values are the corresponding ephemeris identifiers.
+# Note: NASA DE421 ephemeris requires 'barycenter' tag for gas giants. In line 93, you can switch to 'de430.bsp' or 'de440s.bsp' for more recent ephemerides if needed.
+# Type in console: print(eph) to see all available ephemeris identifiers.
 TARGET_PLANETS = {
     'mars': 'mars',
     'venus': 'venus',
@@ -52,17 +53,17 @@ TARGET_PLANETS = {
     'jupiter': 'jupiter barycenter' 
 }
 
-# SCAN CONFIGURATION (SNIPER MODE) # here you can add more months and days to scan
+# SCAN CONFIGURATION (SNIPER MODE) here you can change or add more months and days to scan. Format: {month_number: {"days": [list_of_days], "start_h": start_hour, "scan_h": scan_duration_hours}}
 TARGET_SCANS = {
-    9: {"days": list(range(20, 25)), "start_h": 0, "scan_h": 24},
-    11: {"days": list(range(1, 5)), "start_h": 0, "scan_h": 24}  
+    9: {"days": [23, 24, 25], "start_h": 0, "scan_h": 24}, # The "Red Dawn" Window (Sept 24th, 2026)
+   11: {"days": [3, 4, 5], "start_h": 0, "scan_h": 24} # The 5-Body Alignment Pillar (Nov 4th, 2026)
 }
 
-# CRITICAL OPTICAL THRESHOLDS
-NELM_SUN_ALT = -2.72          # Threshold for Daylight Washout
-MONUMENT_ALIGNMENT_AZ = 90.0  # Geodetic anchor for monument orientation
-IDEAL_SUN_ALT = -6.5          # Red Dawn effect (just before Civil Twilight 6°)
-RED_STAR_ALT = 7.5            # Color shift altitude threshold, where Regulus appears reddish-orange due to atmospheric extinction.
+# CRITICAL OPTICAL THRESHOLDS - this is where you can adjust the visibility thresholds for Regulus and other celestial events
+NELM_SUN_ALT = -2.72          # Threshold for Daylight Washout Regulus visibility (Naked-Eye Limiting Magnitude)
+MONUMENT_ALIGNMENT_AZ = 90.0  # Geodetic anchor for monument orientation - where celestial alignment is evaluated (e.g., 90° for True East).
+IDEAL_SUN_ALT = -6.5          # Red Dawn effect - change this to your desired sun altitude for optimal Regulus visibility (e.g., -6.5° for Civil Twilight)
+RED_STAR_ALT = 7.5            # Color shift altitude threshold - where Regulus appears reddish-orange due to atmospheric extinction.
 # 👆 ================================================================ 👆
 
 # =====================================================================
@@ -354,7 +355,7 @@ for TARGET_YEAR in TARGET_YEARS:
                     diff_min = abs(diff_seconds) / 60.0
                     
                     # Logic: If diff is positive, Lock happened AFTER Mars cross
-                    before_after = "AFTER" if diff_seconds > 0 else "BEFORE"
+                    before_after = "BEFORE" if diff_seconds > 0 else "AFTER"
         
                     # Convert absolute difference to hours, minutes, seconds
                     abs_diff_sec = int(abs(diff_seconds))
