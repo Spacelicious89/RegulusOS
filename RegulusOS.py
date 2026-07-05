@@ -28,7 +28,7 @@ GLOSSARY, LEGEND & SCIENTIFIC DERIVATIONS
 # GLOBAL USER INPUT ZONE & CONFIGURATION
 # =====================================================================
 # 👇 ================================================================ 👇
-TARGET_YEARS = [2026] # Target years
+TARGET_YEARS = [2024, 2028, 2030] # Target years
 
 # ENGINE OPTIMIZATION
 TIME_STEP_SECONDS = 1  # Scanning time step in seconds (1 = MAXIMUM PRECISION)
@@ -54,8 +54,8 @@ TARGET_PLANETS = {
 
 # SCAN CONFIGURATION (SNIPER MODE) # here you can add more months and days to scan
 TARGET_SCANS = {
-    9: {"days": [24], "start_h": 0, "scan_h": 24},
-    11: {"days": [1, 2, 3, 4, 5, 6, 7, 8], "start_h": 0, "scan_h": 24} 
+    12: {"days": list(range(5, 14)), "start_h": 0, "scan_h": 24},
+    10: {"days": list(range(1, 12)), "start_h": 0, "scan_h": 24}  
 }
 
 # CRITICAL OPTICAL THRESHOLDS
@@ -138,7 +138,8 @@ with open(csv_filename, mode='w', newline='', encoding='utf-8') as file:
         'Moon_Alt', 'Moon_Illum_%', 
         'Venus_Az', 'Venus_Alt', 
         'Mars_Az', 'Mars_Alt', 
-        'Jupiter_Az', 'Jupiter_Alt'
+        'Jupiter_Az', 'Jupiter_Alt',
+        'Mars_Delta_Sec'
     ])
 print(f"📁 CSV file saved on the fly: {csv_filename}\n")
 
@@ -241,7 +242,7 @@ for TARGET_YEAR in TARGET_YEARS:
                 moon_illum = almanac.fraction_illuminated(eph, 'moon', time_lock_tsec) * 100.0 if moon_data else 0.0
                 moon_alt = moon_data[0].degrees if moon_data else -90.0
 
-                # VISIBILITY LOGIC (v2.5.1 - Lunar Washout implementation)
+                # VISIBILITY LOGIC 
                 if sun_alt_at_lock >= NELM_SUN_ALT:
                     status = "❌ INVISIBLE (Washed out by daylight)"
                 elif moon_alt > 0.0 and moon_illum > 75.0:
@@ -256,6 +257,14 @@ for TARGET_YEAR in TARGET_YEARS:
                         status = f"✅ VISIBLE for {minutes}m {seconds}s after alignment" if delta > 0 else f"❌ INVISIBLE (Faded {minutes}m {seconds}s BEFORE alignment)"
                         if delta <= 0: is_visible = False
                 
+                # --- Calculate Mars Delta for CSV ---
+                mars_delta_csv = "N/A"
+                if time_mars_cross and time_lock:
+                    t1 = time_lock.replace(year=2000, month=1, day=1)
+                    t2 = time_mars_cross.replace(year=2000, month=1, day=1)
+                    mars_delta_csv = (t1 - t2).total_seconds()
+                # -------------------------------------
+
                 candidate_data = {
                     "date": current_date,
                     "sun_alt": sun_alt_at_lock,
@@ -269,13 +278,14 @@ for TARGET_YEAR in TARGET_YEARS:
                     "mars_az": body_data_at_lock['mars'][1].degrees if body_data_at_lock.get('mars') else None,
                     "mars_alt": body_data_at_lock['mars'][0].degrees if body_data_at_lock.get('mars') else None,
                     "jupiter_az": body_data_at_lock['jupiter'][1].degrees if body_data_at_lock.get('jupiter') else None,
-                    "jupiter_alt": body_data_at_lock['jupiter'][0].degrees if body_data_at_lock.get('jupiter') else None
+                    "jupiter_alt": body_data_at_lock['jupiter'][0].degrees if body_data_at_lock.get('jupiter') else None,
+                    "mars_delta_sec": mars_delta_csv
                 }
                 global_candidates.append(candidate_data)
                 
-                # --- CSV writting ---
+                # --- Save to CSV ---
                 dev = abs(candidate_data['sun_alt'] - IDEAL_SUN_ALT)
-                fmt = lambda x: f"{x:.4f}" if x is not None else "N/A"
+                fmt = lambda x: f"{x:.4f}" if isinstance(x, (int, float)) else x
                 
                 with open(csv_filename, mode='a', newline='', encoding='utf-8') as file:
                     writer = csv.writer(file)
@@ -293,7 +303,8 @@ for TARGET_YEAR in TARGET_YEARS:
                         fmt(candidate_data['mars_az']),
                         fmt(candidate_data['mars_alt']),
                         fmt(candidate_data['jupiter_az']),
-                        fmt(candidate_data['jupiter_alt'])
+                        fmt(candidate_data['jupiter_alt']),
+                        fmt(candidate_data['mars_delta_sec'])
                     ])
                 # ----------------------------
                 
@@ -302,7 +313,7 @@ for TARGET_YEAR in TARGET_YEARS:
                 print(f"    Eye Status   : {status}")
                 # ----------------------------------------
                 
-                # --- Custom Skymap ---
+                # --- CUSTOM SKYMAP RENDERING ---
                 print(f" 🌌 GLOBAL SKYMAP (At moment of {MONUMENT_ALIGNMENT_AZ}° Alignment):")
                 
                 # LST Clock Calculation
