@@ -21,15 +21,26 @@ When modifying the `TARGET_PLANETS` dictionary, use the exact string IDs recogni
 * *Pro-tip:* If you upgrade to a different ephemeris (e.g., `de430.bsp`), run `print(eph)` in your console to view all available target identifiers.
 
 ### 🔭 The Physics & Prophecy Conditions
-The script calculates alignment based on the literal text: *"When the red star of Regulus aligns just before dawn in the gaze of the Sphinx..."*
+The engine decodes the prophecy: *"When the red star of Regulus aligns just before dawn in the gaze of the Sphinx, a new knowledge shall come into the world."* 
 
-**1. The "Red Star" Condition (Atmospheric Extinction)**
-The engine tracks the "Red Star Phase," which occurs when Regulus reaches a low altitude of ~7.5°. At this altitude, the star's light travels through extreme atmospheric thickness. The engine calculates the Airmass ($X$) and the resulting color shift using:
-$$\Delta(B-V) \approx 0.15 \times \frac{1}{\sin(\text{altitude})}$$
-This physics-based calculation causes Regulus to appear blood-red against a still-dark sky, fulfilling the first condition of the prophecy.
+To validate this, the script maps the text to three specific mathematical constraints:
 
-**2. The "Before Dawn" Condition (Timing)**
-The engine validates the timing by ensuring the Sun is below the horizon (Sun Altitude < -6.0°). This guarantees the alignment happens in the "pre-dawn" phase, preserving the visual impact of the red star before the Sun’s light washes out the stellar spectrum.
+**1. "The Red Star of Regulus" (Atmospheric Extinction)**
+The engine tracks the "Red Star Phase" at an altitude of ~7.5°. Here, the star's light travels through extreme atmospheric thickness ($X$), causing Rayleigh scattering that shifts the spectrum toward red. The engine calculates the Airmass ($X$) and the color shift ($\Delta(B-V)$) using:
+$$X = \frac{1}{\sin(\text{altitude})}$$
+$$\Delta(B-V) \approx 0.15 \times X$$
+
+**2. "Aligns ... in the gaze of the Sphinx" (Geodetic Anchor)**
+The "gaze" is defined as the True East orientation of the Sphinx. The engine enforces a strict constraint where the celestial object must hit an Azimuth of exactly:
+$$\text{Azimuth} = 90.0^\circ$$
+The script flags the alignment only when Regulus pierces this precise geodetic line.
+
+**3. "Just before dawn" (Luminosity Thresholds)**
+This is the "contact window." The script validates two sun-altitude constraints:
+* **The Dawn Start:** Sun at $\approx -6.5^\circ$ (the calculated optimal "Red Dawn" horizon gradient).
+* **The Washout Limit (NELM):** The star becomes invisible when sky background luminance exceeds the star's flux. We define this limit at a Sun altitude of **-2.72°**. The contrast threshold ($\mathcal{C}$) is derived from the stellar magnitude ($m$) relative to sky background ($B$):
+$$\mathcal{C} = \frac{F_{star}}{B_{sky}} > \text{Threshold}$$
+When the Sun exceeds $-2.72^\circ$, the sky background brightness $B_{sky}$ exponentially overrides the stellar signal $F_{star}$, effectively "closing" the prophecy window.
 
 ### 🧠 The NHI & Archeological Context
 This analysis tool provides a data-driven framework for investigating theories regarding ancient contact and Non-Human Intelligence (NHI). By mapping orbital mechanics against any chosen site, the script allows for testing the hypothesis that certain monuments function as "contact protocols" or "cosmic clocks."
