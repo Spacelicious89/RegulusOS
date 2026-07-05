@@ -42,40 +42,46 @@ GLOSSARY, LEGEND & SCIENTIFIC DERIVATIONS
 TARGET_YEARS = [2026] # List of years to scan. Format : [2024, 2025, 2026] or [2024] for a single year.
 
 # ENGINE OPTIMIZATION
-TIME_STEP_SECONDS = 1  # Scanning time step in seconds (1 = MAXIMUM PRECISION) more than 1 second will speed up the scan but may skip critical events.
+# 1 = MAXIMUM PRECISION. WARNING: Values > 1s speed up the scan but decrease 
+# temporal resolution, which may cause 'overshoot' of the precise alignment lock.
+TIME_STEP_SECONDS = 1
 
 # OBSERVATION SITE CONFIGURATION
-SITE_NAME = "Great Sphinx of Giza (Head)" # change this to your desired observation site name for logging purposes
-SITE_LAT = 29.975234 # change this to your desired observation site latitude in decimal degrees
-SITE_LON = 31.137772  # change this to your desired observation site longitude in decimal degrees
-SITE_ELEVATION = 20.0  # change this to your desired observation site elevation in meters above sea level
+SITE_NAME = "Great Sphinx of Giza (Head)" # change this to your desired observation site name
+SITE_LAT = 29.975234 # change this to your desired observation site latitude
+SITE_LON = 31.137772  # change this to your desired observation site longitude
+SITE_ELEVATION = 20.0  # change this to your desired observation site elevation
 SITE_TZ = "Africa/Cairo" # Change this for other monuments, e.g., "America/Mexico_City"
 
 # ATMOSPHERIC CONDITIONS (Used for light refraction calculations)
-ATM_TEMPERATURE = 21.0 # Degrees Celsius change this to your desired observation site temperature in Celsius
-ATM_PRESSURE = 1011.0  # Hectopascals (mbar) change this to your desired observation site atmospheric pressure in hPa
+ATM_TEMPERATURE = 21.0 # Degrees Celsius
+ATM_PRESSURE = 1011.0  # Hectopascals (mbar)
 
 # CELESTIAL BODIES TO TRACK - you can add more planets or celestial bodies here. The keys are the names used in the code, and the values are the corresponding ephemeris identifiers.
-# Note: NASA DE421 ephemeris requires 'barycenter' tag for gas giants. In line 93, you can switch to 'de430.bsp' or 'de440s.bsp' for more recent ephemerides if needed.
+# Note: NASA DE421 ephemeris requires 'barycenter' tag for gas giants. In line 112, you can switch to 'de430.bsp' or 'de440s.bsp' for more recent ephemerides if needed.
 # Type in console: print(eph) to see all available ephemeris identifiers.
 TARGET_PLANETS = {
     'mars': 'mars',
     'venus': 'venus',
     'moon': 'moon',
-    'jupiter': 'jupiter barycenter' 
+    'jupiter': 'jupiter barycenter',
+    'saturn': 'saturn barycenter',
+    'mercury': 'mercury'
 }
 
-# SCAN CONFIGURATION (SNIPER MODE) here you can change or add more months and days to scan. Format: {month_number: {"days": [list_of_days], "start_h": start_hour, "scan_h": scan_duration_hours}}
+# SCAN CONFIGURATION (SNIPER MODE)
+# here you can change or add more months and days to scan.
+# Format: {month_number: {"days": [list_of_days], "start_h": start_hour, "scan_h": scan_duration_hours}}
 TARGET_SCANS = {
-    9: {"days": [23, 24, 25], "start_h": 0, "scan_h": 24}, # The "Red Dawn" Window (Sept 24th, 2026)
-   11: {"days": [3, 4, 5], "start_h": 0, "scan_h": 24} # The 5-Body Alignment Pillar (Nov 4th, 2026)
+    9: {"days": [23, 24, 25], "start_h": 2, "scan_h": 6}, # Control check: Helical rising
+    11: {"days": [3, 4, 5], "start_h": 0, "scan_h": 8} # The 5-Body Alignment Lock
 }
 
-# CRITICAL OPTICAL THRESHOLDS - this is where you can adjust the visibility thresholds for Regulus and other celestial events
-NELM_SUN_ALT = -2.72          # Threshold for Daylight Washout Regulus visibility (Naked-Eye Limiting Magnitude)
-MONUMENT_ALIGNMENT_AZ = 90.0  # Geodetic anchor for monument orientation - where celestial alignment is evaluated (e.g., 90° for True East).
-IDEAL_SUN_ALT = -6.5          # Red Dawn effect - change this to your desired sun altitude for optimal Regulus visibility (e.g., -6.5° for Civil Twilight)
-RED_STAR_ALT = 7.5            # Color shift altitude threshold - where Regulus appears reddish-orange due to atmospheric extinction.
+# CRITICAL OPTICAL THRESHOLDS
+NELM_SUN_ALT = -2.72          # Threshold for Daylight Washout for Regulus
+MONUMENT_ALIGNMENT_AZ = 90.0  # Geodetic anchor for monument orientation
+IDEAL_SUN_ALT = -6.5          # Pre-dawn target
+RED_STAR_ALT = 7.5            # Color shift altitude threshold
 # 👆 ================================================================ 👆
 
 # =====================================================================
@@ -103,7 +109,7 @@ def is_prime(n):
 # EPHEMERIS & TARGET SETUP
 # =====================================================================
 ts = load.timescale()
-eph = load('de421.bsp') # here you can switch to 'de430.bsp' or 'de440s.bsp' for more recent ephemerides if needed
+eph = load('de421.bsp') # 👈 here you can switch to 'de430.bsp' or 'de440s.bsp' for more recent ephemerides if needed.
 earth, sun = eph['earth'], eph['sun']
 
 planets = {name: eph[target] for name, target in TARGET_PLANETS.items()}
@@ -186,6 +192,7 @@ for TARGET_YEAR in TARGET_YEARS:
             mars_alt_at_cross = 0.0
             
             body_data_at_lock = {name: None for name in TARGET_PLANETS}
+            body_data_at_red = {name: None for name in TARGET_PLANETS}
             prev_reg_az = prev_reg_alt = prev_mars_az = None
 
             for s in range(0, config["scan_h"] * 3600, TIME_STEP_SECONDS): 
@@ -212,6 +219,9 @@ for TARGET_YEAR in TARGET_YEARS:
                         time_red_star = t_sec.utc_datetime().astimezone(OBSERVATION_TZ)
                         sun_alt_at_red = sun_alt
                         reg_az_at_red = curr_reg_az
+                        
+                        for name, body in planets.items():
+                            body_data_at_red[name] = site.at(t_sec).observe(body).apparent().altaz(temperature_C=ATM_TEMPERATURE, pressure_mbar=ATM_PRESSURE)
 
                 # --- MARS TRACKING ---
                 mars_pos = site.at(t_sec).observe(planets['mars']).apparent().altaz(temperature_C=ATM_TEMPERATURE, pressure_mbar=ATM_PRESSURE)
@@ -243,8 +253,11 @@ for TARGET_YEAR in TARGET_YEARS:
                 print(f" 🌅 REGULUS RISING : {time_reg_rise.strftime('%H:%M:%S')} Local (Azimuth: {reg_az_at_rise:.4f}°)")
 
             if time_red_star:
-                night_status = "🌙 (Pitch Black)" if sun_alt_at_red < -18.0 else "🌆 (Twilight)"
-                print(f" 🔴 RED STAR LIMIT : {time_red_star.strftime('%H:%M:%S')} Local | Regulus Az: {reg_az_at_red:.4f}° | Sun Alt: {sun_alt_at_red:+.4f}° {night_status}")
+                night_status = "Pitch Black" if sun_alt_at_red < -18.0 else "Twilight"
+                print(f" [TRIGGER]🔴 RED STAR LIMIT : {time_red_star.strftime('%H:%M:%S')} Local | Regulus Az: {reg_az_at_red:.4f}° | Sun Alt: {sun_alt_at_red:+.4f}° ({night_status})")
+                for body_name in body_data_at_red:
+                    if body_data_at_red[body_name]:
+                        print(f"    ↳ {body_name.upper()} at Trigger: Azimuth {body_data_at_red[body_name][1].degrees:.4f}° | Alt {body_data_at_red[body_name][0].degrees:+.4f}°")
 
             if time_lock:
                 is_visible = False
@@ -356,37 +369,32 @@ for TARGET_YEAR in TARGET_YEARS:
                 if body_data_at_lock.get('moon'):
                     moon_illum = almanac.fraction_illuminated(eph, 'moon', time_lock_tsec) * 100.0
                     print(f" 🌕 LUNAR STATUS : Az: {body_data_at_lock['moon'][1].degrees:.4f}° | Alt: {body_data_at_lock['moon'][0].degrees:+.4f}° | Illum: {moon_illum:.1f}%")
+            else:
+                print(f"    ⚠️ Regulus did not reach {MONUMENT_ALIGNMENT_AZ}° in scan window.")
+
+            # --- MARS INDEPENDENT TRACKER ---
+            if time_mars_cross:
+                print(f" 🔴 MARS CROSSING: Hits {MONUMENT_ALIGNMENT_AZ}° azimuth at {time_mars_cross.strftime('%H:%M:%S')} (Alt: {mars_alt_at_cross:+.2f}°)")
                 
-                # Mars Conjunction Tracker
-                if time_mars_cross:
-                    # Normalize dates to avoid 24h rollover bugs
+                
+                if time_lock:
                     t1 = time_lock.replace(year=2000, month=1, day=1)
                     t2 = time_mars_cross.replace(year=2000, month=1, day=1)
                     
                     diff_seconds = (t1 - t2).total_seconds()
-                    diff_min = abs(diff_seconds) / 60.0
-                    
-                    # Logic: If diff is positive, Lock happened AFTER Mars cross
-                    before_after = "BEFORE" if diff_seconds > 0 else "AFTER"
-        
-                    # Convert absolute difference to hours, minutes, seconds
                     abs_diff_sec = int(abs(diff_seconds))
                     h, remainder = divmod(abs_diff_sec, 3600)
                     m, s = divmod(remainder, 60)
                     
-                    # Formating the time string
-                    if h > 0:
-                        time_str = f"{h}h {m}m {s}s"
-                    elif m > 0:
-                        time_str = f"{m}m {s}s"
-                    else:
-                        time_str = f"{s} seconds"
-        
-                    print(f" 🔴 MARS CROSSING: Hits {MONUMENT_ALIGNMENT_AZ}° azimuth at {time_mars_cross.strftime('%H:%M:%S')} (Alt: {mars_alt_at_cross:+.2f}°)")
+                    before_after = "BEFORE" if diff_seconds > 0 else "AFTER"
+                    
+                    if h > 0: time_str = f"{h}h {m}m {s}s"
+                    elif m > 0: time_str = f"{m}m {s}s"
+                    else: time_str = f"{s} seconds"
+                    
                     print(f"    ⚠️ CONJUNCTION ALERT: Mars crosses exact azimuth {time_str} {before_after} Regulus!")
-
-            else:
-                print(f"    ⚠️ Regulus did not reach {MONUMENT_ALIGNMENT_AZ}° in scan window.")
+                else:
+                    print("    ℹ️ Mars crossed 90°, but Regulus did not align in this scan window.")
 
 
 # =====================================================================
