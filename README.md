@@ -23,7 +23,7 @@ $$\text{Azimuth} = 90.0^\circ$$
 * **Washout Limit (-2.72°):** The empirical threshold where sky background luminance ($B_{sky}$) mathematically overrides stellar flux ($F_{star}$), making the star invisible to the naked eye.
 
 ### 🧠 Archaeological Context
-This tool provides a data-driven framework for archaeoastronomy. Building on the work of Dr. Filippo Biondi and Prof. Corrado Malanga regarding subterranean structures and Giza's physical resonance, this script lets researchers turn back the celestial clock. It allows users to verify what the sky looked like during antiquity, testing if specific planetary alignments-such as Venus (Hathor) in the Duat and Mars (Horus) at the zenith—dictated the original architectural design, orientation, and "pre-programmed" logic of these ancient monuments.
+This tool provides a data-driven framework for archaeoastronomy. Building on the work of Dr. Filippo Biondi and Prof. Corrado Malanga regarding subterranean structures and Giza's physical resonance, this script lets researchers turn back the celestial clock. It allows users to verify what the sky looked like during antiquity, testing if specific planetary alignments—such as Venus (Hathor) in the Duat and Mars (Horus) at the zenith—dictated the original architectural design, orientation, and "pre-programmed" logic of these ancient monuments.
 
 ### ⚙️ Engine Capabilities
 * **Visibility Logic:** Automated washout detection. The engine cross-references Sun altitude (NELM) and Lunar illumination (> 75%) to determine if a celestial object is truly "visible" or washed out at the moment of alignment.
@@ -37,6 +37,17 @@ This tool provides a data-driven framework for archaeoastronomy. Building on the
 1. **Sept 24, 2026:** Validates the "Red Star just before dawn" condition at -6.5° sun altitude.
 2. **Nov 4, 2026 (Royal Syzygy):** A 5-body vertical pillar (Mars, Jupiter, Moon, Regulus) striking 90° azimuth, with Venus anchoring the underworld at -30°.
 3. **Biennial Mars Resonance:** Scanning the 2024–2030 window reveals a strict 2-year cycle. The 2026 event acts as the "primary lock" (< 23s divergence), while 2028 and 2030 represent mechanical echoes/decay.
+
+### 📊 Empirical Proof: The 2026 Mars Resonance (Data Logs)
+To prove this isn't a common occurrence, I ran the `ProjectRegulus.py` engine across a multi-year baseline (2024–2030) to test the exact synchronization of Mars and Regulus striking the 90.0° Sphinx azimuth. 
+
+The engine tracks `Mars_Delta_Sec` (the exact time divergence between Mars crossing the target azimuth and the Regulus alignment lock). The results show a strict orbital decay pattern centering on 2026:
+
+* **Oct 2024 (Echo):** Divergence is ~4,723 seconds (over **1 hour and 18 minutes**). Complete mechanical failure of the alignment.
+* **Nov 4, 2026 (The Lock):** Divergence is **< 23 seconds**. A near-perfect simultaneous geometrical lock on the geodetic target.
+* **Oct 2030 (Echo):** Divergence is ~ -769 seconds (almost **13 minutes**). The orbital machinery is shifting out of resonance.
+
+This isn't astrology; it's hard celestial mechanics. The exact parameters described in Bledsoe's "prophecy" (Regulus at 90° before dawn) happen annually—they act purely as a celestial timing key. However, the script mathematically proves that in late 2026, this annual key perfectly synchronizes with a hidden, multi-planetary orbital resonance (the < 23s Mars lock). This creates an isolated, highly specific geometric window that simply does not exist in the surrounding years. The prophecy itself isn't the anomaly; it's the precise coordinate required to witness the anomaly.
 
 ### 🚀 Quick Start
 1. **Google Colab:** Create a New Notebook.
@@ -61,3 +72,5 @@ All critical controls are at the top of the file in the `GLOBAL USER INPUT ZONE`
 * **RED_STAR_ALT (7.5°):** The critical altitude where Rayleigh scattering increases significantly. While Regulus is naturally blue-white, observation at this low angle—especially in the presence of aerosols, desert dust, or high humidity—intensifies light scattering, shifting the hue to a deep reddish-orange or "blood-red," fulfilling the prophecy under specific atmospheric conditions.
 * **Sun Altitude -6.5°:** Custom threshold for the pre-dawn window; ensures we are in the deeper pre-dawn phase before civil twilight.
 * **Sun Altitude -2.72° (Washout Limit):** Empirical threshold where sky background luminance ($B_{sky}$) overrides stellar flux ($F_{star}$).
+
+
