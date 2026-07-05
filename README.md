@@ -1,4 +1,4 @@
-# 🦁 Project Regulus - Master Computation Engine v2.5.1
+# 🦁 Project Regulus
 
 **The Archeoastronomical Alignment & Planetary Syzygy Script**
 
