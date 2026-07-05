@@ -3,14 +3,15 @@
 **The Archeoastronomical Alignment & Planetary Syzygy Script**
 
 ### 🎯 Project Overview
-Project Regulus is a high-precision computational script utilizing `skyfield` (NASA JPL DE421 ephemeris) to isolate the exact mathematical moments of complex celestial alignments over the Great Sphinx of Giza (Azimuth 90.0°). 
+Project Regulus is a high-precision computational script utilizing `skyfield` (NASA JPL DE421 ephemeris) to isolate exact mathematical moments of complex celestial alignments at any geodetic location on Earth. While pre-configured to analyze alignments over the Great Sphinx of Giza (Azimuth 90.0°), the engine is fully scalable and allows users to define custom coordinates for any monument or site worldwide.
 
-Version 2.5.1 expands the tracking capabilities to uncover multi-body vertical syzygies spanning both above and below the horizon. The tool serves as an analytical lens for investigating archeological anomalies, such as those proposed by the Khafre Project (Biondi & Malanga), by cross-referencing orbital resonance with Giza’s geodetic layout.
+Version 2.5.1 expands tracking capabilities to uncover multi-body vertical syzygies spanning both above and below the horizon, serving as an analytical lens for investigating archeological anomalies by cross-referencing orbital resonance with specific geodetic layouts.
 
 ### 🎛️ Global User Input Zone (How to configure)
 The script has been refactored to place all critical controls in a single `GLOBAL USER INPUT ZONE` at the top of the file. 
 * `TARGET_YEARS`: Input a single year or a list (e.g., `[2024, 2026, 2028, 2030]`) to validate orbital resonance.
-* `SITE_TZ`: Define the local time zone (e.g., `"Africa/Cairo"` or `"America/Mexico_City"`) for monument-specific alignment.
+* `SITE_NAME`, `SITE_LAT`, `SITE_LON`, `SITE_ELEVATION`: Define any monument or location on Earth.
+* `SITE_TZ`: Define the local time zone (e.g., `"Africa/Cairo"` or `"America/Mexico_City"`).
 * `TARGET_SCANS`: Define specific months and days to focus the engine on proposed anomalous windows.
 * `TIME_STEP`: Set your scanning interval. `1` second provides maximum precision; higher values increase speed at the cost of granular accuracy.
 
@@ -31,7 +32,7 @@ This physics-based calculation causes Regulus to appear blood-red against a stil
 The engine validates the timing by ensuring the Sun is below the horizon (Sun Altitude < -6.0°). This guarantees the alignment happens in the "pre-dawn" phase, preserving the visual impact of the red star before the Sun’s light washes out the stellar spectrum.
 
 ### 🧠 The NHI & Archeological Context
-This analysis tool provides a data-driven framework for investigating theories regarding ancient contact and Non-Human Intelligence (NHI). By mapping orbital mechanics against the Giza Plateau, the script allows for testing the hypothesis that certain monuments function as "contact protocols" or "cosmic clocks."
+This analysis tool provides a data-driven framework for investigating theories regarding ancient contact and Non-Human Intelligence (NHI). By mapping orbital mechanics against any chosen site, the script allows for testing the hypothesis that certain monuments function as "contact protocols" or "cosmic clocks."
 
 Recent interpretations of Giza (notably the work of Biondi and Malanga regarding the "Second Sphinx" and subterranean structures) suggest that the plateau may align with a pre-programmed orbital logic. This script enables researchers to test whether vertical alignments—such as Venus (Hathor) anchored in the Duat (sub-horizon) while Mars (Horus) guards the zenith—correlate with high-probability "contact windows."
 
