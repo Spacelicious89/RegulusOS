@@ -18,7 +18,7 @@ $$\text{Azimuth} = 90.0^\circ$$
 
 **3. "Just Before Dawn" (Timing & Luminosity Windows)**
 * **Dawn Start (Civil Twilight):** Officially begins when the Sun reaches exactly **-6.0°**.
-* **The "Just Before Dawn" Target (-6.5°):** We calibrate the engine to **-6.5°** to capture the exact moment immediately preceding actual dawn. At Giza's latitude, the Sun takes approximately **2.5 to 3 minutes** to travel this 0.5° difference. 
+* **The "Just Before Dawn" Target (-6.5°):** I calibrated the engine to **-6.5°** to capture the exact moment immediately preceding actual dawn. At Giza's latitude, the Sun takes approximately **2.5 to 3 minutes** to travel this 0.5° difference. 
 * **The Azimuth Lock Constraint:** This 2-3 minute window is critical. The Earth rotates at roughly 1° every 4 minutes. If you wait for the Sun to rise higher, Regulus will have already drifted ~0.5° to 0.7° away from the precise 90.0° Sphinx alignment. The "Just Before Dawn" condition is therefore a highly fleeting, precise temporal lock.
 * **Washout Limit (-2.72°):** The empirical threshold where sky background luminance ($B_{sky}$) mathematically overrides stellar flux ($F_{star}$), making the star invisible to the naked eye.
 
