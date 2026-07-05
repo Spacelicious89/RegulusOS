@@ -27,11 +27,11 @@ GLOSSARY, LEGEND & SCIENTIFIC DERIVATIONS
 # =====================================================================
 # GLOBAL USER INPUT ZONE & CONFIGURATION
 # =====================================================================
-# 👇 =================CHANGE HERE==================================== 👇
+# 👇 ================================================================ 👇
 TARGET_YEARS = [2026] # Target years
 
 # ENGINE OPTIMIZATION
-TIME_STEP_SECONDS = 10  # Scanning time step in seconds (1 = MAXIMUM PRECISION)
+TIME_STEP_SECONDS = 20  # Scanning time step in seconds (1 = MAXIMUM PRECISION)
 
 # OBSERVATION SITE CONFIGURATION
 SITE_NAME = "Great Sphinx of Giza (Body Core)" 
@@ -54,8 +54,8 @@ TARGET_PLANETS = {
 
 # SCAN CONFIGURATION (SNIPER MODE) # here you can add more months and days to scan
 TARGET_SCANS = {
-    9: {"days": [23, 24, 25], "start_h": 0, "scan_h": 24},
-    11: {"days": [2, 3, 4, 5], "start_h": 0, "scan_h": 24} 
+    9: {"days": [24], "start_h": 0, "scan_h": 24},
+    11: {"days": [1, 2, 3, 4, 5, 6, 7, 8], "start_h": 0, "scan_h": 24} 
 }
 
 # CRITICAL OPTICAL THRESHOLDS
@@ -63,7 +63,7 @@ NELM_SUN_ALT = -2.72          # Threshold for Daylight Washout
 MONUMENT_ALIGNMENT_AZ = 90.0  # Geodetic anchor for monument orientation
 IDEAL_SUN_ALT = -6.5          # Red Dawn effect (just before Civil Twilight 6°)
 RED_STAR_ALT = 7.5            # Color shift altitude threshold, where Regulus appears reddish-orange due to atmospheric extinction.
-# 👆 =========================CHANGE HERE============================== 👆
+# 👆 ================================================================ 👆
 
 # =====================================================================
 # TYPE COERCION FOR TARGET YEARS
@@ -123,6 +123,24 @@ print(f"• Alignment      : Azimuth = {MONUMENT_ALIGNMENT_AZ}°")
 print(f"• Red Dawn Limit : Sun ~ {IDEAL_SUN_ALT}°")
 print(f"• Red Star Phase : Regulus Alt ~ {RED_STAR_ALT}°")
 print("=====================================================================\n")
+
+# =====================================================================
+# CSV INITIALIZATION (ON-THE-FLY SAVING)
+# =====================================================================
+timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+csv_filename = f"regulus_scan_results_{timestamp}.csv"
+
+with open(csv_filename, mode='w', newline='', encoding='utf-8') as file:
+    writer = csv.writer(file)
+    writer.writerow([
+        'Date', 'Sun_Alt', 'Deviation_From_Ideal', 'Regulus_Alt', 
+        'Is_Visible', 'Visibility_Delta_Sec',
+        'Moon_Alt', 'Moon_Illum_%', 
+        'Venus_Az', 'Venus_Alt', 
+        'Mars_Az', 'Mars_Alt', 
+        'Jupiter_Az', 'Jupiter_Alt'
+    ])
+print(f"📁 Plik CSV gotowy do zapisu w locie: {csv_filename}\n")
 
 # =====================================================================
 # UNIFIED SCAN LOOP
@@ -237,11 +255,47 @@ for TARGET_YEAR in TARGET_YEARS:
                         minutes, seconds = int(abs(delta) // 60), int(abs(delta) % 60)
                         status = f"✅ VISIBLE for {minutes}m {seconds}s after alignment" if delta > 0 else f"❌ INVISIBLE (Faded {minutes}m {seconds}s BEFORE alignment)"
                         if delta <= 0: is_visible = False
-                    else:
-                        status = "✅ VISIBLE (Dawn limit not reached)"
                 
+                candidate_data = {
+                    "date": current_date,
+                    "sun_alt": sun_alt_at_lock,
+                    "reg_alt": reg_alt_at_lock,
+                    "is_visible": is_visible,
+                    "delta": delta,
+                    "moon_alt": moon_alt,
+                    "moon_illum": moon_illum,
+                    "venus_az": body_data_at_lock['venus'][1].degrees if body_data_at_lock.get('venus') else None,
+                    "venus_alt": body_data_at_lock['venus'][0].degrees if body_data_at_lock.get('venus') else None,
+                    "mars_az": body_data_at_lock['mars'][1].degrees if body_data_at_lock.get('mars') else None,
+                    "mars_alt": body_data_at_lock['mars'][0].degrees if body_data_at_lock.get('mars') else None,
+                    "jupiter_az": body_data_at_lock['jupiter'][1].degrees if body_data_at_lock.get('jupiter') else None,
+                    "jupiter_alt": body_data_at_lock['jupiter'][0].degrees if body_data_at_lock.get('jupiter') else None
+                }
+                global_candidates.append(candidate_data)
                 
-                global_candidates.append({"date": current_date, "sun_alt": sun_alt_at_lock, "is_visible": is_visible, "delta": delta})
+                # --- ZAPIS DO CSV W LOCIE ---
+                dev = abs(candidate_data['sun_alt'] - IDEAL_SUN_ALT)
+                fmt = lambda x: f"{x:.4f}" if x is not None else "N/A"
+                
+                with open(csv_filename, mode='a', newline='', encoding='utf-8') as file:
+                    writer = csv.writer(file)
+                    writer.writerow([
+                        candidate_data['date'].strftime('%Y-%m-%d'),
+                        fmt(candidate_data['sun_alt']),
+                        fmt(dev),
+                        fmt(candidate_data['reg_alt']),
+                        candidate_data['is_visible'],
+                        fmt(candidate_data['delta']) if candidate_data['delta'] is not None else "N/A",
+                        fmt(candidate_data['moon_alt']),
+                        fmt(candidate_data['moon_illum']),
+                        fmt(candidate_data['venus_az']),
+                        fmt(candidate_data['venus_alt']),
+                        fmt(candidate_data['mars_az']),
+                        fmt(candidate_data['mars_alt']),
+                        fmt(candidate_data['jupiter_az']),
+                        fmt(candidate_data['jupiter_alt'])
+                    ])
+                # ----------------------------
                 
                 print(f" 🏹 ALIGNMENT POINT: {time_lock.strftime('%H:%M:%S')} Local (Regulus hits {MONUMENT_ALIGNMENT_AZ}°)")
                 print(f"    Altitudes    : Sun: {sun_alt_at_lock:+.4f}° | Regulus: {reg_alt_at_lock:+.4f}°")
@@ -338,27 +392,4 @@ if best_match:
 else:
     print("System found NO viable timeline in this scan segment.")
 print("="*85)
-
-# =====================================================================
-# CSV LOG EXPORT
-# =====================================================================
-timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-csv_filename = f"regulus_scan_results_{timestamp}.csv"
-
-try:
-    with open(csv_filename, mode='w', newline='', encoding='utf-8') as file:
-        writer = csv.writer(file)
-        writer.writerow(['Date', 'Sun_Altitude', 'Deviation_From_Ideal', 'Is_Visible', 'Visibility_Delta_Seconds'])
-        
-        for c in global_candidates:
-            dev = abs(c['sun_alt'] - IDEAL_SUN_ALT)
-            writer.writerow([
-                c['date'].strftime('%Y-%m-%d'),
-                f"{c['sun_alt']:.4f}",
-                f"{dev:.4f}",
-                c['is_visible'],
-                c['delta'] if c['delta'] is not None else "N/A"
-            ])
-    print(f"\n📊 [DATA EXPORT] Scan results successfully saved to: {csv_filename}")
-except Exception as e:
-    print(f"\n⚠️ [DATA EXPORT ERROR] Could not save to CSV file: {e}")
+print(f"\n📊 [DATA EXPORT COMPLETED] Scan results were successfully saved on the fly to: {csv_filename}")
