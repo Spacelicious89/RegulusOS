@@ -21,14 +21,15 @@ When modifying the `TARGET_PLANETS` dictionary, use the exact string IDs recogni
 * *Pro-tip:* If you upgrade to a different ephemeris (e.g., `de430.bsp`), run `print(eph)` in your console to view all available target identifiers.
 
 ### 🔭 The Physics & Prophecy Conditions
-The engine decodes the prophecy: *"When the red star of Regulus aligns just before dawn in the gaze of the Sphinx, a new knowledge shall come into the world."* 
+The engine decodes the prophecy as recounted by Chris Bledsoe in his book *UFO of GOD*: "When the red star of Regulus aligns just before dawn in the gaze of the Sphinx, a new knowledge shall come into the world." 
 
 To validate this, the script maps the text to three specific mathematical constraints:
 
 **1. "The Red Star of Regulus" (Atmospheric Extinction)**
-The engine tracks the "Red Star Phase" at an altitude of ~7.5°. Here, the star's light travels through extreme atmospheric thickness ($X$), causing Rayleigh scattering that shifts the spectrum toward red. The engine calculates the Airmass ($X$) and the color shift ($\Delta(B-V)$) using:
+The engine tracks the "Red Star Phase," which occurs when Regulus reaches a low altitude of ~7.5°. At this altitude, the star's light travels through extreme atmospheric thickness ($X$), causing Rayleigh scattering that shifts the spectrum toward red. The engine calculates the Airmass ($X$) and the color shift ($\Delta(B-V)$) using:
 $$X = \frac{1}{\sin(\text{altitude})}$$
 $$\Delta(B-V) \approx 0.15 \times X$$
+This physics-based calculation causes Regulus to appear blood-red against a still-dark sky, fulfilling the first condition of the prophecy.
 
 **2. "Aligns ... in the gaze of the Sphinx" (Geodetic Anchor)**
 The "gaze" is defined as the True East orientation of the Sphinx. The engine enforces a strict constraint where the celestial object must hit an Azimuth of exactly:
