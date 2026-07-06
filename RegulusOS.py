@@ -1,5 +1,7 @@
 import datetime
 import csv
+import multiprocessing
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from zoneinfo import ZoneInfo
 from skyfield.api import load, Star, wgs84
 from skyfield import almanac
@@ -39,12 +41,14 @@ GLOSSARY, LEGEND & SCIENTIFIC DERIVATIONS
 # GLOBAL USER INPUT ZONE & CONFIGURATION
 # =====================================================================
 # 👇 ================================================================ 👇
-TARGET_YEARS = [2026] # List of years to scan. Format : [2024, 2025, 2026] or [2024] for a single year.
+TARGET_YEARS = [2025, 2026, 2027] # List of years to scan. Format : [2024, 2025, 2026] or [2024] for a single year.
 
 # ENGINE OPTIMIZATION
-# 1 = MAXIMUM PRECISION. WARNING: Values > 1s speed up the scan but decrease 
-# temporal resolution, which may cause 'overshoot' of the precise alignment lock.
-TIME_STEP_SECONDS = 1
+# Scanning time step in seconds (1 = MAXIMUM PRECISION) 
+# you may use 1 second for high precision, or 5-10+ seconds for faster scans with less precision.
+# WARNING: Values > 1s decrease temporal resolution, which may cause 'overshoot' of the precise alignment lock.
+# test it with 5-10s for a quick scan, then refine with 1s for the final evaluation.
+TIME_STEP_SECONDS = 1 
 
 # OBSERVATION SITE CONFIGURATION
 SITE_NAME = "Great Sphinx of Giza (Head)" # change this to your desired observation site name
@@ -54,10 +58,10 @@ SITE_ELEVATION = 20.0  # change this to your desired observation site elevation
 SITE_TZ = "Africa/Cairo" # Change this for other monuments, e.g., "America/Mexico_City"
 
 # ATMOSPHERIC CONDITIONS (Used for light refraction calculations)
-ATM_TEMPERATURE = 21.0 # Degrees Celsius
-ATM_PRESSURE = 1011.0  # Hectopascals (mbar)
+ATM_TEMPERATURE = 21.0 # Degrees Celsius adjust this to your local conditions for more accurate refraction calculations
+ATM_PRESSURE = 1011.0  # Hectopascals (mbar) adjust this to your "local conditions" for more accurate refraction calculations
 
-# CELESTIAL BODIES TO TRACK - you can add more planets or celestial bodies here. The keys are the names used in the code, and the values are the corresponding ephemeris identifiers.
+# CELESTIAL BODIES TO TRACK - you can add more planets or celestial bodies here. The keys are the names used in the code.
 # Note: NASA DE421 ephemeris requires 'barycenter' tag for gas giants. In line 112, you can switch to 'de430.bsp' or 'de440s.bsp' for more recent ephemerides if needed.
 # Type in console: print(eph) to see all available ephemeris identifiers.
 TARGET_PLANETS = {
@@ -66,22 +70,26 @@ TARGET_PLANETS = {
     'moon': 'moon',
     'jupiter': 'jupiter barycenter',
     'saturn': 'saturn barycenter',
-    'mercury': 'mercury'
+    'mercury': 'mercury',
+    'neptune': 'neptune barycenter'
 }
 
 # SCAN CONFIGURATION (SNIPER MODE)
 # here you can change or add more months and days to scan.
 # Format: {month_number: {"days": [list_of_days], "start_h": start_hour, "scan_h": scan_duration_hours}}
 TARGET_SCANS = {
-    9: {"days": [23, 24, 25], "start_h": 2, "scan_h": 6}, # Control check: Helical rising
-    11: {"days": [3, 4, 5], "start_h": 0, "scan_h": 8} # The 5-Body Alignment Lock
+    9: {"days": [23, 24, 25], "start_h": 0, "scan_h": 7}, # Control check: Helical rising
+    11: {"days": [3, 4, 5], "start_h": 0, "scan_h": 9} # The 5-Body Alignment Lock
 }
 
 # CRITICAL OPTICAL THRESHOLDS
-NELM_SUN_ALT = -2.72          # Threshold for Daylight Washout for Regulus
-MONUMENT_ALIGNMENT_AZ = 90.0  # Geodetic anchor for monument orientation
-IDEAL_SUN_ALT = -6.5          # Pre-dawn target
-RED_STAR_ALT = 7.5            # Color shift altitude threshold
+NELM_SUN_ALT = -2.72          # Threshold for Daylight Washout for Regulus - if different planets/celestial bodies are used, this may need adjustment
+MONUMENT_ALIGNMENT_AZ = 90.0  # Geodetic anchor for monument orientation - this is gaze of the sphinx head, adjust if using other monuments
+IDEAL_SUN_ALT = -6.5          # Pre-dawn target - adjust where you want the sun to be for optimal extinction (e.g., -6.0° for Civil Twilight, -6.5° for Red Dawn)
+
+# Color shift altitude threshold (ATMOSPHERIC GRADIENT WINDOW)
+RED_STAR_MIN = 4.0            # Lower boundary for Red Star phase (deep red, highly extinguished)
+RED_STAR_MAX = 8.0            # Upper boundary for Red Star phase (transitioning to orange)
 # 👆 ================================================================ 👆
 
 # =====================================================================
@@ -105,6 +113,13 @@ def is_prime(n):
         i += 6
     return True
 
+def calculate_intercept_time(t_current, az_current, target_az, site=None):
+    """Predicts exact time of intercept based on Earth's rotation (15 deg/hr -> 240s/deg)."""
+    diff_az = az_current - target_az
+    seconds_to_intercept = diff_az * 240.0
+    intercept_time = t_current - datetime.timedelta(seconds=seconds_to_intercept)
+    return intercept_time
+
 # =====================================================================
 # EPHEMERIS & TARGET SETUP
 # =====================================================================
@@ -124,61 +139,31 @@ alnilam = Star(ra_hours=(5, 36, 12.81), dec_degrees=(-1, 12, 6.9))
 sgra = Star(ra_hours=(17, 45, 40.04), dec_degrees=(-29, 0, 28.1))
 
 start_date = datetime.date(2012, 12, 21)
-global_candidates = []
 
 # =====================================================================
-# ENGINE STARTUP
+# CORE ENGINE - MULTIPROCESSING WRAPPER
 # =====================================================================
-print("=====================================================================")
-print("         [PROJECT REGULUS] - MASTER COMPUTATION ENGINE v2.5.1")
-print("=====================================================================")
-print(f"TARGET YEARS SET TO: {TARGET_YEARS}")
-print(f"SITE LOCATION     : {SITE_NAME}")
-print(f"SCANS ACTIVE      : Months {sorted(list(TARGET_SCANS.keys()))}")
-print(f"TIME STEP         : {TIME_STEP_SECONDS} seconds")
-print(f"ATMOSPHERE SET TO : {ATM_TEMPERATURE}°C, {ATM_PRESSURE} hPa")
-print("\nKey Parameters:")
-print(f"• Alignment      : Azimuth = {MONUMENT_ALIGNMENT_AZ}°")
-print(f"• Red Dawn Limit : Sun ~ {IDEAL_SUN_ALT}°")
-print(f"• Red Star Phase : Regulus Alt ~ {RED_STAR_ALT}°")
-print("=====================================================================\n")
+def scan_single_year(TARGET_YEAR):
+    year_candidates = []
+    output_buffer = []
+    
+    # Internal log function to prevent output collision between parallel threads
+    def log(msg):
+        output_buffer.append(msg)
 
-# =====================================================================
-# CSV INITIALIZATION (ON-THE-FLY SAVING)
-# =====================================================================
-timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-csv_filename = f"regulus_scan_results_{timestamp}.csv"
-
-with open(csv_filename, mode='w', newline='', encoding='utf-8') as file:
-    writer = csv.writer(file)
-    writer.writerow([
-        'Date', 'Sun_Alt', 'Deviation_From_Ideal', 'Regulus_Alt', 
-        'Is_Visible', 'Visibility_Delta_Sec',
-        'Moon_Alt', 'Moon_Illum_%', 
-        'Venus_Az', 'Venus_Alt', 
-        'Mars_Az', 'Mars_Alt', 
-        'Jupiter_Az', 'Jupiter_Alt',
-        'Mars_Delta_Sec'
-    ])
-print(f"📁 CSV file saved on the fly: {csv_filename}\n")
-
-# =====================================================================
-# UNIFIED SCAN LOOP
-# =====================================================================
-for TARGET_YEAR in TARGET_YEARS:
     for month, config in sorted(TARGET_SCANS.items()):
-        print("="*75)
-        print(f"                 SCAN MODULE - MONTH: {month:02d} / {TARGET_YEAR}")
-        print("="*75)
+        log("="*75)
+        log(f"                 SCAN MODULE - MONTH: {month:02d} / {TARGET_YEAR}")
+        log("="*75)
         
         for day in config["days"]:
             current_date = datetime.date(TARGET_YEAR, month, day)
             days_delta = (current_date - start_date).days
             prime_status = "PRIME NUMBER" if is_prime(days_delta) else "COMPOSITE NUMBER"
             
-            print(f"\n📅 SCANNING: {current_date.strftime('%B %d, %Y')}")
-            print(f"  ↳ Days from 2012-12-21: {days_delta} → {prime_status}")
-            print("-" * 75)
+            log(f"\n📅 SCANNING: {current_date.strftime('%B %d, %Y')}")
+            log(f"  ↳ Days from 2012-12-21: {days_delta} → {prime_status}")
+            log("-" * 75)
             
             t_start = datetime.datetime(TARGET_YEAR, month, day, config["start_h"], 0, 0)
             
@@ -186,10 +171,11 @@ for TARGET_YEAR in TARGET_YEARS:
             time_nelm = time_lock = time_reg_rise = time_red_star = None
             time_lock_tsec = None
             sun_alt_at_lock = reg_alt_at_lock = reg_az_at_rise = 0.0
-            sun_alt_at_red = reg_az_at_red = 0.0
+            sun_alt_at_red = reg_az_at_red = reg_alt_at_red = 0.0
             
             time_mars_cross = None
             mars_alt_at_cross = 0.0
+            mars_az_at_cross = 0.0
             
             body_data_at_lock = {name: None for name in TARGET_PLANETS}
             body_data_at_red = {name: None for name in TARGET_PLANETS}
@@ -215,10 +201,11 @@ for TARGET_YEAR in TARGET_YEARS:
                         reg_az_at_rise = curr_reg_az
 
                 if time_red_star is None and prev_reg_alt is not None:
-                    if prev_reg_alt < RED_STAR_ALT <= curr_reg_alt:
+                    if prev_reg_alt < RED_STAR_MIN <= curr_reg_alt:
                         time_red_star = t_sec.utc_datetime().astimezone(OBSERVATION_TZ)
                         sun_alt_at_red = sun_alt
                         reg_az_at_red = curr_reg_az
+                        reg_alt_at_red = curr_reg_alt
                         
                         for name, body in planets.items():
                             body_data_at_red[name] = site.at(t_sec).observe(body).apparent().altaz(temperature_C=ATM_TEMPERATURE, pressure_mbar=ATM_PRESSURE)
@@ -231,6 +218,7 @@ for TARGET_YEAR in TARGET_YEARS:
                     if prev_mars_az < MONUMENT_ALIGNMENT_AZ <= curr_mars_az:
                         time_mars_cross = t_sec.utc_datetime().astimezone(OBSERVATION_TZ)
                         mars_alt_at_cross = curr_mars_alt
+                        mars_az_at_cross = curr_mars_az
 
                 # --- MAIN ALIGNMENT LOCK ---
                 if time_lock is None and prev_reg_az is not None:
@@ -250,25 +238,27 @@ for TARGET_YEAR in TARGET_YEARS:
 
             # ==================== DAILY REPORT ====================
             if time_reg_rise:
-                print(f" 🌅 REGULUS RISING : {time_reg_rise.strftime('%H:%M:%S')} Local (Azimuth: {reg_az_at_rise:.4f}°)")
+                log(f" 🌅 REGULUS RISING : {time_reg_rise.strftime('%H:%M:%S')} Local (Azimuth: {reg_az_at_rise:.4f}°)")
 
             if time_red_star:
-                night_status = "Pitch Black" if sun_alt_at_red < -18.0 else "Twilight"
-                print(f" [TRIGGER]🔴 RED STAR LIMIT : {time_red_star.strftime('%H:%M:%S')} Local | Regulus Az: {reg_az_at_red:.4f}° | Sun Alt: {sun_alt_at_red:+.4f}° ({night_status})")
+                night_status = "🌙 Pitch Black" if sun_alt_at_red < -18.0 else "Twilight"
+                log(f" [TRIGGER]🔴 RED STAR LIMIT : {time_red_star.strftime('%H:%M:%S')} Local | Regulus Az: {reg_az_at_red:.4f}° | Regulus Alt: {reg_alt_at_red:+.4f}° | Sun Alt: {sun_alt_at_red:+.4f}° ({night_status})")
                 for body_name in body_data_at_red:
                     if body_data_at_red[body_name]:
-                        print(f"    ↳ {body_name.upper()} at Trigger: Azimuth {body_data_at_red[body_name][1].degrees:.4f}° | Alt {body_data_at_red[body_name][0].degrees:+.4f}°")
+                        log(f"    ↳ {body_name.upper()} at Trigger: Azimuth {body_data_at_red[body_name][1].degrees:.4f}° | Alt {body_data_at_red[body_name][0].degrees:+.4f}°")
+                        
+                        if body_name == 'mars':
+                            calc_time = calculate_intercept_time(time_red_star, body_data_at_red['mars'][1].degrees, MONUMENT_ALIGNMENT_AZ, site)
+                            log(f"       🎯 PREDICTED PERFECT LOCK (From Trigger): {calc_time.strftime('%H:%M:%S')}")
 
             if time_lock:
                 is_visible = False
                 delta = None
                 
-                # Extract lunar data at the moment of alignment lock
                 moon_data = body_data_at_lock.get('moon')
                 moon_illum = almanac.fraction_illuminated(eph, 'moon', time_lock_tsec) * 100.0 if moon_data else 0.0
                 moon_alt = moon_data[0].degrees if moon_data else -90.0
 
-                # VISIBILITY LOGIC 
                 if sun_alt_at_lock >= NELM_SUN_ALT:
                     status = "❌ INVISIBLE (Washed out by daylight)"
                 elif moon_alt > 0.0 and moon_illum > 75.0:
@@ -283,13 +273,11 @@ for TARGET_YEAR in TARGET_YEARS:
                         status = f"✅ VISIBLE for {minutes}m {seconds}s after alignment" if delta > 0 else f"❌ INVISIBLE (Faded {minutes}m {seconds}s BEFORE alignment)"
                         if delta <= 0: is_visible = False
                 
-                # --- Calculate Mars Delta for CSV ---
                 mars_delta_csv = "N/A"
                 if time_mars_cross and time_lock:
                     t1 = time_lock.replace(year=2000, month=1, day=1)
                     t2 = time_mars_cross.replace(year=2000, month=1, day=1)
                     mars_delta_csv = (t1 - t2).total_seconds()
-                # -------------------------------------
 
                 candidate_data = {
                     "date": current_date,
@@ -305,77 +293,51 @@ for TARGET_YEAR in TARGET_YEARS:
                     "mars_alt": body_data_at_lock['mars'][0].degrees if body_data_at_lock.get('mars') else None,
                     "jupiter_az": body_data_at_lock['jupiter'][1].degrees if body_data_at_lock.get('jupiter') else None,
                     "jupiter_alt": body_data_at_lock['jupiter'][0].degrees if body_data_at_lock.get('jupiter') else None,
+                    "neptune_az": body_data_at_lock['neptune'][1].degrees if body_data_at_lock.get('neptune') else None,
+                    "neptune_alt": body_data_at_lock['neptune'][0].degrees if body_data_at_lock.get('neptune') else None,
                     "mars_delta_sec": mars_delta_csv
                 }
-                global_candidates.append(candidate_data)
+                year_candidates.append(candidate_data)
                 
-                # --- Save to CSV ---
-                dev = abs(candidate_data['sun_alt'] - IDEAL_SUN_ALT)
-                fmt = lambda x: f"{x:.4f}" if isinstance(x, (int, float)) else x
+                log(f" 🏹 ALIGNMENT POINT: {time_lock.strftime('%H:%M:%S')} Local (Regulus hits {MONUMENT_ALIGNMENT_AZ}°)")
+                log(f"    Altitudes    : Sun: {sun_alt_at_lock:+.4f}° | Regulus: {reg_alt_at_lock:+.4f}°")
+                log(f"    Eye Status   : {status}")
                 
-                with open(csv_filename, mode='a', newline='', encoding='utf-8') as file:
-                    writer = csv.writer(file)
-                    writer.writerow([
-                        candidate_data['date'].strftime('%Y-%m-%d'),
-                        fmt(candidate_data['sun_alt']),
-                        fmt(dev),
-                        fmt(candidate_data['reg_alt']),
-                        candidate_data['is_visible'],
-                        fmt(candidate_data['delta']) if candidate_data['delta'] is not None else "N/A",
-                        fmt(candidate_data['moon_alt']),
-                        fmt(candidate_data['moon_illum']),
-                        fmt(candidate_data['venus_az']),
-                        fmt(candidate_data['venus_alt']),
-                        fmt(candidate_data['mars_az']),
-                        fmt(candidate_data['mars_alt']),
-                        fmt(candidate_data['jupiter_az']),
-                        fmt(candidate_data['jupiter_alt']),
-                        fmt(candidate_data['mars_delta_sec'])
-                    ])
-                # ----------------------------
+                log(f" 🌌 GLOBAL SKYMAP (At moment of {MONUMENT_ALIGNMENT_AZ}° Alignment):")
                 
-                print(f" 🏹 ALIGNMENT POINT: {time_lock.strftime('%H:%M:%S')} Local (Regulus hits {MONUMENT_ALIGNMENT_AZ}°)")
-                print(f"    Altitudes    : Sun: {sun_alt_at_lock:+.4f}° | Regulus: {reg_alt_at_lock:+.4f}°")
-                print(f"    Eye Status   : {status}")
-                # ----------------------------------------
-                
-                # --- CUSTOM SKYMAP RENDERING ---
-                print(f" 🌌 GLOBAL SKYMAP (At moment of {MONUMENT_ALIGNMENT_AZ}° Alignment):")
-                
-                # LST Clock Calculation
                 lst = time_lock_tsec.gast + lon_hours
                 lst = lst % 24.0
                 h = int(lst)
                 m = int((lst - h) * 60)
                 s_lst = (lst - h - m/60.0) * 3600
-                print(f"    LST Clock    : {h:02d}:{m:02d}:{s_lst:05.2f}")
+                log(f"    LST Clock    : {h:02d}:{m:02d}:{s_lst:05.2f}")
                 
-                # Orion & Galactic Center Coordinates
                 orion_pos = site.at(time_lock_tsec).observe(alnilam).apparent().altaz(temperature_C=ATM_TEMPERATURE, pressure_mbar=ATM_PRESSURE)
-                print(f"    Orion's Belt : Az: {orion_pos[1].degrees:.4f}° | Alt: {orion_pos[0].degrees:+.4f}°")
+                log(f"    Orion's Belt : Az: {orion_pos[1].degrees:.4f}° | Alt: {orion_pos[0].degrees:+.4f}°")
                 
                 gc_pos = site.at(time_lock_tsec).observe(sgra).apparent().altaz(temperature_C=ATM_TEMPERATURE, pressure_mbar=ATM_PRESSURE)
-                print(f"    Galactic Ctr : Alt: {gc_pos[0].degrees:+.4f}°")
+                log(f"    Galactic Ctr : Alt: {gc_pos[0].degrees:+.4f}°")
                 
-                # Dynamic Planets Log
                 if body_data_at_lock.get('venus'):
-                    print(f"    Venus        : Az: {body_data_at_lock['venus'][1].degrees:.4f}° | Alt: {body_data_at_lock['venus'][0].degrees:+.4f}°")
+                    log(f"    Venus        : Az: {body_data_at_lock['venus'][1].degrees:.4f}° | Alt: {body_data_at_lock['venus'][0].degrees:+.4f}°")
                 if body_data_at_lock.get('mars'):
-                    print(f"    Mars         : Az: {body_data_at_lock['mars'][1].degrees:.4f}° | Alt: {body_data_at_lock['mars'][0].degrees:+.4f}°")
+                    log(f"    Mars         : Az: {body_data_at_lock['mars'][1].degrees:.4f}° | Alt: {body_data_at_lock['mars'][0].degrees:+.4f}°")
                 if body_data_at_lock.get('jupiter'):
-                    print(f"    Jupiter      : Az: {body_data_at_lock['jupiter'][1].degrees:.4f}° | Alt: {body_data_at_lock['jupiter'][0].degrees:+.4f}°")
+                    log(f"    Jupiter      : Az: {body_data_at_lock['jupiter'][1].degrees:.4f}° | Alt: {body_data_at_lock['jupiter'][0].degrees:+.4f}°")
+                if body_data_at_lock.get('neptune'):
+                    log(f"    Neptune      : Az: {body_data_at_lock['neptune'][1].degrees:.4f}° | Alt: {body_data_at_lock['neptune'][0].degrees:+.4f}°")
                 
-                # Lunar Status
                 if body_data_at_lock.get('moon'):
                     moon_illum = almanac.fraction_illuminated(eph, 'moon', time_lock_tsec) * 100.0
-                    print(f" 🌕 LUNAR STATUS : Az: {body_data_at_lock['moon'][1].degrees:.4f}° | Alt: {body_data_at_lock['moon'][0].degrees:+.4f}° | Illum: {moon_illum:.1f}%")
+                    log(f" 🌕 LUNAR STATUS : Az: {body_data_at_lock['moon'][1].degrees:.4f}° | Alt: {body_data_at_lock['moon'][0].degrees:+.4f}° | Illum: {moon_illum:.1f}%")
             else:
-                print(f"    ⚠️ Regulus did not reach {MONUMENT_ALIGNMENT_AZ}° in scan window.")
+                log(f"    ⚠️ Regulus did not reach {MONUMENT_ALIGNMENT_AZ}° in scan window.")
 
-            # --- MARS INDEPENDENT TRACKER ---
             if time_mars_cross:
-                print(f" 🔴 MARS CROSSING: Hits {MONUMENT_ALIGNMENT_AZ}° azimuth at {time_mars_cross.strftime('%H:%M:%S')} (Alt: {mars_alt_at_cross:+.2f}°)")
+                log(f" 🔴 MARS CROSSING: Hits {MONUMENT_ALIGNMENT_AZ}° azimuth at {time_mars_cross.strftime('%H:%M:%S')} (Alt: {mars_alt_at_cross:+.2f}°)")
                 
+                calc_time = calculate_intercept_time(time_mars_cross, mars_az_at_cross, MONUMENT_ALIGNMENT_AZ, site)
+                log(f"    🎯 PREDICTED PERFECT LOCK (Refined): {calc_time.strftime('%H:%M:%S')}")
                 
                 if time_lock:
                     t1 = time_lock.replace(year=2000, month=1, day=1)
@@ -392,36 +354,101 @@ for TARGET_YEAR in TARGET_YEARS:
                     elif m > 0: time_str = f"{m}m {s}s"
                     else: time_str = f"{s} seconds"
                     
-                    print(f"    ⚠️ CONJUNCTION ALERT: Mars crosses exact azimuth {time_str} {before_after} Regulus!")
+                    log(f"    ⚠️ CONJUNCTION ALERT: Mars crosses exact azimuth {time_str} {before_after} Regulus!")
                 else:
-                    print("    ℹ️ Mars crossed 90°, but Regulus did not align in this scan window.")
+                    log("    ℹ️ Mars crossed 90°, but Regulus did not align in this scan window.")
 
+    return year_candidates, "\n".join(output_buffer)
 
 # =====================================================================
-# FINAL EVALUATION
+# SYSTEM MAIN BLOCK & ENGINE STARTUP
 # =====================================================================
-print("\n" + "="*85)
-print("         PROJECT REGULUS - GLOBAL DYNAMIC EVALUATION v2.5.1")
-print("="*85)
-best_match = None
-best_score = -9999
+if __name__ == '__main__':
+    print("=====================================================================")
+    print("         [PROJECT REGULUS] - MASTER COMPUTATION ENGINE v2.7 ULTIMATE")
+    print("=====================================================================")
+    print(f"TARGET YEARS SET TO: {TARGET_YEARS}")
+    print(f"CORES ENGAGED      : {multiprocessing.cpu_count()}")
+    print(f"SITE LOCATION      : {SITE_NAME}")
+    print(f"SCANS ACTIVE       : Months {sorted(list(TARGET_SCANS.keys()))}")
+    print(f"TIME STEP          : {TIME_STEP_SECONDS} seconds")
+    print(f"ATMOSPHERE SET TO  : {ATM_TEMPERATURE}°C, {ATM_PRESSURE} hPa")
+    print("\nKey Parameters:")
+    print(f"• Alignment      : Azimuth = {MONUMENT_ALIGNMENT_AZ}°")
+    print(f"• Red Dawn Limit : Sun ~ {IDEAL_SUN_ALT}°")
+    print(f"• Red Star Phase : Regulus Alt ~ {RED_STAR_MIN}° - {RED_STAR_MAX}°")
+    print("\nWARNING: Multiprocessing initialized. Please wait for the final compiled log...")
+    print("=====================================================================\n")
 
-for c in global_candidates:
-    if c['is_visible']:
-        score = -abs(c['sun_alt'] - IDEAL_SUN_ALT) 
-        date_str = c['date'].strftime('%B %d, %Y')
-        print(f"• {date_str:<20} : ✅ Valid Window | Sun alt: {c['sun_alt']:+.4f}° | Score: {score:+.4f}")
-        if score > best_score:
-            best_score = score
-            best_match = c
+    global_candidates = []
+    
+    with ProcessPoolExecutor() as executor:
+        futures = {executor.submit(scan_single_year, y): y for y in TARGET_YEARS}
+        for future in as_completed(futures):
+            try:
+                candidates, log_output = future.result()
+                global_candidates.extend(candidates)
+                print(log_output)
+            except Exception as e:
+                print(f"❌ Error processing a year: {e}")
 
-print("\n[ ENGINE CONCLUSION : OPTIMAL RED-SHIFT SELECTION ]")
-if best_match:
-    print(f"🏆 SYSTEM SELECTION: {best_match['date'].strftime('%B %d, %Y')}")
-    print(f"   Sun Altitude    : {best_match['sun_alt']:+.4f}°")
-    print(f"   Target Zone     : {IDEAL_SUN_ALT}° (Max Extinction)")
-    print(f"   Deviation       : {abs(best_score):.4f}° from ideal")
-else:
-    print("System found NO viable timeline in this scan segment.")
-print("="*85)
-print(f"\n📊 [DATA EXPORT COMPLETED] Scan results were successfully saved on the fly to: {csv_filename}")
+    # =====================================================================
+    # CSV INITIALIZATION & SAVING
+    # =====================================================================
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    csv_filename = f"regulus_scan_results_{timestamp}.csv"
+
+    global_candidates.sort(key=lambda x: x['date'])
+
+    fmt = lambda x: f"{x:.4f}" if isinstance(x, (int, float)) else x
+    with open(csv_filename, mode='w', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        writer.writerow([
+            'Date', 'Sun_Alt', 'Deviation_From_Ideal', 'Regulus_Alt', 
+            'Is_Visible', 'Visibility_Delta_Sec',
+            'Moon_Alt', 'Moon_Illum_%', 
+            'Venus_Az', 'Venus_Alt', 
+            'Mars_Az', 'Mars_Alt', 
+            'Jupiter_Az', 'Jupiter_Alt',
+            'Neptune_Az', 'Neptune_Alt',
+            'Mars_Delta_Sec'
+        ])
+        
+        for c in global_candidates:
+            dev = abs(c['sun_alt'] - IDEAL_SUN_ALT)
+            writer.writerow([
+                c['date'].strftime('%Y-%m-%d'), fmt(c['sun_alt']), fmt(dev), fmt(c['reg_alt']),
+                c['is_visible'], fmt(c['delta']) if c['delta'] is not None else "N/A",
+                fmt(c['moon_alt']), fmt(c['moon_illum']), fmt(c['venus_az']), fmt(c['venus_alt']),
+                fmt(c['mars_az']), fmt(c['mars_alt']), fmt(c['jupiter_az']), fmt(c['jupiter_alt']),
+                fmt(c['neptune_az']), fmt(c['neptune_alt']), fmt(c['mars_delta_sec'])
+            ])
+            
+    # =====================================================================
+    # FINAL EVALUATION
+    # =====================================================================
+    print("\n" + "="*85)
+    print("         PROJECT REGULUS - GLOBAL DYNAMIC EVALUATION v2.7 ULTIMATE")
+    print("="*85)
+    best_match = None
+    best_score = -9999
+
+    for c in global_candidates:
+        if c['is_visible']:
+            score = -abs(c['sun_alt'] - IDEAL_SUN_ALT) 
+            date_str = c['date'].strftime('%B %d, %Y')
+            print(f"• {date_str:<20} : ✅ Valid Window | Sun alt: {c['sun_alt']:+.4f}° | Score: {score:+.4f}")
+            if score > best_score:
+                best_score = score
+                best_match = c
+
+    print("\n[ ENGINE CONCLUSION : OPTIMAL RED-SHIFT SELECTION ]")
+    if best_match:
+        print(f"🏆 SYSTEM SELECTION: {best_match['date'].strftime('%B %d, %Y')}")
+        print(f"   Sun Altitude    : {best_match['sun_alt']:+.4f}°")
+        print(f"   Target Zone     : {IDEAL_SUN_ALT}° (Max Extinction)")
+        print(f"   Deviation       : {abs(best_score):.4f}° from ideal")
+    else:
+        print("System found NO viable timeline in this scan segment.")
+    print("="*85)
+    print(f"\n📊 [DATA EXPORT COMPLETED] Scan results were successfully saved to: {csv_filename}")
