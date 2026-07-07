@@ -34,12 +34,13 @@ This tool provides a data-driven framework for archaeoastronomy. Building on the
     * **Galactic Center & Orion's Belt:** Tracks coordinates to verify if the alignment correlates with known ancient stellar anchors.
 
 ### 🏆 Key Findings (The 2026 Trigger)
-1. **Sept 24, 2026:** Validates the "Red Star just before dawn" condition at -6.5° sun altitude.
-2. **Nov 4, 2026 (Royal Syzygy):** A 5-body vertical pillar (Mars, Jupiter, Moon, Regulus) striking 90° azimuth, with Venus anchoring the underworld at -30°.
-3. **Biennial Mars Resonance:** Scanning the 2024-2030 window reveals a strict 2-year cycle. The 2026 event acts as the "primary lock" (< 23s divergence), while 2028 and 2030 represent mechanical echoes/decay.
+1. **Sept 21, 2026:** The preliminary visual window opens. (In Mayan Tzolkin, 8 Ik' - representing the Wind, the breath of life, and a change of cosmic direction).
+2. **Sept 24, 2026:** The mathematical peak. Validates the "Red Star just before dawn" condition at a perfect -6.5° sun altitude with an incredible 0.0100° deviation. (11 Chikchan - the Serpent's awakening).
+3. **Nov 4, 2026 (Royal Syzygy):** The mechanical lock. A 5-body vertical pillar (Mars, Jupiter, Moon, Regulus) strikes exactly 90.0° azimuth. Venus anchors the underworld at -30.5°. The engine confirms the Sun is completely off-axis (Azimuth ~80.4° / Altitude -46.6°), proving the geometric purity of this specific planetary alignment.
+4. **Biennial Mars Resonance:** Scanning the 2024-2030 window reveals a strict 2-year cycle. The 2026 event acts as the "primary lock" (< 23s divergence), while 2028 and 2030 represent mechanical echoes/decay.
 
 ### 📊 Empirical Proof: The 2026 Mars Resonance (Data Logs)
-To prove this isn't a common occurrence, I ran the `ProjectRegulus.py` engine across a multi year baseline (2024-2030) to test the exact synchronization of Mars and Regulus striking the 90.0° Sphinx azimuth. 
+To prove this isn't a common occurrence, I ran the `RegulusOS.py` engine across a multi year baseline (2024-2030) to test the exact synchronization of Mars and Regulus striking the 90.0° Sphinx azimuth. 
 
 The engine tracks `Mars_Delta_Sec` (the exact time divergence between Mars crossing the target azimuth and the Regulus alignment lock). The results show a strict orbital decay pattern centering on 2026:
 
@@ -52,7 +53,7 @@ This isn't astrology; it's hard celestial mechanics. The exact parameters descri
 ### 🚀 Quick Start
 1. **Google Colab:** Create a New Notebook.
 2. **Install:** `!pip install skyfield`
-3. **Run:** Copy `ProjectRegulus.py` into a cell and press Play.
+3. **Run:** Copy `RegulusOS.py` into a cell and press Play.
 4. **Output:** The script generates a timestamped `.csv` file in your browser, mapping all alignment windows for your analysis.
 
 ### 🎛️ Configuration & Ephemeris
@@ -72,5 +73,3 @@ All critical controls are at the top of the file in the `GLOBAL USER INPUT ZONE`
 * **RED_STAR_ALT (7.5°):** The critical altitude where Rayleigh scattering increases significantly. While Regulus is naturally blue-white, observation at this low angle - especially in the presence of aerosols, desert dust, or high humidity-intensifies light scattering, shifting the hue to a deep reddish-orange or "blood-red," fulfilling the prophecy under specific atmospheric conditions.
 * **Sun Altitude -6.5°:** Custom threshold for the pre-dawn window; ensures we are in the deeper pre-dawn phase before civil twilight.
 * **Sun Altitude -2.72° (Washout Limit):** Empirical threshold where sky background luminance ($B_{sky}$) overrides stellar flux ($F_{star}$).
-
-
