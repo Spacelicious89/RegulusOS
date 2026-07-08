@@ -50,7 +50,7 @@ The engine tracks `Mars_Delta_Sec` (the exact time divergence between Mars cross
 
 This isn't astrology; it's hard celestial mechanics. The exact parameters described in Bledsoe's "prophecy" (Regulus at 90° before dawn) happen annually-they act purely as a celestial timing key. However, the script mathematically proves that in late 2026, this annual key perfectly synchronizes with a hidden, multi-planetary orbital resonance (the < 23s Mars lock). This creates an isolated, highly specific geometric window that simply does not exist in the surrounding years. The prophecy itself isn't the anomaly; it's the precise coordinate required to witness the anomaly.
 
-## 📊 Global Control Scans (Raw Data)
+### 📊 Global Control Scans (Raw Data)
 To verify the geographic uniqueness of the November 2026 alignment, a multi-site control scan was executed against other megalithic structures (Angkor Wat, Stonehenge, Chichén Itzá, Teotihuacan). 
 
 The raw CSV export is available in the `logs/` directory. The data conclusively demonstrates that the precise 23-second multi-planetary vertical lock is mathematically exclusive to the specific coordinates and the 90.0° orientation of the Giza Plateau.
