@@ -1,6 +1,8 @@
 # 🦁 Project Regulus
 **Archaeoastronomical Alignment & Planetary Syzygy Script**
 
+![Project Regulus - Sphinx 5-Body Alignment](images/sphinx_5body.png)
+
 ### 🔭 Physics & Prophecy Logic
 The engine decodes the prophecy from Chris Bledsoe's *UFO of GOD*: 
 > *"When the red star of Regulus aligns just before dawn in the gaze of the Sphinx, a new knowledge shall come into the world."*
@@ -25,6 +27,9 @@ The script enforces a strict architectural constraint for the target monument:
 ---
 
 ### 🧠 Archaeological Context
+
+![Giza Polar Alignment](images/giza_polar_alignment.png)
+
 This tool provides a data-driven framework for archaeoastronomy. Building on the work of Dr. Filippo Biondi and Prof. Corrado Malanga regarding subterranean structures and Giza's physical resonance, this script lets researchers turn back the celestial clock. It allows users to verify what the sky looked like during antiquity, testing if specific planetary alignments—such as Venus (Hathor) in the Duat and Mars (Horus) at the zenith—dictated the original architectural design, orientation, and "pre-programmed" logic of these ancient monuments.
 
 ---
@@ -47,9 +52,14 @@ This tool provides a data-driven framework for archaeoastronomy. Building on the
 | **Sept 24, 2026** | **Mathematical Peak** | Validates the "Red Star just before dawn" condition at a perfect **-6.5°** sun altitude with an incredible **0.0100°** deviation. *(Mayan Tzolk'in: 11 Chikchan - the Serpent's awakening).* |
 | **Nov 4, 2026** | **The Royal Syzygy** | The mechanical lock. A 5-body vertical pillar (Mars, Jupiter, Moon, Regulus) strikes exactly **90.0°** azimuth. Venus anchors the underworld at **-30.5°**. The Sun is completely off-axis, proving geometric purity. |
 
+![Vertical Planetary Lock - November 2026](images/Syzygy_4_11_2026.png)
+
 ---
 
 ### 📊 Empirical Proof: The 2026 Mars Resonance
+
+![Mars-Regulus Orbital Synchronization (2014-2035)](images/Mars_Regulus_sync_2014-2035.png)
+
 To prove this isn't a common occurrence, the `RegulusOS.py` engine was run across a multi-year baseline (2024-2030) to test the exact synchronization of Mars and Regulus striking the 90.0° Sphinx azimuth. 
 
 The engine tracks `Mars_Delta_Sec` (the exact time divergence between Mars crossing the target azimuth and the Regulus alignment lock). The data shows a strict orbital decay pattern centering entirely on 2026:
