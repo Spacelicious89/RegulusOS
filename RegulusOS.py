@@ -71,7 +71,8 @@ TARGET_PLANETS = {
     'jupiter': 'jupiter barycenter',
     'saturn': 'saturn barycenter',
     'mercury': 'mercury',
-    'neptune': 'neptune barycenter'
+    'neptune': 'neptune barycenter',
+    'pluto': 'pluto barycenter'
 }
 
 # SCAN CONFIGURATION (SNIPER MODE)
@@ -137,7 +138,8 @@ lon_hours = SITE_LON / 15.0
 regulus = Star(ra_hours=(10, 8, 22.311), dec_degrees=(11, 58, 1.95))
 alnilam = Star(ra_hours=(5, 36, 12.81), dec_degrees=(-1, 12, 6.9))
 sgra = Star(ra_hours=(17, 45, 40.04), dec_degrees=(-29, 0, 28.1))
-
+sirius = Star(ra_hours=(6, 45, 8.9), dec_degrees=(-16, 42, 58))
+vega = Star(ra_hours=(18, 36, 56.3), dec_degrees=(38, 47, 1))
 start_date = datetime.date(2012, 12, 21)
 
 # =====================================================================
@@ -316,8 +318,13 @@ def scan_single_year(TARGET_YEAR):
                 log(f"    Orion's Belt : Az: {orion_pos[1].degrees:.4f}° | Alt: {orion_pos[0].degrees:+.4f}°")
                 
                 gc_pos = site.at(time_lock_tsec).observe(sgra).apparent().altaz(temperature_C=ATM_TEMPERATURE, pressure_mbar=ATM_PRESSURE)
-                log(f"    Galactic Ctr : Alt: {gc_pos[0].degrees:+.4f}°")
-                
+                log(f"    Galactic Ctr : Alt: {gc_pos[0].degrees:+.4f}°"
+                    sirius_pos = site.at(time_lock_tsec).observe(sirius).apparent().altaz(temperature_C=ATM_TEMPERATURE, pressure_mbar=ATM_PRESSURE)
+                log(f"    Sirius       : Az: {sirius_pos[1].degrees:.4f}° | Alt: {sirius_pos[0].degrees:+.4f}°")
+    
+                vega_pos = site.at(time_lock_tsec).observe(vega).apparent().altaz(temperature_C=ATM_TEMPERATURE, pressure_mbar=ATM_PRESSURE)
+                log(f"    Vega         : Az: {vega_pos[1].degrees:.4f}° | Alt: {vega_pos[0].degrees:+.4f}°")
+               
                 if body_data_at_lock.get('venus'):
                     log(f"    Venus        : Az: {body_data_at_lock['venus'][1].degrees:.4f}° | Alt: {body_data_at_lock['venus'][0].degrees:+.4f}°")
                 if body_data_at_lock.get('mars'):
@@ -326,6 +333,9 @@ def scan_single_year(TARGET_YEAR):
                     log(f"    Jupiter      : Az: {body_data_at_lock['jupiter'][1].degrees:.4f}° | Alt: {body_data_at_lock['jupiter'][0].degrees:+.4f}°")
                 if body_data_at_lock.get('neptune'):
                     log(f"    Neptune      : Az: {body_data_at_lock['neptune'][1].degrees:.4f}° | Alt: {body_data_at_lock['neptune'][0].degrees:+.4f}°")
+                if body_data_at_lock.get('pluto'):
+                    log(f"    Pluto        : Az: {body_data_at_lock['pluto'][1].degrees:.4f}° | Alt: {body_data_at_lock['pluto'][0].degrees:+.4f}°")
+
                 
                 if body_data_at_lock.get('moon'):
                     moon_illum = almanac.fraction_illuminated(eph, 'moon', time_lock_tsec) * 100.0
