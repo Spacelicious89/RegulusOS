@@ -41,7 +41,7 @@ GLOSSARY, LEGEND & SCIENTIFIC DERIVATIONS
 # GLOBAL USER INPUT ZONE & CONFIGURATION
 # =====================================================================
 # 👇 ================================================================ 👇
-TARGET_YEARS = [2025, 2026, 2027] # List of years to scan. Format : [2024, 2025, 2026] or [2024] for a single year.
+TARGET_YEARS = [2026] # List of years to scan. Format : [2024, 2025, 2026] or [2024] for a single year.
 
 # ENGINE OPTIMIZATION
 # Scanning time step in seconds (1 = MAXIMUM PRECISION) 
@@ -134,7 +134,7 @@ OBSERVATION_TZ = ZoneInfo(SITE_TZ)
 site = earth + wgs84.latlon(SITE_LAT, SITE_LON, elevation_m=SITE_ELEVATION)
 lon_hours = SITE_LON / 15.0
 
-# Fixed stellar anchor points
+# Fixed stellar anchor points, here you can add more stars if needed.
 regulus = Star(ra_hours=(10, 8, 22.311), dec_degrees=(11, 58, 1.95))
 alnilam = Star(ra_hours=(5, 36, 12.81), dec_degrees=(-1, 12, 6.9))
 sgra = Star(ra_hours=(17, 45, 40.04), dec_degrees=(-29, 0, 28.1))
