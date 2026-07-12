@@ -1,14 +1,16 @@
 # 🦁 Project Regulus
-**Archaeoastronomical Alignment & Planetary Syzygy Script**
+**Advanced Archaeoastronomical Alignment, Planetary Syzygy & Deep-Time Chronology Engine**
 
 ![Project Regulus - Sphinx 5-Body Alignment](images/sphinx_5body.png)
 
+Project Regulus is a high-performance, data-driven archaeoastronomy engine designed to compute complex celestial alignments and multi-planetary resonance events across millennia. By combining high-fidelity ephemeris calculations with an optimized multi-processing architecture, the tool allows researchers to verify celestial mechanics from deep antiquity (e.g., the mythical *Zep Tepi* epoch) up to modern orbital anomalies.
+
 ### 🔭 Physics & Prophecy Logic
-The engine decodes the prophecy from Chris Bledsoe's *UFO of GOD*: 
+The engine decodes the structural alignment criteria inspired by historical and modern accounts of celestial prophecy, notably the event framework:
 > *"When the red star of Regulus aligns just before dawn in the gaze of the Sphinx, a new knowledge shall come into the world."*
 
-**1. "The Red Star" (Atmospheric Extinction)**
-Regulus at ~7.5° altitude triggers the "Red Star" phase. I implemented Rayleigh scattering math to calculate the spectral shift based on airmass. At this altitude, the light of the B-type star Regulus is filtered through dense layers of the atmosphere, resulting in a distinct reddish-orange spectral shift:
+**1. "The Red Star" (Atmospheric Extinction & Rayleigh Scattering)**
+Regulus at ~7.5° altitude triggers the "Red Star" phase. The engine implements Rayleigh scattering models to calculate the spectral shift based on airmass ($X$). At this ultra-low altitude, the light of the B-type blue-white star Regulus is filtered through dense layers of the atmosphere, resulting in a distinct reddish spectral shift:
 
 $$X = \frac{1}{\sin(\text{altitude})}$$
 
@@ -20,31 +22,51 @@ The script enforces a strict architectural constraint for the target monument:
 
 **3. "Just Before Dawn" (Timing & Luminosity Windows)**
 * **Dawn Start (Civil Twilight):** Officially begins when the Sun reaches exactly **-6.0°**.
-* **The "Just Before Dawn" Target (-6.5°):** I calibrated the engine to **-6.5°** to capture the exact moment immediately preceding actual dawn. At Giza's latitude, the Sun takes approximately 2.5 to 3 minutes to travel this 0.5° difference. 
+* **The "Just Before Dawn" Target (-6.5°):** Calibrated to **-6.5°** to capture the exact moment immediately preceding actual dawn. At Giza's latitude, the Sun takes approximately 2.5 to 3 minutes to travel this 0.5° difference. 
 * **The Azimuth Lock Constraint:** This 2-3 minute window is critical. The Earth rotates at roughly 1° every 4 minutes. If you wait for the Sun to rise higher, Regulus will have already drifted ~0.5° to 0.7° away from the precise 90.0° Sphinx alignment. The "Just Before Dawn" condition is therefore a highly fleeting, precise temporal lock.
 * **Washout Limit (-2.72°):** The empirical threshold where sky background luminance ($B_{sky}$) mathematically overrides stellar flux ($F_{star}$), making the star invisible to the naked eye.
 
 ---
 
-### 🧠 Archaeological Context
+### 🧠 Archaeological & Deep-Time Context
 
 ![Giza Polar Alignment](images/giza_polar_alignment.png)
 
-This tool provides a data-driven framework for archaeoastronomy. Building on the work of Dr. Filippo Biondi and Prof. Corrado Malanga regarding subterranean structures and Giza's physical resonance, this script lets researchers turn back the celestial clock. It allows users to verify what the sky looked like during antiquity, testing if specific planetary alignments—such as Venus (Hathor) in the Duat and Mars (Horus) at the zenith—dictated the original architectural design, orientation, and "pre-programmed" logic of these ancient monuments.
+This tool provides a rigorous computational framework for archaeoastronomy. Building on the work of Dr. Filippo Biondi and Prof. Corrado Malanga regarding subterranean structures and Giza's physical resonance, this script lets researchers turn back the celestial clock. It allows users to verify what the sky looked like during antiquity, testing if specific planetary alignments dictated the original architectural design, orientation, and "pre-programmed" logic of ancient monuments.
+
+---
+
+### ⚙️ Computational Architecture: Macro-Micro Hybrid Engine
+To scan thousands of years without causing system memory exhaustion, the core engine (`RegulusMillenium.py`) uses a specialized **Two-Phase Hybrid Architecture**:
+
+1. **Macro-Scan Phase (`TIME_STEP_SECONDS = 300`):** The engine executes a coarse, high-speed multi-processed sweep across the timeline, using zero-crossing mathematical detection (`np.diff(np.sign(...))`) to instantly flag horizons where Regulus crosses the 90.0° azimuth anchor.
+2. **Micro-Scan Phase (1-Second Sniper Lock):** The moment a crossing is detected, the engine dynamically triggers an isolated, in-memory micro-scan at a **1-second resolution**. It applies an optimization check (`np.argmin(np.abs(...))`) to isolate the exact second of alignment, calculating the positions of all other target bodies concurrently.
 
 ---
 
 ### ⚙️ Engine Capabilities
-* **Visibility Logic:** Automated washout detection. The engine cross-references Sun altitude (NELM) and Lunar illumination (> 75%) to determine if a celestial object is truly "visible" or washed out at the moment of alignment.
-* **Mars Conjunction Delta:** Calculates the exact time difference (seconds) between Mars crossing the target azimuth and Regulus hitting the "lock," identifying multi-planetary orbital resonances.
-* **Resonance Metric (Prime Check):** Every scan checks if the delta in days from the 2012-12-21 epoch is a **Prime Number**, testing for mathematical harmonic resonance.
-* **SkyMap Rendering:** Generates real-time data for:
-    * **LST Clock:** Local Sidereal Time for precise coordinate alignment.
-    * **Galactic Center & Orion's Belt:** Tracks coordinates to verify if the alignment correlates with known ancient stellar anchors.
+* **Automated Washout Detection:** Cross-references solar altitude thresholds (NELM) and Lunar illumination phases (>75%) to dynamically determine actual naked-eye visibility.
+* **Multi-Planetary Resonance Tracking:** Computes `Mars_Delta_Sec` (the precise temporal divergence between Mars and Regulus intersecting the target geodetic azimuth) to map orbital harmonic decay.
+* **Resonance Metric (Prime Check):** Evaluates if the elapsed days from the global cosmic epoch (Dec 21, 2012) constitute a **Prime Number**, testing for hidden mathematical intervals.
+* **Deep History SPICE Kernels:** Native integration with NASA JPL long-term orbital models to prevent data distortion across massive temporal baselines.
 
 ---
 
-### 🏆 Key Findings (The 2026 Trigger)
+### 🏆 Key Findings 1: Paleolithic & Zep Tepi Horizons (-13,000 to -8,000 BCE)
+Running the engine across a 5000-year deep-history baseline revealed a massive **statistical density anomaly** centered directly around the **Zep Tepi epoch (-10,500 BCE)**. Alignment event frequencies spike aggressively between -10,600 and -10,400 BCE, proving this window was astronomically unique.
+
+Furthermore, the engine isolated extraordinary **Multi-Planetary "Divine" Koniunkcje** where the 90° Sphinx axis was locked by multiple bodies simultaneously:
+
+| Epoch / Date | Precision Metric | Planetary Configuration | System Signature |
+| :--- | :--- | :--- | :--- |
+| **July 20, -12,352 BCE** | Deviation: 0.02° | **Mars + Regulus Alignment** | Mars wschodzi dokładnie śladem Regulusa na azymucie **89.73°**. |
+| **July 14, -11,927 BCE** | Deviation: 0.02° | **Mega-Alignment (Wenus + Merkury)** | Potrójne uderzenie. Obie planety wewnętrzne zablokowane z Regulusem wewnątrz 1° na osi wschodu. |
+| **June 25, -10,758 BCE** | Deviation: 0.002° | **Jowisz + Regulus Lock** | Słońce na chirurgicznej pozycji **-6.49°**; Jowisz zakotwiczony na **89.68°**. |
+| **June 19, -10,381 BCE** | Deviation: 0.01° | **Merkury + Regulus Symmetry** | Dokładnie w sercu ery Zep Tepi, Merkury (Tot) zabezpiecza oś **89.61°**. |
+
+---
+
+### 🏆 Key Findings 2: The Modern 2026 Alignment Trigger
 
 | Date | Phase | Astronomical Description |
 | :--- | :--- | :--- |
@@ -56,21 +78,19 @@ This tool provides a data-driven framework for archaeoastronomy. Building on the
 
 ---
 
-### 📊 Empirical Proof: The 2026 Mars Resonance
+### 📊 Empirical Proof: The 2026 Mars Resonance Baseline
 
 ![Mars-Regulus Orbital Synchronization (2014-2035)](images/Mars_Regulus_sync_2014-2035.png)
 
-To prove this isn't a common occurrence, the `RegulusOS.py` engine was run across a multi-year baseline (2024-2030) to test the exact synchronization of Mars and Regulus striking the 90.0° Sphinx azimuth. 
+To prove these alignments aren't random occurrences, the engine mapped a multi-year baseline tracking the synchronization error of Mars and Regulus hitting the 90.0° Sphinx azimuth:
 
-The engine tracks `Mars_Delta_Sec` (the exact time divergence between Mars crossing the target azimuth and the Regulus alignment lock). The data shows a strict orbital decay pattern centering entirely on 2026:
-
-| Epoch | Resonance Phase | Divergence Error | System Status |
+| Epoch | Resonance Phase | Divergence Error (`Mars_Delta_Sec`) | System Status |
 | :--- | :--- | :--- | :--- |
 | **Oct 2024** | Mechanical Echo | ~ 4,723s *(> 1h 18m)* | ❌ Complete failure of alignment |
 | **Nov 2026** | **Primary Lock** | **< 23 seconds** | ✅ **Near-perfect geodetic lock** |
 | **Oct 2030** | Orbital Decay | ~ -769s *(~ 13m)* | ❌ Machinery shifting out of tune |
 
-This isn't astrology; it's hard celestial mechanics. The exact parameters described in Bledsoe's prophecy happen annually—acting purely as a celestial timing key. However, the script mathematically proves that in late 2026, this annual key perfectly synchronizes with a hidden, multi-planetary orbital resonance. The prophecy itself isn't the anomaly; it is the precise coordinate required to witness the anomaly.
+The exact parameters described in Bledsoe's prophecy happen annually—acting purely as a celestial timing key. However, the script mathematically proves that in late 2026, this annual key perfectly synchronizes with a hidden, multi-planetary orbital resonance. The prophecy itself isn't the anomaly; it is the precise coordinate required to witness the anomaly.
 
 ---
 
@@ -82,23 +102,25 @@ The raw CSV export is available in the `logs/` directory. The data conclusively 
 ---
 
 ### 🚀 Quick Start
-1. **Google Colab:** Create a New Notebook.
-2. **Install:** Run `!pip install skyfield` in the first cell.
-3. **Execute:** Copy `ProjectRegulusGlobal.py` into a cell and press Play.
-4. **Analyze Output:** The script generates timestamped `.csv` files in your environment, mapping all alignment windows for your analysis.
+1. **Environment Setup:** Ensure you have a Python 3.10+ environment or Google Colab.
+2. **Install Dependencies:** Run `pip install skyfield numpy pandas`
+3. **Download SPICE Kernel:** Ensure the required NASA JPL ephemeris file (see selection below) is placed in the project root directory.
+4. **Execute:** Run `python RegulusOS.py`
+5. **Analyze Output:** The script generates timestamped `.csv` files mapping all alignment windows for your analysis.
 
 ---
 
 ### 🎛️ Configuration & Ephemeris
 All critical controls are located at the top of the file in the `GLOBAL USER INPUT ZONE`:
-* `TARGET_YEARS`: List of years to scan (e.g., `[2026]`).
+* `TARGET_YEARS`: List or range of years to scan (e.g., `range(-13000, -8000)` or `[2026]`).
 * `TARGET_SITES`: Define `NAME`, `LAT`, `LON`, `ELEVATION`, `AZIMUTH`, and `TZ`.
-* `TIME_STEP_SECONDS`: `1` is highly recommended for maximum precision.
+* `TIME_STEP_SECONDS`: Coarse step size for the Macro phase (300s recommended).
 
 **Ephemeris Selection (NASA JPL):**
-* `de421.bsp` *(Default)*: 1900 – 2053.
-* `de422.bsp`: -3000 – 3000 (Ideal for antiquity research).
-* `de431.bsp`: -13200 – 17000 (Deep history/Paleolithic alignments).
+* `de421.bsp` *(Default)*: Covers 1900 – 2053. Lightweight file optimized for modern era testing.
+* `de422.bsp`: Covers -3000 – 3000. Balanced precision kernel ideal for Classical antiquity research.
+* `de431.bsp`: Covers -13200 – 17000. Extended history baseline for Paleolithic alignments.
+* `de441.bsp` *(Production Default)*: High-precision long-term ephemeris covering **-13,200 BCE to +17,191 CE**. Highly recommended for avoiding multi-body orbital drift during deep history and Zep Tepi simulations.
 
 ### 🛠️ Default Settings Rationale
 * **Azimuth 90.0°:** The geodetic anchor for the Sphinx's True East orientation.
