@@ -8,7 +8,7 @@ from skyfield import almanac
 
 """
 =====================================================================
-GLOSSARY, LEGEND & SCIENTIFIC DERIVATIONS
+GLOSSARY
 =====================================================================
 
 1. OPTICAL & ATMOSPHERIC PARAMETERS:
@@ -42,10 +42,10 @@ GLOSSARY, LEGEND & SCIENTIFIC DERIVATIONS
 #                   GLOBAL USER INPUT ZONE & CONFIGURATION
 # 👇 ================================================================ 👇
 
-TARGET_YEARS = list(range(-2590, -2500)) #ephemeris setting below look for "👇"
+TARGET_YEARS = list(range(1, 2000)) #ephemeris setting below look for "👇"
 # here you can specify the years you want to scan, de441 ephemeris supports years from -12352 to 12352, use de421 support for years from -4712 to 2119.
-TIME_STEP_SECONDS = 300  
-# we use 2 steps: 300 seconds (5 minutes) for the main scan, and 1 second for the mini-scan around the alignment window.
+TIME_STEP_SECONDS = 300
+# we use 2 steps: 300 seconds for the main scan, and 1 second for the mini-scan around the alignment window.
 
 NELM_SUN_ALT = -2.72  # sun altitude for naked-eye limiting magnitude (NELM) threshold
 MONUMENT_ALIGNMENT_AZ = 90.0  # target azimuth for the monument's alignment
@@ -156,7 +156,7 @@ def safe_time(jd_float):
 ts = load.timescale()
 eph = load(
     "de441.bsp"
-)  # 👆 here you may choose a different ephemeris file if you want to scan years outside the range of de441, e.g., de421 for years -4712 to 2119.
+)  # 👆 here you may choose a different ephemeris file more in README.md in repo
 earth, sun = eph["earth"], eph["sun"]
 
 planets = {name: eph[target] for name, target in TARGET_PLANETS.items()}
@@ -253,7 +253,6 @@ def scan_single_year(TARGET_YEAR):
             sun_alt = site.at(t_lock).observe(sun).apparent().altaz(temperature_C=ATM_TEMPERATURE, pressure_mbar=ATM_PRESSURE)[0].degrees
             reg_alt = mini_reg[0].degrees[exact_sec_idx]
            
-            # ZABEZPIECZENIE: Tworzymy pusty słownik, żeby Python nie zwariował
             body_data_at_lock = {}
             
             if sun_alt < -2.72:
@@ -291,12 +290,11 @@ def scan_single_year(TARGET_YEAR):
                     "saturn_alt": body_data_at_lock['saturn'][0] if 'saturn' in body_data_at_lock else 0,
                     "mercury_az": body_data_at_lock['mercury'][1] if 'mercury' in body_data_at_lock else 0,
                     "mercury_alt": body_data_at_lock['mercury'][0] if 'mercury' in body_data_at_lock else 0,
-                    # --- DODANE NOWE GWIAZDY ---
                     "sirius_az": float(np.atleast_1d(site.at(t_lock).observe(sirius).apparent().altaz(temperature_C=ATM_TEMPERATURE, pressure_mbar=ATM_PRESSURE)[1].degrees)[0]),
                     "sirius_alt": float(np.atleast_1d(site.at(t_lock).observe(sirius).apparent().altaz(temperature_C=ATM_TEMPERATURE, pressure_mbar=ATM_PRESSURE)[0].degrees)[0]),
                     "vega_az": float(np.atleast_1d(site.at(t_lock).observe(vega).apparent().altaz(temperature_C=ATM_TEMPERATURE, pressure_mbar=ATM_PRESSURE)[1].degrees)[0]),
                     "vega_alt": float(np.atleast_1d(site.at(t_lock).observe(vega).apparent().altaz(temperature_C=ATM_TEMPERATURE, pressure_mbar=ATM_PRESSURE)[0].degrees)[0]),
-                    "mars_delta_sec": 0
+                    "mars_delta_sec": float(np.atleast_1d((site.at(t_lock).observe(planets['mars']).apparent().altaz(temperature_C=ATM_TEMPERATURE, pressure_mbar=ATM_PRESSURE)[1].degrees - MONUMENT_ALIGNMENT_AZ) * 240)[0])
                 }
                 year_candidates.append(candidate_data)
                 log(f"🏹 FOUND ALIGNMENT: {safe_time(t_lock.tt)} TT | Regulus Az: {reg_azs[idx]:.4f}°")
