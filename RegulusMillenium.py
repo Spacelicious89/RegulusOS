@@ -42,7 +42,7 @@ GLOSSARY
 #                   GLOBAL USER INPUT ZONE & CONFIGURATION
 # 👇 ================================================================ 👇
 
-TARGET_YEARS = list(range(1, 2000)) #ephemeris setting below look for "👇"
+TARGET_YEARS = list(range(2020, 2033)) #ephemeris setting below look for "👇"
 # here you can specify the years you want to scan.
 TIME_STEP_SECONDS = 300
 # we use 2 steps: 300 seconds for the main scan, and 1 second for the mini-scan around the alignment window - which saves to CSV.
