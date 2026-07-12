@@ -43,9 +43,9 @@ GLOSSARY
 # 👇 ================================================================ 👇
 
 TARGET_YEARS = list(range(1, 2000)) #ephemeris setting below look for "👇"
-# here you can specify the years you want to scan, de441 ephemeris supports years from -12352 to 12352, use de421 support for years from -4712 to 2119.
+# here you can specify the years you want to scan.
 TIME_STEP_SECONDS = 300
-# we use 2 steps: 300 seconds for the main scan, and 1 second for the mini-scan around the alignment window.
+# we use 2 steps: 300 seconds for the main scan, and 1 second for the mini-scan around the alignment window - which saves to CSV.
 
 NELM_SUN_ALT = -2.72  # sun altitude for naked-eye limiting magnitude (NELM) threshold
 MONUMENT_ALIGNMENT_AZ = 90.0  # target azimuth for the monument's alignment
