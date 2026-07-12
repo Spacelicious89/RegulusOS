@@ -3,7 +3,7 @@
 
 ![Project Regulus - Sphinx 5-Body Alignment](images/sphinx_5body.png)
 
-Project Regulus is a high-performance, data-driven archaeoastronomy engine designed to compute complex celestial alignments and multi-planetary resonance events across millennia. By combining high-fidelity ephemeris calculations with an optimized multi-processing architecture, the tool allows researchers to verify celestial mechanics from deep antiquity (e.g., the mityczny *Zep Tepi* epoch) up to modern orbital anomalies.
+Project Regulus is a high-performance, data-driven archaeoastronomy engine designed to compute complex celestial alignments and multi-planetary resonance events across millennia. By combining high-fidelity ephemeris calculations with an optimized multi-processing architecture, the tool allows researchers to verify celestial mechanics from deep antiquity (e.g., the mythical *Zep Tepi* epoch) up to modern orbital anomalies.
 
 ### 🔭 Physics & Prophecy Logic
 The engine decodes the structural alignment criteria inspired by historical and modern accounts of celestial prophecy, notably the event framework:
@@ -53,16 +53,16 @@ To scan thousands of years without causing system memory exhaustion, the core en
 ---
 
 ### 🏆 Key Findings 1: Paleolithic & Zep Tepi Horizons (-13,000 to -8,000 BCE)
-Running the engine across a 5000-year deep-history baseline revealed a massive **statistical density anomaly** centered directly around the mityczny **Zep Tepi epoch (-10,500 BCE)**. Alignment event frequencies spike aggressively between -10,600 and -10,400 BCE, proving this window was astronomically unique.
+Running the engine across a 5000-year deep-history baseline revealed a massive **statistical density anomaly** centered directly around the mythical **Zep Tepi epoch (-10,500 BCE)**. Alignment event frequencies spike aggressively between -10,600 and -10,400 BCE, proving this window was astronomically unique.
 
-Furthermore, the engine isolated extraordinary **Multi-Planetary "Divine" Koniunkcje** where the 90° Sphinx axis was locked by multiple bodies simultaneously:
+Furthermore, the engine isolated extraordinary **Multi-Planetary "Divine" Conjunctions** where the 90° Sphinx axis was locked by multiple bodies simultaneously:
 
 | Epoch / Date | Precision Metric | Planetary Configuration | System Signature |
 | :--- | :--- | :--- | :--- |
 | **July 20, -12,352 BCE** | Deviation: 0.02° | **Mars + Regulus Alignment** | Mars rises exactly in the footprint of Regulus at an azimuth of **89.73°**. |
 | **July 14, -11,927 BCE** | Deviation: 0.02° | **Mega-Alignment (Venus + Mercury)** | Triple strike. Both inner planets are locked with Regulus within 1° on the eastern horizon axis. |
 | **June 25, -10,758 BCE** | Deviation: 0.002° | **Jupiter + Regulus Lock** | The Sun hits a surgical **-6.49°** altitude while Jupiter anchors perfectly at **89.68°**. |
-| **June 19, -10,381 BCE** | Deviation: 0.01° | **Mercury + Regulus Symmetry** | Dead center in the mityczny Zep Tepi era, Mercury (Thoth) secures the **89.61°** alignment line. |
+| **June 19, -10,381 BCE** | Deviation: 0.01° | **Mercury + Regulus Symmetry** | Dead center in the mythical Zep Tepi era, Mercury (Thoth) secures the **89.61°** alignment line. |
 
 ---
 
