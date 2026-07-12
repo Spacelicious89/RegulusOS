@@ -42,7 +42,7 @@ GLOSSARY, LEGEND & SCIENTIFIC DERIVATIONS
 #                   GLOBAL USER INPUT ZONE & CONFIGURATION
 # 👇 ================================================================ 👇
 
-TARGET_YEARS = range(2026, 2027) #ephemeris setting below look for "👇"
+TARGET_YEARS = list(range(-2590, -2500)) #ephemeris setting below look for "👇"
 # here you can specify the years you want to scan, de441 ephemeris supports years from -12352 to 12352, use de421 support for years from -4712 to 2119.
 TIME_STEP_SECONDS = 300  
 # we use 2 steps: 300 seconds (5 minutes) for the main scan, and 1 second for the mini-scan around the alignment window.
@@ -243,100 +243,63 @@ def scan_single_year(TARGET_YEAR):
             sec_steps = np.arange(0, 301) / 86400.0
             mini_jd = jd_start + sec_steps
             mini_t = ts.tt_jd(mini_jd)
-
-            mini_reg = (
-                site.at(mini_t)
-                .observe(regulus)
-                .apparent()
-                .altaz(temperature_C=ATM_TEMPERATURE, pressure_mbar=ATM_PRESSURE)
-            )
+            
+            mini_reg = site.at(mini_t).observe(regulus).apparent().altaz(temperature_C=ATM_TEMPERATURE, pressure_mbar=ATM_PRESSURE)
             mini_azs = mini_reg[1].degrees
-
+            
             exact_sec_idx = np.argmin(np.abs(mini_azs - MONUMENT_ALIGNMENT_AZ))
-
+            
             t_lock = mini_t[exact_sec_idx]
-            sun_alt = (
-                site.at(t_lock)
-                .observe(sun)
-                .apparent()
-                .altaz(temperature_C=ATM_TEMPERATURE, pressure_mbar=ATM_PRESSURE)[0]
-                .degrees
-            )
+            sun_alt = site.at(t_lock).observe(sun).apparent().altaz(temperature_C=ATM_TEMPERATURE, pressure_mbar=ATM_PRESSURE)[0].degrees
             reg_alt = mini_reg[0].degrees[exact_sec_idx]
-
+           
+            # ZABEZPIECZENIE: Tworzymy pusty słownik, żeby Python nie zwariował
+            body_data_at_lock = {}
+            
             if sun_alt < -2.72:
-
-                body_data_at_lock = {}
                 for name, body in planets.items():
-                    pos = (
-                        site.at(t_lock)
-                        .observe(body)
-                        .apparent()
-                        .altaz(
-                            temperature_C=ATM_TEMPERATURE, pressure_mbar=ATM_PRESSURE
-                        )
-                    )
-                    body_data_at_lock[name] = (
-                        np.atleast_1d(pos[0].degrees)[0],
-                        np.atleast_1d(pos[1].degrees)[0],
-                    )
+                    pos = site.at(t_lock).observe(body).apparent().altaz(temperature_C=ATM_TEMPERATURE, pressure_mbar=ATM_PRESSURE)
+                    body_data_at_lock[name] = (np.atleast_1d(pos[0].degrees)[0], np.atleast_1d(pos[1].degrees)[0])
 
-                sirius_pos = (
-                    site.at(t_lock)
-                    .observe(sirius)
-                    .apparent()
-                    .altaz(temperature_C=ATM_TEMPERATURE, pressure_mbar=ATM_PRESSURE)
-                )
-                vega_pos = (
-                    site.at(t_lock)
-                    .observe(vega)
-                    .apparent()
-                    .altaz(temperature_C=ATM_TEMPERATURE, pressure_mbar=ATM_PRESSURE)
-                )
                 moon_illum = 0.0
                 try:
                     t_lock_arr = ts.tt(jd=[t_lock.tt, t_lock.tt + 0.00001])
-                    moon_illum = (
-                        float(almanac.fraction_illuminated(eph, "moon", t_lock_arr)[0])
-                        * 100.0
-                    )
-                except:
-                    pass
+                    moon_illum = float(almanac.fraction_illuminated(eph, 'moon', t_lock_arr)[0]) * 100.0
+                except: pass
 
-            candidate_data = {
-                "date": safe_date(t_lock.tt),
-                "sun_alt": sun_alt,
-                "reg_alt": reg_alt,
-                "is_visible": True,
-                "delta": 0,
-                "moon_alt": body_data_at_lock["moon"][0],
-                "moon_illum": moon_illum,
-                "venus_az": body_data_at_lock["venus"][1],
-                "venus_alt": body_data_at_lock["venus"][0],
-                "mars_az": body_data_at_lock["mars"][1],
-                "mars_alt": body_data_at_lock["mars"][0],
-                "jupiter_az": body_data_at_lock["jupiter"][1],
-                "jupiter_alt": body_data_at_lock["jupiter"][0],
-                "neptune_az": body_data_at_lock["neptune"][1],
-                "neptune_alt": body_data_at_lock["neptune"][0],
-                "uranus_az": body_data_at_lock["uranus"][1],
-                "uranus_alt": body_data_at_lock["uranus"][0],
-                "pluto_az": body_data_at_lock["pluto"][1],
-                "pluto_alt": body_data_at_lock["pluto"][0],
-                "saturn_az": body_data_at_lock["saturn"][1],
-                "saturn_alt": body_data_at_lock["saturn"][0],
-                "mercury_az": body_data_at_lock["mercury"][1],
-                "mercury_alt": body_data_at_lock["mercury"][0],
-                "sirius_az": sirius_pos[1].degrees,
-                "sirius_alt": sirius_pos[0].degrees,
-                "vega_az": vega_pos[1].degrees,
-                "vega_alt": vega_pos[0].degrees,
-                "mars_delta_sec": 0,
-            }
-    year_candidates.append(candidate_data)
-    log(
-        f"🏹 FOUND ALIGNMENT: {safe_time(t_lock.tt)} TT | Regulus Az: {reg_azs[idx]:.4f}°"
-    )
+                candidate_data = {
+                    "date": safe_date(t_lock.tt),
+                    "sun_alt": sun_alt,
+                    "reg_alt": reg_alt,
+                    "is_visible": True,
+                    "delta": 0,
+                    "moon_alt": body_data_at_lock['moon'][0] if 'moon' in body_data_at_lock else 0,
+                    "moon_illum": moon_illum,
+                    "venus_az": body_data_at_lock['venus'][1] if 'venus' in body_data_at_lock else 0,
+                    "venus_alt": body_data_at_lock['venus'][0] if 'venus' in body_data_at_lock else 0,
+                    "mars_az": body_data_at_lock['mars'][1] if 'mars' in body_data_at_lock else 0,
+                    "mars_alt": body_data_at_lock['mars'][0] if 'mars' in body_data_at_lock else 0,
+                    "jupiter_az": body_data_at_lock['jupiter'][1] if 'jupiter' in body_data_at_lock else 0,
+                    "jupiter_alt": body_data_at_lock['jupiter'][0] if 'jupiter' in body_data_at_lock else 0,
+                    "neptune_az": body_data_at_lock['neptune'][1] if 'neptune' in body_data_at_lock else 0,
+                    "neptune_alt": body_data_at_lock['neptune'][0] if 'neptune' in body_data_at_lock else 0,
+                    "uranus_az": body_data_at_lock['uranus'][1] if 'uranus' in body_data_at_lock else 0,
+                    "uranus_alt": body_data_at_lock['uranus'][0] if 'uranus' in body_data_at_lock else 0,
+                    "pluto_az": body_data_at_lock['pluto'][1] if 'pluto' in body_data_at_lock else 0,
+                    "pluto_alt": body_data_at_lock['pluto'][0] if 'pluto' in body_data_at_lock else 0,
+                    "saturn_az": body_data_at_lock['saturn'][1] if 'saturn' in body_data_at_lock else 0,
+                    "saturn_alt": body_data_at_lock['saturn'][0] if 'saturn' in body_data_at_lock else 0,
+                    "mercury_az": body_data_at_lock['mercury'][1] if 'mercury' in body_data_at_lock else 0,
+                    "mercury_alt": body_data_at_lock['mercury'][0] if 'mercury' in body_data_at_lock else 0,
+                    # --- DODANE NOWE GWIAZDY ---
+                    "sirius_az": float(np.atleast_1d(site.at(t_lock).observe(sirius).apparent().altaz(temperature_C=ATM_TEMPERATURE, pressure_mbar=ATM_PRESSURE)[1].degrees)[0]),
+                    "sirius_alt": float(np.atleast_1d(site.at(t_lock).observe(sirius).apparent().altaz(temperature_C=ATM_TEMPERATURE, pressure_mbar=ATM_PRESSURE)[0].degrees)[0]),
+                    "vega_az": float(np.atleast_1d(site.at(t_lock).observe(vega).apparent().altaz(temperature_C=ATM_TEMPERATURE, pressure_mbar=ATM_PRESSURE)[1].degrees)[0]),
+                    "vega_alt": float(np.atleast_1d(site.at(t_lock).observe(vega).apparent().altaz(temperature_C=ATM_TEMPERATURE, pressure_mbar=ATM_PRESSURE)[0].degrees)[0]),
+                    "mars_delta_sec": 0
+                }
+                year_candidates.append(candidate_data)
+                log(f"🏹 FOUND ALIGNMENT: {safe_time(t_lock.tt)} TT | Regulus Az: {reg_azs[idx]:.4f}°")
 
     return year_candidates, "\n".join(output_buffer)
 
