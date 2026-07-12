@@ -42,7 +42,7 @@ GLOSSARY, LEGEND & SCIENTIFIC DERIVATIONS
 #                   GLOBAL USER INPUT ZONE & CONFIGURATION
 # 👇 ================================================================ 👇
 
-TARGET_YEARS = range(-2500, -1500) #ephemeris setting below look for "👇"
+TARGET_YEARS = range(2026, 2027) #ephemeris setting below look for "👇"
 # here you can specify the years you want to scan, de441 ephemeris supports years from -12352 to 12352, use de421 support for years from -4712 to 2119.
 TIME_STEP_SECONDS = 300  
 # we use 2 steps: 300 seconds (5 minutes) for the main scan, and 1 second for the mini-scan around the alignment window.
