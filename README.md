@@ -36,11 +36,20 @@ This tool provides a rigorous computational framework for archaeoastronomy. Buil
 
 ---
 
-### ⚙️ Computational Architecture: Macro-Micro Hybrid Engine
-To scan thousands of years without causing system memory exhaustion, the core engine (`RegulusMillenium.py`) uses a specialized **Two-Phase Hybrid Architecture**:
+### ⚙️ The Engines & Computational Architecture
+This repository contains two distinct scanning scripts, each designed for a specific analytical approach.
 
+#### 1. `RegulusOSV1.py` (The Classic State-Machine Engine)
+The original, strictly filtered engine.
+* **Methodology:** Brute-force step-by-step chronological tracking.
+* **Features:** It strictly enforces optical and atmospheric conditions *during* the scan. For example, it actively filters for the "Red Star Window" (Regulus altitude strictly between 4.0° and 7.5°).
+* **Best for:** Deep, highly constrained analysis of short timeframes where you want the script to output only the absolute perfect optical matches.
+
+#### 2. `RegulusMillenium.py` (The Vectorized V2 Engine)
+To scan thousands of years without causing system memory exhaustion, the core V2 engine uses a specialized **Two-Phase Hybrid Architecture**:
 1. **Macro-Scan Phase (`TIME_STEP_SECONDS = 300`):** The engine executes a coarse, high-speed multi-processed sweep across the timeline, using zero-crossing mathematical detection (`np.diff(np.sign(...))`) to instantly flag horizons where Regulus crosses the 90.0° azimuth anchor.
 2. **Micro-Scan Phase (1-Second Sniper Lock):** The moment a crossing is detected, the engine dynamically triggers an isolated, in-memory micro-scan at a **1-second resolution**. It applies an optimization check (`np.argmin(np.abs(...))`) to isolate the exact second of alignment, calculating the positions of all other target bodies concurrently.
+* **Data Collection:** Instead of filtering out data during the scan, it logs **all** exact nighttime alignments—including Sirius and Vega positions—into a raw `.csv` dataset for post-processing flexibility.
 
 ---
 
@@ -105,25 +114,8 @@ The raw CSV export is available in the `logs/` directory. The data conclusively 
 1. **Environment Setup:** Ensure you have a Python 3.10+ environment or Google Colab.
 2. **Install Dependencies:** Run `pip install skyfield numpy pandas`
 3. **Download SPICE Kernel:** Ensure the required NASA JPL ephemeris file (see selection below) is placed in the project root directory.
-4. **Execute:** Run `python RegulusMillenium.py`
-5. **Analyze Output:** The script generates timestamped `.csv` files mapping all alignment windows for your analysis.
-
----
-
-### 🎛️ Configuration & Ephemeris
-All critical controls are located at the top of the file in the `GLOBAL USER INPUT ZONE`:
-* `TARGET_YEARS`: List or range of years to scan (e.g., `range(-13000, -8000)` or `[2026]`).
-* `TARGET_SITES`: Define `NAME`, `LAT`, `LON`, `ELEVATION`, `AZIMUTH`, and `TZ`.
-* `TIME_STEP_SECONDS`: Coarse step size for the Macro phase (300s recommended).
-
-**Ephemeris Selection (NASA JPL):**
-* `de421.bsp` *(Default)*: Covers 1900 – 2053. Lightweight file optimized for modern era testing.
-* `de422.bsp`: Covers -3000 – 3000. Balanced precision kernel ideal for Classical antiquity research.
-* `de431.bsp`: Covers -13200 – 17000. Extended history baseline for Paleolithic alignments.
-* `de441.bsp` *(Production Default)*: High-precision long-term ephemeris covering **-13,200 BCE to +17,191 CE**. Highly recommended for avoiding multi-body orbital drift during deep history and Zep Tepi simulations.
-
-### 🛠️ Default Settings Rationale
-* **Azimuth 90.0°:** The geodetic anchor for the Sphinx's True East orientation.
-* **RED_STAR_ALT (7.5°):** The critical altitude where Rayleigh scattering increases significantly. While Regulus is naturally blue-white, observation at this low angle—especially in the presence of aerosols, desert dust, or high humidity—intensifies light scattering, shifting the hue to a deep reddish-orange or "blood-red."
-* **Sun Altitude -6.5°:** Custom threshold for the pre-dawn window; ensures the alignment occurs in the deeper pre-dawn phase before civil twilight.
-* **Sun Altitude -2.72° (Washout Limit):** Empirical threshold where sky background luminance ($B_{sky}$) overrides stellar flux ($F_{star}$).
+4. **Execute:** Run the chosen engine:
+   ```bash
+   python RegulusMillenium.py
+   # OR
+   python RegulusOSV1.py
