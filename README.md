@@ -39,7 +39,7 @@ This tool provides a rigorous computational framework for archaeoastronomy. Buil
 ### ⚙️ The Engines & Computational Architecture
 This repository contains three distinct scanning scripts, each designed for a specific analytical approach.
 
-#### 1. `RegulusOSV1.py` (The Classic State-Machine Engine)
+#### 1. `RegulusV1.py` (The Classic State-Machine Engine)
 The original, strictly filtered engine.
 * **Methodology:** Brute-force step-by-step chronological tracking.
 * **Features:** It strictly enforces optical and atmospheric conditions *during* the scan. For example, it actively filters for the "Red Star Window" (Regulus altitude strictly between 4.0° and 7.5°).
