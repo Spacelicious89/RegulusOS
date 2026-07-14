@@ -45,14 +45,9 @@ GLOSSARY
 # 👇 ================================================================ 👇
 TARGET_YEARS = list(range(-10000, -7500))
 
-# 300s jest O WIELE szybsze niż 1800s, ponieważ redukuje 6-krotnie 
-# rozmiar najbardziej obciążającego skanowania "sekunda-po-sekundzie".
 TIME_STEP_SECONDS = 300 
 
-# 🔴 GŁÓWNY PRZEŁĄCZNIK ATMOSFERY 🔴
-# Ustaw na False dla BŁYSKAWICZNEGO skanowania (czysta geometria orbit).
-# Ustaw na True dla ultra-realistycznego wizualnego wschodu z Gizy (Mocno obciąża procesor).
-USE_REFRACTION = False
+USE_REFRACTION = False # True if u want scan with refraction
 
 NELM_SUN_ALT = -2.72  # sun altitude for naked-eye limiting magnitude (NELM) threshold
 MONUMENT_ALIGNMENT_AZ = 90.0  # target azimuth for the monument's alignment
