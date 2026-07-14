@@ -43,11 +43,11 @@ GLOSSARY
 # =====================================================================
 #                   GLOBAL USER INPUT ZONE & CONFIGURATION
 # 👇 ================================================================ 👇
-TARGET_YEARS = list(range(-10000, -7500))
+TARGET_YEARS = list(range(1, 2001))
 
 TIME_STEP_SECONDS = 300 
 
-USE_REFRACTION = False # True if u want scan with refraction
+USE_REFRACTION = True # turn True or False on/off
 
 NELM_SUN_ALT = -2.72  # sun altitude for naked-eye limiting magnitude (NELM) threshold
 MONUMENT_ALIGNMENT_AZ = 90.0  # target azimuth for the monument's alignment
@@ -86,7 +86,7 @@ if isinstance(TARGET_YEARS, int):
 # EPHEMERIS & TARGET SETUP
 # 👇 ================================================================ 👇
 ts = load.timescale()
-eph = load("de441.bsp")  # 👆 here you may choose a different ephemeris file 
+eph = load("de441.bsp")  # 👈 here you may choose a different ephemeris file 
 earth, sun = eph["earth"], eph["sun"]
 
 planets = {name: eph[target] for name, target in TARGET_PLANETS.items()}
@@ -132,7 +132,6 @@ def scan_single_year(TARGET_YEAR):
     year_candidates = []
     output_buffer = []
 
-    # Dynamiczny pakiet refrakcji – wstrzykuje parametry tylko, gdy włączone
     ref_kwargs = {"temperature_C": ATM_TEMPERATURE, "pressure_mbar": ATM_PRESSURE} if USE_REFRACTION else {}
 
     for month in range(1, 13):
@@ -195,13 +194,28 @@ def scan_single_year(TARGET_YEAR):
 
                 mars_az_val = body_data_at_lock['mars'][1] if 'mars' in body_data_at_lock else 0
 
+                from skyfield.searchlib import find_discrete
+                t_fade_end = ts.tt_jd(t_lock.tt + (2.0 / 24.0))
+                
+                def sun_alt_crossing(t_array):
+                    alt = site.at(t_array).observe(sun).apparent().altaz(**ref_kwargs)[0].degrees
+                    return alt - (-2.72)
+                
+                sun_alt_crossing.step_days = 0.005
+                
+                t_fade_array, _ = find_discrete(t_lock, t_fade_end, sun_alt_crossing)
+                
+                calculated_delta = 0.0
+                if len(t_fade_array) > 0:
+                    calculated_delta = (t_fade_array[0].tt - t_lock.tt) * 86400.0 
+                
                 candidate_data = {
                     "date": date_str,   
                     "time": time_str,
                     "sun_alt": sun_alt,
                     "reg_alt": reg_alt,
                     "is_visible": True,
-                    "delta": 0.0,
+                    "delta": calculated_delta,
                     "moon_alt": body_data_at_lock['moon'][0] if 'moon' in body_data_at_lock else 0,
                     "moon_illum": moon_illum,
                     "venus_az": body_data_at_lock['venus'][1] if 'venus' in body_data_at_lock else 0,
@@ -238,7 +252,7 @@ def scan_single_year(TARGET_YEAR):
 # SYSTEM MAIN BLOCK & ENGINE STARTUP
 # =====================================================================
 if __name__ == "__main__":
-    AVAILABLE_CORES = 6  # 🔴 TWÓJ LIMIT RDZENI (Możesz pracować na kompie w tle)
+    AVAILABLE_CORES = 6  # 🔴 Cores limit change if needed
     
     print("=====================================================================")
     print("         [PROJECT REGULUS] - Celestial Alignment Scan Engine")
