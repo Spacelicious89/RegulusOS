@@ -43,7 +43,7 @@ GLOSSARY
 # =====================================================================
 #                   GLOBAL USER INPUT ZONE & CONFIGURATION
 # 👇 ================================================================ 👇
-TARGET_YEARS = list(range(1, 2001))
+TARGET_YEARS = list(range(-11000, 10000))
 
 TIME_STEP_SECONDS = 300 
 
