@@ -34,9 +34,10 @@ This repository is divided into three logical pipelines. Each directory contains
 
 #### 1. 📁 `Zep_Tepi` (Mythbusters Pipeline)
 Designed to computationally verify or debunk the "First Time" (Zep Tepi) alignments proposed by authors like Graham Hancock and Robert Bauval for the ~10,500 BCE epoch.
-* `ZepTepi_Orion_Nadir_Test.py` - Calculates the absolute minimum altitude (nadir) of Orion's Belt (Alnilam) across a 3,000-year sweep (-13,000 to -10,000 BCE) to verify if the 9.33° architectural target was ever mathematically achieved.
-* `ZepTepi_Regulus_TrueEast_Test.py` - Analyzes the second pillar of the theory. Using an optimized two-step processing sequence, it scans a hyper-focused 500-year window (-10,500 to -10,000 BCE) to determine if Regulus ever achieved a perfect 0.0° altitude while crossing the 90.0° (True East) azimuth in front of the Sphinx.
-* `ZepTepi_Regulus_TrueEast_FullLogs.zip` - Compressed raw data logs from the 500-year deep scan.
+* `ZepTepi_Orion_Nadir_Test.py` - Calculates the absolute minimum altitude (nadir) of Orion's Belt (Alnilam) across a 6,000-year sweep to verify if the 9.33° architectural target was ever mathematically achieved.
+* `ZepTepi_Orion_Nadir_Results.csv` - The raw data export from the 6,000-year nadir scan, mathematically proving Orion's highest peak missed the 9.33° target.
+* `ZepTepi_Regulus_TrueEast_Test.py` - Analyzes the second pillar of the theory. Using an optimized two-step processing sequence, it scans a hyper-focused 1,000-year window (-11,000 to -10,000 BCE) to determine if Regulus ever achieved a perfect 0.0° altitude while crossing the 90.0° (True East) azimuth in front of the Sphinx.
+* `ZepTepi_Regulus_TrueEast_FullLogs.zip` - Compressed archive containing the raw data log (`ZepTepi_Regulus_DeepScan_Results.csv`) from the 1,000-year deep scan.
 
 #### 2. 📁 `Pillar_Of_Light_2026` (Modern Resonance Detection)
 Built to analyze complex, multi-planetary gravitational alignments interacting with the Sphinx's 90.0° axis in the modern era.
@@ -63,7 +64,7 @@ Proponents of the "First Time" theory (e.g., Robert Bauval, Graham Hancock) clai
 
 The `Zep_Tepi` Mythbuster pipeline mathematically dismantles this claim using NASA DE441 ephemerides:
 1. **The Orion Failure:** The absolute nadir of Orion's Belt during this epoch missed the required 9.33° mark by over a full degree. In archaeoastronomy, a 1° error equates to two full Moon diameters—a catastrophic failure for any "perfect" architectural alignment.
-2. **The Regulus Failure:** High-precision scans of the 500-year window (-10,500 to -10,000 BCE) prove that Regulus did not achieve a perfect 0.0° horizon altitude while crossing the 90.0° True East azimuth.
+2. **The Regulus Failure:** High-precision scans of the 1,000-year window (-11,000 to -10,000 BCE) prove that Regulus did not achieve a perfect 0.0° horizon altitude while crossing the 90.0° True East azimuth.
     
 **Conclusion:** The 10,500 BCE alignment is a mathematical fiction. The geometric perfection required by the theory never occurred, proving the alignment is a product of reverse-engineered theory rather than historical reality.
 
