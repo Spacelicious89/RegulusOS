@@ -75,7 +75,7 @@ for year in range(-13000, -6999, 10): # changed for 10-year increments for perfo
         # Live console tracking
         print(f"Year {year} | Orion Peak Alt: {alnilam_max_alt:.2f}° | Regulus Azimuth: {reg_az_val:.2f}°")
 
-csv_file = "Zep_Tepi_Mythbuster_Results.csv"
+csv_file = "Zep_Tepi_Orion_Nadir_Results.csv"
 with open(csv_file, mode='w', newline='', encoding='utf-8') as f:
     writer = csv.DictWriter(f, fieldnames=['Year', 'Equinox_Dawn_UTC', 'Orion_Max_Alt', 'Regulus_Az_at_Dawn', 'Regulus_Deviation_from_East'])
     writer.writeheader()
