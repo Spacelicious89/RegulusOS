@@ -54,7 +54,7 @@ Built to analyze complex, multi-planetary gravitational alignments interacting w
 
 #### 3. 📁 `The_Lion_Prophecy_Visuals`
 Dedicated to the visual and atmospheric verification of the September 2026 alignment.
-* `Regulus_Visual_Prophecy_September_Lock.py` - A high-speed, lightweight scanner simulating Rayleigh scattering and atmospheric visibility during the September sunrise window.
+* `Regulus_Visual_Prophecy_September_Lock.py` - A scanner simulating Rayleigh scattering and atmospheric visibility during the September sunrise window.
 * `Regulus_RedStar_September_Visuals_20260714_001744.csv` - Raw log output verifying the timing of the Red Star phase vs. Geodetic lock.
 
 ---
