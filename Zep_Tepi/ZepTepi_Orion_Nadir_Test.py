@@ -95,5 +95,10 @@ print(f"1. ASTRONOMICAL NADIR: The absolute lowest point of Orion's Belt occurre
 print(f"2. MEASUREMENT: At this Nadir, Orion's Belt peaked at an altitude of {absolute_nadir}°.")
 print(f"3. BAUVAL'S THEORY: Theory demands 9.33°. The mathematical reality misses this by {abs(absolute_nadir - 9.33):.2f}°.")
 
-if abs(absolute_nadir - 9.33) > 0.5:
-    print("VERDICT: The 10,500 BCE 'perfect alignment' is mathematically impossible. The sky never reached 9.33°.")
+TOLERANCE = 0.5
+deviation = abs(absolute_nadir - 9.33)
+
+if deviation <= TOLERANCE:
+    print(f"VERDICT: Alignment found within tolerance! (Deviation: {deviation:.4f}°).")
+else:
+    print(f"VERDICT: No alignment found. Deviation ({deviation:.4f}°) exceeds acceptable tolerance of {TOLERANCE}°.")
