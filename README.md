@@ -90,7 +90,7 @@ To prove these alignments aren't random occurrences, the engine mapped a multi-y
 | :--- | :--- | :--- | :--- |
 | **Oct 2024** | Mechanical Echo | ~ 4,723s *(> 1h 18m)* | ❌ Complete failure of alignment |
 | **Nov 2026** | **Primary Lock** | **< 23 seconds** | ✅ **Near-perfect geodetic lock** |
-| **Oct 2030** | Orbital Decay | ~ -769s *(~ 13m)* | ❌ Machinery shifting out of tune |
+| **Oct 2030** | Orbital Decay | ~ -769s *(~ 13m)* | ❌ shifting out of tune |
 
 The precise 23-second multi-planetary vertical lock is mathematically exclusive to the specific coordinates and the 90.0° orientation of the Giza Plateau.
 
