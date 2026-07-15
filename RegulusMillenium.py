@@ -1,14 +1,12 @@
 import datetime
 import csv
 import multiprocessing
-from concurrent.futures import ProcessPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from zoneinfo import ZoneInfo
 from skyfield.api import load, Star, wgs84
 from skyfield import almanac
-import numpy as np
-import calendar
-import time
-import os
+
+
 
 """
 =====================================================================
@@ -43,11 +41,17 @@ GLOSSARY
 # =====================================================================
 #                   GLOBAL USER INPUT ZONE & CONFIGURATION
 # 👇 ================================================================ 👇
-TARGET_YEARS = list(range(-11000, 10000))
-
-TIME_STEP_SECONDS = 300 
-
-USE_REFRACTION = True # turn True or False on/off
+# TARGET_YEARS = range(2020, 2033) #ephemeris setting below look for "👇"
+# NOTE: Ensure your ephemeris kernel covers these years, otherwise 
+# Skyfield will throw a 'TimeNotFoundError'.
+# NASA JPL Kernels coverage:
+#   - de421.bsp: 1900 - 2053 (Modern era)
+#   - de422.bsp: -3000 - 3000 (Classical antiquity)
+#   - de431.bsp: -13200 - 17000 (Deep history/Paleolithic)
+#   - de441.bsp: -13200 - 17191 (Production standard but 3GB in size)
+TARGET_YEARS = list(range(-10500, -10000))
+TIME_STEP_SECONDS = 300 # we use 2 steps: 300 seconds (default) for the main scan, 
+# and 1 second for the mini-scan around the alignment window.
 
 NELM_SUN_ALT = -2.72  # sun altitude for naked-eye limiting magnitude (NELM) threshold
 MONUMENT_ALIGNMENT_AZ = 90.0  # target azimuth for the monument's alignment
@@ -64,7 +68,7 @@ SITE_TZ = "Africa/Cairo"  # timezone of the site, used for local time conversion
 
 ATM_TEMPERATURE = 18.0  # temperature in Celsius for atmospheric refraction calculations
 ATM_PRESSURE = 1013.5  # pressure in hPa for atmospheric refraction calculations
-
+USE_REFRACTION = True
 TARGET_PLANETS = {  # here you can specify the target planets for the scan, using their Skyfield ephemeris names
     "mars": "mars barycenter",
     "venus": "venus",
@@ -77,16 +81,47 @@ TARGET_PLANETS = {  # here you can specify the target planets for the scan, usin
     "pluto": "pluto barycenter",
 }
 
+TARGET_SCANS = {  # here you can specify the months and days to scan for each month, along with the start hour and scan duration in hours. This allows for precise control over the scanning windows.
+    1: {"days": range(1, 32), "start_h": 0, "scan_h": 24},
+    2: {"days": range(1, 29), "start_h": 0, "scan_h": 24},
+    3: {"days": range(1, 32), "start_h": 0, "scan_h": 24},
+    4: {"days": range(1, 31), "start_h": 0, "scan_h": 24},
+    5: {"days": range(1, 32), "start_h": 0, "scan_h": 24},
+    6: {"days": range(1, 31), "start_h": 0, "scan_h": 24},
+    7: {"days": range(1, 32), "start_h": 0, "scan_h": 24},
+    8: {"days": range(1, 32), "start_h": 0, "scan_h": 24},
+    9: {"days": range(1, 31), "start_h": 0, "scan_h": 24},
+    10: {"days": range(1, 32), "start_h": 0, "scan_h": 24},
+    11: {"days": range(1, 31), "start_h": 0, "scan_h": 24},
+    12: {"days": range(1, 32), "start_h": 0, "scan_h": 24},
+}
+
 # 👆 ================================================================ 👆
 
 if isinstance(TARGET_YEARS, int):
     TARGET_YEARS = [TARGET_YEARS]
 
+
+# =====================================================================
+# UTILITY FUNCTIONS
+# =====================================================================
+def safe_date(t_obj):
+    y, mo, d, h, m, s = t_obj.tt_calendar()
+    return f"{int(y):04d}-{int(mo):02d}-{int(d):02d}"
+
+
+def safe_time(t_obj):
+    y, mo, d, h, m, s = t_obj.tt_calendar()
+    return f"{int(h):02d}:{int(m):02d}:{int(s):02d}"
+
+
 # =====================================================================
 # EPHEMERIS & TARGET SETUP
 # 👇 ================================================================ 👇
 ts = load.timescale()
-eph = load("de441.bsp")  # 👈 here you may choose a different ephemeris file 
+eph = load(
+    "de441.bsp"
+)  # 👆 here you may choose a different ephemeris file 
 earth, sun = eph["earth"], eph["sun"]
 
 planets = {name: eph[target] for name, target in TARGET_PLANETS.items()}
@@ -121,28 +156,32 @@ vega = Star(
     dec_mas_per_year=286.23,
 )
 
-start_epoch_jd = ts.utc(2012, 12, 21).tt
-
 
 # =====================================================================
 # CORE ENGINE - MULTIPROCESSING WRAPPER
 # =====================================================================
 def scan_single_year(TARGET_YEAR):
+    import numpy as np
 
     year_candidates = []
     output_buffer = []
-
     ref_kwargs = {"temperature_C": ATM_TEMPERATURE, "pressure_mbar": ATM_PRESSURE} if USE_REFRACTION else {}
+    
+    def log(msg):
+        output_buffer.append(msg)
 
-    for month in range(1, 13):
-        
-        _, last_day = calendar.monthrange(TARGET_YEAR, month)
-        
-        start_t = ts.tt(TARGET_YEAR, month, 1, 0, 0, 0)
-        end_t = ts.tt(TARGET_YEAR, month, last_day, 23, 59, 59)
-        
-        num_steps = int((end_t.tt - start_t.tt) * 86400 / TIME_STEP_SECONDS)
-        jd_matrix = start_t.tt + (np.arange(num_steps) * (TIME_STEP_SECONDS / 86400.0))
+    for month, config in sorted(TARGET_SCANS.items()):
+        log("=" * 75)
+        log(f"                 SCAN MODULE - MONTH: {month:02d} / {TARGET_YEAR}")
+        log("=" * 75)
+
+        scan_seconds = config["scan_h"] * 3600
+        step_days = TIME_STEP_SECONDS / 86400.0
+        base_t = ts.tt(TARGET_YEAR, month, config["days"][0], config["start_h"], 0, 0)
+        base_jd = base_t.tt
+        num_steps = (scan_seconds // TIME_STEP_SECONDS) * len(config["days"])
+
+        jd_matrix = base_jd + (np.arange(num_steps) * step_days)
         t_arr = ts.tt_jd(jd_matrix)
 
         reg_pos = (
@@ -152,17 +191,17 @@ def scan_single_year(TARGET_YEAR):
             .altaz(**ref_kwargs)
         )
         reg_azs = np.atleast_1d(reg_pos[1].degrees)
-        
+
         crossings = np.where(np.diff(np.sign(reg_azs - MONUMENT_ALIGNMENT_AZ)) > 0)[0]
 
         for idx in crossings:
             rough_t = t_arr[idx]
-            rough_sun_alt = site.at(rough_t).observe(sun).apparent().altaz(**ref_kwargs)[0].degrees
+            rough_sun_alt = np.atleast_1d(site.at(rough_t).observe(sun).apparent().altaz(**ref_kwargs)[0].degrees)[0]
             if rough_sun_alt > 0.0:
                 continue
 
             jd_start = t_arr[idx].tt
-            sec_steps = np.arange(0, int(TIME_STEP_SECONDS) + 2) / 86400.0
+            sec_steps = np.arange(0, TIME_STEP_SECONDS + 1) / 86400.0
             mini_jd = jd_start + sec_steps
             mini_t = ts.tt_jd(mini_jd)
             
@@ -187,11 +226,7 @@ def scan_single_year(TARGET_YEAR):
                     t_lock_arr = ts.tt(jd=[t_lock.tt, t_lock.tt + 0.00001])
                     moon_illum = float(almanac.fraction_illuminated(eph, 'moon', t_lock_arr)[0]) * 100.0
                 except: pass
-
-                y, mo, d, h, m, s = t_lock.utc
-                date_str = f"{int(y):04d}-{int(mo):02d}-{int(d):02d}"
-                time_str = f"{int(h):02d}:{int(m):02d}:{int(s):02d}"
-
+                
                 mars_az_val = body_data_at_lock['mars'][1] if 'mars' in body_data_at_lock else 0
 
                 from skyfield.searchlib import find_discrete
@@ -199,7 +234,7 @@ def scan_single_year(TARGET_YEAR):
                 
                 def sun_alt_crossing(t_array):
                     alt = site.at(t_array).observe(sun).apparent().altaz(**ref_kwargs)[0].degrees
-                    return alt - (-2.72)
+                    return alt > -2.72
                 
                 sun_alt_crossing.step_days = 0.005
                 
@@ -210,17 +245,18 @@ def scan_single_year(TARGET_YEAR):
                     calculated_delta = (t_fade_array[0].tt - t_lock.tt) * 86400.0 
                 
                 candidate_data = {
-                    "date": date_str,   
-                    "time": time_str,
+                    "date": safe_date(t_lock),
                     "sun_alt": sun_alt,
                     "reg_alt": reg_alt,
                     "is_visible": True,
                     "delta": calculated_delta,
                     "moon_alt": body_data_at_lock['moon'][0] if 'moon' in body_data_at_lock else 0,
                     "moon_illum": moon_illum,
+                    "alnilam_az": float(np.atleast_1d(site.at(t_lock).observe(alnilam).apparent().altaz(**ref_kwargs)[1].degrees)[0]),
+                    "alnilam_alt": float(np.atleast_1d(site.at(t_lock).observe(alnilam).apparent().altaz(**ref_kwargs)[0].degrees)[0]),
                     "venus_az": body_data_at_lock['venus'][1] if 'venus' in body_data_at_lock else 0,
                     "venus_alt": body_data_at_lock['venus'][0] if 'venus' in body_data_at_lock else 0,
-                    "mars_az": mars_az_val,
+                    "mars_az": body_data_at_lock['mars'][1] if 'mars' in body_data_at_lock else 0,
                     "mars_alt": body_data_at_lock['mars'][0] if 'mars' in body_data_at_lock else 0,
                     "jupiter_az": body_data_at_lock['jupiter'][1] if 'jupiter' in body_data_at_lock else 0,
                     "jupiter_alt": body_data_at_lock['jupiter'][0] if 'jupiter' in body_data_at_lock else 0,
@@ -238,12 +274,10 @@ def scan_single_year(TARGET_YEAR):
                     "sirius_alt": float(np.atleast_1d(site.at(t_lock).observe(sirius).apparent().altaz(**ref_kwargs)[0].degrees)[0]),
                     "vega_az": float(np.atleast_1d(site.at(t_lock).observe(vega).apparent().altaz(**ref_kwargs)[1].degrees)[0]),
                     "vega_alt": float(np.atleast_1d(site.at(t_lock).observe(vega).apparent().altaz(**ref_kwargs)[0].degrees)[0]),
-                    "mars_delta_sec": float((mars_az_val - MONUMENT_ALIGNMENT_AZ) * 240) if mars_az_val != 0 else 0.0
+                    "mars_delta_sec": float(np.atleast_1d((site.at(t_lock).observe(planets['mars']).apparent().altaz(**ref_kwargs)[1].degrees - MONUMENT_ALIGNMENT_AZ) * 240)[0])
                 }
                 year_candidates.append(candidate_data)
-        
-                log_msg = f"🏹 FOUND ALIGNMENT: {date_str} {time_str} UTC | Regulus Az: {reg_azs[idx]:.4f}°"
-                output_buffer.append(log_msg)
+                log(f"🏹 FOUND ALIGNMENT: {safe_date(t_lock)} {safe_time(t_lock)} TT | Regulus Az: {reg_azs[idx]:.4f}° | Fade Delta: {calculated_delta:.1f}s")
 
     return year_candidates, "\n".join(output_buffer)
 
@@ -252,16 +286,17 @@ def scan_single_year(TARGET_YEAR):
 # SYSTEM MAIN BLOCK & ENGINE STARTUP
 # =====================================================================
 if __name__ == "__main__":
-    AVAILABLE_CORES = 6  # 🔴 Cores limit change if needed
-    
     print("=====================================================================")
     print("         [PROJECT REGULUS] - Celestial Alignment Scan Engine")
     print("=====================================================================")
-    print(f"TARGET YEARS SET TO: {TARGET_YEARS[0]} to {TARGET_YEARS[-1]}")
-    print(f"CORES ENGAGED      : {AVAILABLE_CORES}")
+    print(f"TARGET YEARS SET TO: {TARGET_YEARS}")
+    print(
+        f"CORES ENGAGED      : {min(6, multiprocessing.cpu_count())} (Limited to preserve system responsiveness)"
+    )
     print(f"SITE LOCATION      : {SITE_NAME}")
+    print(f"SCANS ACTIVE       : Months {sorted(list(TARGET_SCANS.keys()))}")
     print(f"TIME STEP          : {TIME_STEP_SECONDS} seconds")
-    print(f"REFRACTION         : {'ENABLED (High Precision, Slow)' if USE_REFRACTION else 'DISABLED (Geometric, Ultra-Fast)'}")
+    print(f"ATMOSPHERE SET TO  : {ATM_TEMPERATURE}°C, {ATM_PRESSURE} hPa")
     print("\nKey Parameters:")
     print(f"• Alignment      : Azimuth = {MONUMENT_ALIGNMENT_AZ}°")
     print(f"• Dawn Limit : Sun ~ {IDEAL_SUN_ALT}°")
@@ -278,8 +313,9 @@ if __name__ == "__main__":
         "Visibility_Delta_Sec", "Moon_Alt", "Moon_Illum_%", "Venus_Az", "Venus_Alt",
         "Mars_Az", "Mars_Alt", "Jupiter_Az", "Jupiter_Alt", "Neptune_Az",
         "Neptune_Alt", "Saturn_Az", "Saturn_Alt", "Mercury_Az", "Mercury_Alt",
-        "Uranus_Az", "Uranus_Alt", "Pluto_Az", "Pluto_Alt", "Sirius_Az",
-        "Sirius_Alt", "Vega_Az", "Vega_Alt", "Mars_Delta_Sec"
+        "Uranus_Az", "Uranus_Alt", "Pluto_Az", "Pluto_Alt", 
+        "Alnilam_Az", "Alnilam_Alt",
+        "Sirius_Az", "Sirius_Alt", "Vega_Az", "Vega_Alt", "Mars_Delta_Sec"
     ]
 
     with open(csv_filename, mode="w", newline="", encoding="utf-8") as file:
@@ -293,9 +329,8 @@ if __name__ == "__main__":
 
     total_years = len(TARGET_YEARS)
     completed_years = 0
-    start_time = time.time()
 
-    with ProcessPoolExecutor(max_workers=AVAILABLE_CORES) as executor:
+    with ThreadPoolExecutor(max_workers=6) as executor:
         futures = {executor.submit(scan_single_year, y): y for y in TARGET_YEARS}
 
         for future in as_completed(futures):
@@ -310,18 +345,37 @@ if __name__ == "__main__":
                     writer = csv.writer(file)
                     for c in candidates:
                         row = [
-                            c["date"], fmt(c["sun_alt"]), fmt(abs(c["sun_alt"] - IDEAL_SUN_ALT)),
-                            fmt(c["reg_alt"]), c["is_visible"], fmt(c["delta"]) if c["delta"] is not None else "N/A",
-                            fmt(c["moon_alt"]), fmt(c["moon_illum"]), fmt(c.get("venus_az")),
-                            fmt(c.get("venus_alt")), fmt(c.get("mars_az")), fmt(c.get("mars_alt")),
-                            fmt(c.get("jupiter_az")), fmt(c.get("jupiter_alt")), fmt(c.get("neptune_az")),
-                            fmt(c.get("neptune_alt")), fmt(c.get("saturn_az")) or "N/A",
-                            fmt(c.get("saturn_alt")) or "N/A", fmt(c.get("mercury_az")) or "N/A",
-                            fmt(c.get("mercury_alt")) or "N/A", fmt(c.get("uranus_az")) or "N/A",
-                            fmt(c.get("uranus_alt")) or "N/A", fmt(c.get("pluto_az")) or "N/A",
-                            fmt(c.get("pluto_alt")) or "N/A", fmt(c.get("sirius_az")) or "N/A",
-                            fmt(c.get("sirius_alt")) or "N/A", fmt(c.get("vega_az")) or "N/A",
-                            fmt(c.get("vega_alt")) or "N/A", fmt(c["mars_delta_sec"]),
+                            c["date"],
+                            fmt(c["sun_alt"]),
+                            fmt(abs(c["sun_alt"] - IDEAL_SUN_ALT)),
+                            fmt(c["reg_alt"]),
+                            c["is_visible"],
+                            fmt(c["delta"]) if c["delta"] is not None else "N/A",
+                            fmt(c["moon_alt"]),
+                            fmt(c["moon_illum"]),
+                            fmt(c.get("venus_az")),
+                            fmt(c.get("venus_alt")),
+                            fmt(c.get("mars_az")),
+                            fmt(c.get("mars_alt")),
+                            fmt(c.get("jupiter_az")),
+                            fmt(c.get("jupiter_alt")),
+                            fmt(c.get("neptune_az")),
+                            fmt(c.get("neptune_alt")),
+                            fmt(c.get("saturn_az")) or "N/A",
+                            fmt(c.get("saturn_alt")) or "N/A",
+                            fmt(c.get("mercury_az")) or "N/A",
+                            fmt(c.get("mercury_alt")) or "N/A",
+                            fmt(c.get("uranus_az")) or "N/A",
+                            fmt(c.get("uranus_alt")) or "N/A",
+                            fmt(c.get("pluto_az")) or "N/A",
+                            fmt(c.get("pluto_alt")) or "N/A",
+                            fmt(c.get("alnilam_az")) or "N/A",
+                            fmt(c.get("alnilam_alt")) or "N/A",
+                            fmt(c.get("sirius_az")) or "N/A",
+                            fmt(c.get("sirius_alt")) or "N/A",
+                            fmt(c.get("vega_az")) or "N/A",
+                            fmt(c.get("vega_alt")) or "N/A",
+                            fmt(c["mars_delta_sec"]),
                         ]
                         writer.writerow(row)
 
@@ -330,36 +384,23 @@ if __name__ == "__main__":
                 completed_years += 1
                 percent_done = (completed_years / total_years) * 100
 
-                elapsed_time = time.time() - start_time
-                avg_time_per_year = elapsed_time / completed_years
-                years_left = total_years - completed_years
-                eta_seconds = int(avg_time_per_year * years_left)
-                eta_str = str(datetime.timedelta(seconds=eta_seconds))
-
                 bar_length = 30
                 filled_length = int(bar_length * completed_years // total_years)
                 bar = "█" * filled_length + "░" * (bar_length - filled_length)
 
                 print(
-                    f"[{bar}] {percent_done:5.1f}% | ⏳ ETA: {eta_str} | ✅ Year {current_scanned_year} appended to CSV! ({completed_years}/{total_years})"
+                    f"[{bar}] {percent_done:5.1f}% | ✅ Year {current_scanned_year} appended to CSV! ({completed_years}/{total_years})"
                 )
 
             except Exception as e:
                 completed_years += 1
                 percent_done = (completed_years / total_years) * 100
-                
-                elapsed_time = time.time() - start_time
-                avg_time_per_year = elapsed_time / completed_years
-                years_left = total_years - completed_years
-                eta_seconds = int(avg_time_per_year * years_left)
-                eta_str = str(datetime.timedelta(seconds=eta_seconds))
-
                 bar_length = 30
                 filled_length = int(bar_length * completed_years // total_years)
                 bar = "█" * filled_length + "░" * (bar_length - filled_length)
 
                 print(
-                    f"[{bar}] {percent_done:5.1f}% | ⏳ ETA: {eta_str} | ❌ Error processing year {current_scanned_year}: {e} ({completed_years}/{total_years})"
+                    f"[{bar}] {percent_done:5.1f}% | ❌ Error processing year {current_scanned_year}: {e} ({completed_years}/{total_years})"
                 )
 
     # =====================================================================
@@ -375,7 +416,7 @@ if __name__ == "__main__":
 
     for c in global_candidates:
         if c["is_visible"]:
-
+            # NOWY SYSTEM OCENIANIA: Szukamy momentu, gdy Regulus uderza w 90° na WYSOKOŚCI 0° (idealny wschód)
             score = -abs(c["reg_alt"])
             
             if score > best_score:
