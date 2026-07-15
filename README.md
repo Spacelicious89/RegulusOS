@@ -76,7 +76,7 @@ The data mathematically proves that late 2026 hosts an extraordinarily rare sync
 
 | Date | Phase | Astronomical Description |
 | :--- | :--- | :--- |
-| **Sept 24, 2026** | **Red dawn** | Validates the "Red Star just before dawn" condition at a perfect **-6.5°** sun altitude with an incredible **0.0100°** deviation. |
+| **Sept 24, 2026** | **Red dawn** | Validates the "Red Star.." Regulus 4° condition & a perfect **-6.5°** sun altitude with an incredible **0.0100°** deviation. ..just before dawn in the gaze of the sphinx" |
 | **Nov 4, 2026** | **The Pillar of Light** | The mechanical lock. A 5-body vertical pillar (Mars, Jupiter, Moon, Regulus) strikes exactly **90.0°** azimuth. Venus anchors the underworld at **-30.5°**. The Sun is completely off-axis, proving geometric purity. |
 
 ![Vertical Planetary Lock - November 2026](images/Syzygy_4_11_2026.png)
