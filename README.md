@@ -1,5 +1,5 @@
 # 🦁 Project Regulus
-**Advanced Archaeoastronomical Alignment, Planetary Syzygy & Deep-Time Chronology Engine**
+**Advanced Archaeoastronomical Alignment, Deep-Time Chronology Engine**
 
 ![Project Regulus - Sphinx 5-Body Alignment](images/sphinx_5body.png)
 
