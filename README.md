@@ -34,23 +34,26 @@ This repository is divided into three logical pipelines. Each directory contains
 
 #### 1. 📁 `Zep_Tepi` (Deep-Time Chronology Pipeline)
 Designed to computationally verify the "First Time" (Zep Tepi) alignments proposed by alternative history authors for the ~10,500 BCE epoch.
+* `ZepTepi_16k_Simulator.py` - **The Core Verification Engine.** Sweeps a massive 16,000-year timeline (-13,000 BCE to +3,000 CE) to find the *actual* historical dates when the Giza monuments synced with their proposed celestial targets.
+* `ZepTepi_-13.000_3000.csv` - The raw 80,000+ row dataset proving the theory stitches together alignments spanning thousands of years apart into a single fictional epoch.
 * `ZepTepi_Orion_Nadir_Test.py` - Calculates the absolute minimum altitude (nadir) of Orion's Belt (Alnilam) to verify if the 9.33° architectural target was ever achieved.
-* `ZepTepi_Regulus_TrueEast_Test.py` - Scans a hyper-focused 1,000-year window (-11,000 to -10,000 BCE) to determine if Regulus achieved a perfect 0.0° altitude crossing the 90.0° True East azimuth.
-* `ZepTepi_16k_Simulator.py` - **The Core Verification Engine.** Removes the 10,500 BCE constraint and sweeps a massive 16,000-year timeline (-13,000 BCE to +3,000 CE) to find the *actual* historical dates when the Giza monuments synced with their proposed celestial targets.
-* `ZepTepi_-13.000_3000.csv` - The raw 80,000+ row dataset proving the Zep Tepi theory stitches together alignments spanning thousands of years apart into a single fictional epoch.
+* `ZepTepi_Orion_Nadir_Results.csv` - The raw data export from the nadir scan.
+* `ZepTepi_Regulus_TrueEast_Test.py` - Scans a focused 1,000-year window to determine if Regulus achieved a perfect 0.0° altitude crossing the 90.0° True East azimuth.
+* `ZepTepi_Regulus_TrueEast_Results.csv` - The raw data export for the Regulus alignment.
 
 #### 2. 📁 `Pillar_Of_Light_2026` (Modern Resonance Detection)
 Built to analyze complex, multi-planetary gravitational alignments interacting with the Sphinx's 90.0° axis in the modern era.
 * **The Engines:**
-  * `Pillar_Epoch_Scanner_16k_Years.py` - A macro-sieve engine scanning 16,000 years of orbital mechanics (-13,000 BCE to +3,000 CE) at a coarse resolution, hunting for massive planetary clustering events around the True East axis. 
-  * `Pillar_Precision_Scoring_Engine.py` - The "Sniper" script. It takes anomalies detected by the macro-sieve and re-scans them at minute-level resolution, ranking the gravitational lock (Total Deviation Score) of 5 celestial bodies.
-  * `Pillar_Global_Monuments_Sync.py` - A multi-site control scanner running identical criteria against global megaliths (Angkor Wat, Stonehenge, Teotihuacan, Chichén Itzá) to mathematically prove geodetic exclusivity.
-* **Control Data (The Skeptic's Shield):**
-  * `Control_4th_Dynasty_2590_2500_BCE.csv` - Proves the "Pillar of Light" alignment did not exist during the construction of the Giza Pyramids.
-  * `Control_Modern_Era_1_to_2000_CE.csv` - Proves the alignment is not a routine occurrence in the Common Era.
+  * `Pillar_Epoch_Scanner_16k_Years.py` - A macro-sieve engine scanning 16,000 years of orbital mechanics at a coarse resolution, hunting for massive planetary clustering events around the True East axis. 
+  * `Pillar_Precision_Scoring_Engine.py` - The "Sniper" script. Re-scans anomalies at minute-level resolution, ranking the gravitational lock of celestial bodies.
+  * `Pillar_Global_Monuments_Sync.py` - A multi-site control scanner running identical criteria against global megaliths to mathematically prove geodetic exclusivity.
+* **Control Data:**
+  * `Control_4th_Dynasty_2590_2500_BCE.csv` - Proves the alignment did not exist during the construction of the Giza Pyramids.
+  * `Control_Modern_Era_1_to_2000_CE.csv` - Proves the alignment is not a routine occurrence.
   * `Control_Baseline_2020_2032.csv` - Proves 2026 is an extreme anomaly even within its own decade.
 * **2026 Anomaly Logs:**
-  * `Pillar_Precision_Giza_2026.csv` & `Pillar_Global_Monuments_Sync_2026.csv`
+  * `Pillar_Precision_Giza_2026.csv`
+  * `Pillar_Global_Monuments_Sync_2026.csv`
 
 #### 3. 📁 `The_Lion_Prophecy_Visuals`
 Dedicated to the visual and atmospheric verification of the September 2026 alignment.
