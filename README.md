@@ -32,12 +32,12 @@ The script enforces a strict architectural constraint for the target monument:
 
 This repository is divided into three logical pipelines. Each directory contains specialized Python engines and raw CSV logs for verification.
 
-#### 1. 📁 `Zep_Tepi` (Mythbusters Pipeline)
-Designed to computationally verify or debunk the "First Time" (Zep Tepi) alignments proposed by authors like Graham Hancock and Robert Bauval for the ~10,500 BCE epoch.
-* `ZepTepi_Orion_Nadir_Test.py` - Calculates the absolute minimum altitude (nadir) of Orion's Belt (Alnilam) across a 6,000-year sweep to verify if the 9.33° architectural target was ever mathematically achieved.
-* `ZepTepi_Orion_Nadir_Results.csv` - The raw data export from the 6,000-year nadir scan, mathematically proving Orion's highest peak missed the 9.33° target.
-* `ZepTepi_Regulus_TrueEast_Test.py` - Analyzes the second pillar of the theory. Using an optimized two-step processing sequence, it scans a hyper-focused 1,000-year window (-11,000 to -10,000 BCE) to determine if Regulus ever achieved a perfect 0.0° altitude while crossing the 90.0° (True East) azimuth in front of the Sphinx.
-* `ZepTepi_Regulus_TrueEast_Results.csv` - The raw data export containing the 1,000-year deep scan logging planetary and stellar alignments (including Orion's Belt) during the Regulus rising phase.
+#### 1. 📁 `Zep_Tepi` (Deep-Time Chronology Pipeline)
+Designed to computationally verify the "First Time" (Zep Tepi) alignments proposed by alternative history authors for the ~10,500 BCE epoch.
+* `ZepTepi_Orion_Nadir_Test.py` - Calculates the absolute minimum altitude (nadir) of Orion's Belt (Alnilam) to verify if the 9.33° architectural target was ever achieved.
+* `ZepTepi_Regulus_TrueEast_Test.py` - Scans a hyper-focused 1,000-year window (-11,000 to -10,000 BCE) to determine if Regulus achieved a perfect 0.0° altitude crossing the 90.0° True East azimuth.
+* `ZepTepi_16k_Simulator.py` - **The Core Verification Engine.** Removes the 10,500 BCE constraint and sweeps a massive 16,000-year timeline (-13,000 BCE to +3,000 CE) to find the *actual* historical dates when the Giza monuments synced with their proposed celestial targets.
+* `ZepTepi_-13.000_3000.csv` - The raw 80,000+ row dataset proving the Zep Tepi theory stitches together alignments spanning thousands of years apart into a single fictional epoch.
 
 #### 2. 📁 `Pillar_Of_Light_2026` (Modern Resonance Detection)
 Built to analyze complex, multi-planetary gravitational alignments interacting with the Sphinx's 90.0° axis in the modern era.
@@ -59,14 +59,16 @@ Dedicated to the visual and atmospheric verification of the September 2026 align
 
 ---
 
-### 🛑 Key Findings 1: Debunking the "Zep Tepi" Myth (10,500 BCE)
-Proponents of the "First Time" theory (e.g., Robert Bauval, Graham Hancock) claim that around 10,500 BCE, a perfect celestial alignment occurred: Orion reached its absolute nadir (9.33°) while Leo (Regulus) rose exactly Due East (90.0°) in front of the Sphinx. 
+### 🛑 Key Findings 1: The "Zep Tepi" Illusion (10,500 BCE)
+Proponents of the "First Time" theory claim that around 10,500 BCE, a perfect celestial alignment occurred: Orion reached its absolute nadir (9.33°), Leo (Regulus) rose exactly Due East (90.0°), and the internal pyramid shafts locked onto specific stars. 
 
-The `Zep_Tepi` Mythbuster pipeline mathematically dismantles this claim using NASA DE441 ephemerides:
-1. **The Orion Failure:** The absolute nadir of Orion's Belt during this epoch missed the required 9.33° mark by over a full degree. In archaeoastronomy, a 1° error equates to two full Moon diameters—a catastrophic failure for any "perfect" architectural alignment.
-2. **The Regulus Failure:** High-precision scans of the 1,000-year window (-11,000 to -10,000 BCE) prove that Regulus did not achieve a perfect 0.0° horizon altitude while crossing the 90.0° True East azimuth.
+The `Zep_Tepi` pipeline mathematically dismantles this claim using NASA DE441 ephemerides. By running a massive 16,000-year sweep (`ZepTepi_16k_Simulator.py`), the engine isolated the exact years these alignments actually occurred:
+
+1. **The Sphinx (Leo):** Regulus hit the perfect 90.0° True East horizon lock in **9,137 BCE** (missing 10,500 BCE by over a millennium).
+2. **Orion's Belt:** The absolute minimum altitude (10.56°) was reached in **10,725 BCE** (and still missed the 9.33° architectural target).
+3. **The Pyramid Shafts:** The King's Chamber hit Alnitak in **2,492 BCE**, and the Queen's Chamber hit Sirius in **3,674 BCE**.
     
-**Conclusion:** The 10,500 BCE alignment is a mathematical fiction. The geometric perfection required by the theory never occurred, proving the alignment is a product of reverse-engineered theory rather than historical reality.
+**Conclusion:** The 10,500 BCE "snapshot" never existed. The raw data exposes that the alignment theory was built by cherry-picking dates that are thousands of years apart and pretending they happened on the same day.
 
 ---
 
